@@ -303,7 +303,7 @@ export const products: Product[] = [
     category: "Electronics",
     description: "Experience premium performance in an ultra-thin design. Featuring a stunning display, all-day battery life, and powerful processing for your professional needs.",
     features: [
-      "13.3" 4K display",
+      "13.3\" 4K display",
       "16GB RAM, 512GB SSD",
       "Intel Core i7 processor",
       "12-hour battery life",
@@ -324,7 +324,7 @@ export const products: Product[] = [
     description: "Create digital art with precision using our professional drawing tablet. Features pressure sensitivity, customizable express keys, and a large active area.",
     features: [
       "8192 levels of pressure sensitivity",
-      "Large 15.6" active area",
+      "Large 15.6\" active area",
       "Battery-free stylus",
       "8 customizable express keys",
       "Compatible with major design software"
