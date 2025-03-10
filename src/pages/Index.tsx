@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,7 @@ import {
 } from '@/data/products';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { Star } from 'lucide-react';
 
 const Index = () => {
   const featuredProducts = getFeaturedProducts();
@@ -222,3 +222,4 @@ const Index = () => {
 };
 
 export default Index;
+
