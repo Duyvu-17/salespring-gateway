@@ -3,50 +3,32 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Star, Truck, ShieldCheck, ArrowLeft } from 'lucide-react';
-
-// Mock product data
-const products = [
-  {
-    id: 1,
-    name: "Premium Headphones",
-    price: 299.99,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
-    description: "Experience immersive sound with our premium noise-cancelling headphones. Features include Bluetooth 5.0, 40-hour battery life, and premium comfort for extended listening sessions.",
-    rating: 4.5,
-    reviews: 128,
-    inStock: true
-  },
-  {
-    id: 2,
-    name: "Wireless Speaker",
-    price: 199.99,
-    image: "https://images.unsplash.com/photo-1543512214-318c7553f230?w=500&q=80",
-    description: "Fill your room with crystal clear sound using our wireless speaker. Featuring 360° audio, waterproof design, and 24-hour battery life for non-stop entertainment.",
-    rating: 4.2,
-    reviews: 95,
-    inStock: true
-  },
-  {
-    id: 3,
-    name: "Smart Watch",
-    price: 399.99,
-    image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&q=80",
-    description: "Stay connected and track your fitness with our advanced smartwatch. Features include heart rate monitoring, GPS tracking, water resistance, and a stunning OLED display.",
-    rating: 4.7,
-    reviews: 215,
-    inStock: false
-  }
-];
+import { 
+  Star, 
+  Truck, 
+  ShieldCheck, 
+  ArrowLeft, 
+  Check, 
+  RefreshCw,
+  Info 
+} from 'lucide-react';
+import { getProductById, getRelatedProducts } from '@/data/products';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   
   // Find the product
-  const product = products.find(p => p.id === Number(id));
+  const product = getProductById(Number(id));
+  const relatedProducts = product ? getRelatedProducts(product.id) : [];
   
   if (!product) {
     return (
@@ -72,6 +54,10 @@ const ProductDetail = () => {
     setQuantity(newQuantity);
   };
 
+  const discountedPrice = product.discount 
+    ? product.price * (1 - product.discount / 100)
+    : null;
+
   return (
     <div className="container mx-auto px-4 py-16">
       <Button 
@@ -85,7 +71,17 @@ const ProductDetail = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Product Image */}
-        <div className="overflow-hidden rounded-xl bg-muted/30 flex items-center justify-center p-8">
+        <div className="overflow-hidden rounded-xl bg-muted/30 flex items-center justify-center p-8 relative">
+          {product.discount && (
+            <Badge className="absolute top-4 left-4 bg-red-500">
+              {product.discount}% OFF
+            </Badge>
+          )}
+          {product.new && (
+            <Badge className="absolute top-4 right-4 bg-green-500">
+              NEW
+            </Badge>
+          )}
           <img 
             src={product.image} 
             alt={product.name} 
@@ -97,6 +93,7 @@ const ProductDetail = () => {
         <div className="space-y-8">
           <div>
             <h1 className="text-3xl font-bold">{product.name}</h1>
+            <p className="text-muted-foreground mt-1">{product.category}</p>
             <div className="flex items-center mt-2">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
@@ -118,25 +115,105 @@ const ProductDetail = () => {
             </div>
           </div>
           
-          <div className="text-2xl font-bold text-primary">
-            ${product.price.toFixed(2)}
+          <div className="space-y-1">
+            {discountedPrice ? (
+              <>
+                <div className="text-2xl font-bold text-primary">
+                  ${discountedPrice.toFixed(2)}
+                </div>
+                <div className="text-muted-foreground line-through">
+                  ${product.price.toFixed(2)}
+                </div>
+              </>
+            ) : (
+              <div className="text-2xl font-bold text-primary">
+                ${product.price.toFixed(2)}
+              </div>
+            )}
           </div>
+
+          <Tabs defaultValue="description" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="description">Description</TabsTrigger>
+              <TabsTrigger value="features">Features</TabsTrigger>
+              <TabsTrigger value="shipping">Shipping</TabsTrigger>
+            </TabsList>
+            <TabsContent value="description" className="py-4">
+              <p className="text-muted-foreground">{product.description}</p>
+            </TabsContent>
+            <TabsContent value="features" className="py-4">
+              <ul className="space-y-2">
+                {product.features?.map((feature, index) => (
+                  <li key={index} className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </TabsContent>
+            <TabsContent value="shipping" className="py-4">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <Truck className="h-5 w-5 text-muted-foreground" />
+                  <span>Free shipping on orders over $50</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <RefreshCw className="h-5 w-5 text-muted-foreground" />
+                  <span>30-day return policy</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <ShieldCheck className="h-5 w-5 text-muted-foreground" />
+                  <span>2-year warranty included</span>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
           
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Description</h3>
-            <p className="text-muted-foreground">{product.description}</p>
-          </div>
+          <Separator />
           
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <Truck className="h-5 w-5 text-muted-foreground" />
-              <span>Free shipping on orders over $50</span>
+          {product.colors && product.colors.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">Color</h3>
+              <div className="flex gap-2">
+                {product.colors.map(color => (
+                  <button
+                    key={color}
+                    type="button"
+                    className={`px-3 py-1 border rounded-md text-sm ${
+                      selectedColor === color
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => setSelectedColor(color)}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-              <span>2-year warranty included</span>
+          )}
+          
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">Size</h3>
+              <div className="flex gap-2">
+                {product.sizes.map(size => (
+                  <button
+                    key={size}
+                    type="button"
+                    className={`px-3 py-1 border rounded-md text-sm ${
+                      selectedSize === size
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => setSelectedSize(size)}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="space-y-4">
             <div className="flex items-center">
@@ -177,6 +254,40 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+      
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-8">You may also like</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {relatedProducts.map(relatedProduct => (
+              <Card 
+                key={relatedProduct.id} 
+                className="glass-card hover-scale overflow-hidden"
+                onClick={() => navigate(`/product/${relatedProduct.id}`)}
+              >
+                <div className="relative">
+                  <img
+                    src={relatedProduct.image}
+                    alt={relatedProduct.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  {relatedProduct.discount && (
+                    <Badge className="absolute top-2 left-2 bg-red-500">
+                      {relatedProduct.discount}% OFF
+                    </Badge>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-1">{relatedProduct.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">{relatedProduct.category}</p>
+                  <p className="text-lg font-medium text-primary">${relatedProduct.price.toFixed(2)}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
