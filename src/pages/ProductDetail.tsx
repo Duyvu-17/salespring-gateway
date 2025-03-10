@@ -10,24 +10,30 @@ import {
   ArrowLeft, 
   Check, 
   RefreshCw,
-  Info 
+  MessageSquare
 } from 'lucide-react';
-import { getProductById, getRelatedProducts } from '@/data/products';
+import { getProductById, getRelatedProducts, Product, UserReview, Reply } from '@/data/products';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ReviewSection from '@/components/products/ReviewSection';
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [product, setProduct] = useState<Product | undefined>(undefined);
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   
   // Find the product
-  const product = getProductById(Number(id));
+  useState(() => {
+    const foundProduct = getProductById(Number(id));
+    setProduct(foundProduct);
+  });
+  
   const relatedProducts = product ? getRelatedProducts(product.id) : [];
   
   if (!product) {
@@ -52,6 +58,49 @@ const ProductDetail = () => {
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) return;
     setQuantity(newQuantity);
+  };
+
+  const handleAddReview = (newReview: Omit<UserReview, 'id'>) => {
+    if (!product.userReviews) {
+      product.userReviews = [];
+    }
+    
+    const newReviewWithId = {
+      ...newReview,
+      id: product.userReviews.length + 1
+    };
+    
+    const updatedProduct = {
+      ...product,
+      userReviews: [...product.userReviews, newReviewWithId],
+      reviews: product.reviews + 1
+    };
+    
+    setProduct(updatedProduct);
+  };
+
+  const handleAddReply = (reviewId: number, newReply: Omit<Reply, 'id'>) => {
+    if (!product.userReviews) return;
+    
+    const updatedUserReviews = product.userReviews.map(review => {
+      if (review.id === reviewId) {
+        const replies = review.replies || [];
+        const newReplyWithId = {
+          ...newReply,
+          id: replies.length + 1
+        };
+        return {
+          ...review,
+          replies: [...replies, newReplyWithId]
+        };
+      }
+      return review;
+    });
+    
+    setProduct({
+      ...product,
+      userReviews: updatedUserReviews
+    });
   };
 
   const discountedPrice = product.discount 
@@ -133,10 +182,14 @@ const ProductDetail = () => {
           </div>
 
           <Tabs defaultValue="description" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="description">Description</TabsTrigger>
               <TabsTrigger value="features">Features</TabsTrigger>
               <TabsTrigger value="shipping">Shipping</TabsTrigger>
+              <TabsTrigger value="reviews" className="flex items-center">
+                <MessageSquare className="h-4 w-4 mr-1" />
+                Reviews ({product.userReviews?.length || 0})
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="py-4">
               <p className="text-muted-foreground">{product.description}</p>
@@ -166,6 +219,14 @@ const ProductDetail = () => {
                   <span>2-year warranty included</span>
                 </div>
               </div>
+            </TabsContent>
+            <TabsContent value="reviews" className="py-4">
+              <ReviewSection 
+                productId={product.id}
+                reviews={product.userReviews || []}
+                onAddReview={handleAddReview}
+                onAddReply={handleAddReply}
+              />
             </TabsContent>
           </Tabs>
           

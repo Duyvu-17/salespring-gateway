@@ -1,4 +1,3 @@
-
 export interface Product {
   id: number;
   name: string;
@@ -15,6 +14,28 @@ export interface Product {
   colors?: string[];
   sizes?: string[];
   relatedProducts?: number[];
+  userReviews?: UserReview[];
+}
+
+export interface UserReview {
+  id: number;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  rating: number;
+  comment: string;
+  date: string;
+  images?: string[];
+  replies?: Reply[];
+}
+
+export interface Reply {
+  id: number;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  comment: string;
+  date: string;
 }
 
 export const categories = [
@@ -336,6 +357,46 @@ export const products: Product[] = [
     relatedProducts: [14]
   }
 ];
+
+// Add some sample reviews to products
+products.forEach(product => {
+  if (!product.userReviews) {
+    product.userReviews = [
+      {
+        id: 1,
+        userId: "user1",
+        userName: "John Doe",
+        userAvatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&q=80",
+        rating: 4.5,
+        comment: "This product exceeded my expectations. The quality is excellent and it works perfectly for my needs.",
+        date: "2023-05-15",
+        images: [
+          "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80"
+        ],
+        replies: [
+          {
+            id: 1,
+            userId: "admin1",
+            userName: "Store Admin",
+            userAvatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&q=80",
+            comment: "Thank you for your positive feedback! We're glad you're enjoying the product.",
+            date: "2023-05-16"
+          }
+        ]
+      },
+      {
+        id: 2,
+        userId: "user2",
+        userName: "Jane Smith",
+        userAvatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80",
+        rating: 3.5,
+        comment: "Good product but shipping took longer than expected. Still satisfied with the purchase overall.",
+        date: "2023-06-20",
+        images: []
+      }
+    ];
+  }
+});
 
 export const getFeaturedProducts = () => {
   return products.filter(product => product.id <= 6);
