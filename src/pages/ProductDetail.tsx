@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -13,7 +13,8 @@ import {
   MessageSquare,
   Info,
   Package,
-  Heart
+  Heart,
+  MapPin
 } from 'lucide-react';
 import { getProductById, getRelatedProducts, Product, UserReview, Reply } from '@/data/products';
 import { Card } from '@/components/ui/card';
