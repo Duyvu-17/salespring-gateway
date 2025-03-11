@@ -6,9 +6,9 @@ import { Toaster } from '@/components/ui/toaster';
 
 export const MainLayout = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pt-4 pb-8">
         <Outlet />
       </main>
       <Footer />
