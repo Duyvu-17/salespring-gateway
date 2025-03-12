@@ -25,6 +25,7 @@ export const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -42,8 +43,32 @@ export const Header = () => {
     // Set cart count from local storage or initialize
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     setCartCount(cart.length);
+    
+    // Set wishlist count from local storage
+    const wishlist = JSON.parse(localStorage.getItem('likedProducts') || '[]');
+    setWishlistCount(wishlist.length);
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Update counts when storage changes
+    const handleStorageChange = () => {
+      const updatedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      setCartCount(updatedCart.length);
+      
+      const updatedWishlist = JSON.parse(localStorage.getItem('likedProducts') || '[]');
+      setWishlistCount(updatedWishlist.length);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Create a custom event listener for likedProducts changes
+    const likedProductsObserver = new MutationObserver(() => {
+      const updatedWishlist = JSON.parse(localStorage.getItem('likedProducts') || '[]');
+      setWishlistCount(updatedWishlist.length);
+    });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -127,9 +152,14 @@ export const Header = () => {
                 </Button>
               )}
               
-              <Link to="/wishlist">
+              <Link to="/wishlist" className="relative">
                 <Button variant="ghost" size="icon" className="hover:bg-primary/10">
                   <Heart className="h-5 w-5" />
+                  {wishlistCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center">
+                      {wishlistCount}
+                    </Badge>
+                  )}
                 </Button>
               </Link>
               
@@ -178,6 +208,17 @@ export const Header = () => {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t animate-fadeIn">
               <nav className="flex flex-col space-y-4">
+                <Link 
+                  to="/wishlist" 
+                  className="px-4 py-2 hover:bg-muted rounded-md flex items-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Heart className="h-4 w-4 mr-2" />
+                  Wishlist
+                  {wishlistCount > 0 && (
+                    <Badge className="ml-2">{wishlistCount}</Badge>
+                  )}
+                </Link>
                 <Link 
                   to="/shipping" 
                   className="px-4 py-2 hover:bg-muted rounded-md"
