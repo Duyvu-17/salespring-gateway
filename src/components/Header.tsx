@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -104,58 +103,7 @@ export const Header = () => {
               <span className="text-3xl mr-1">S</span>toreX
             </Link>
 
-            <div className="hidden md:flex items-center space-x-8">
-              <div className="relative group">
-                <button className="flex items-center hover:text-primary transition-colors">
-                  Products
-                  <ChevronDown className="h-4 w-4 ml-1" />
-                </button>
-                <div className="absolute z-10 left-0 w-48 mt-2 origin-top-left bg-background border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                  <div className="py-2">
-                    <Link to="/search?category=Electronics" className="block px-4 py-2 text-sm hover:bg-muted rounded-md">
-                      Electronics
-                    </Link>
-                    <Link to="/search?category=Clothing" className="block px-4 py-2 text-sm hover:bg-muted rounded-md">
-                      Clothing
-                    </Link>
-                    <Link to="/search?category=Home & Kitchen" className="block px-4 py-2 text-sm hover:bg-muted rounded-md">
-                      Home & Kitchen
-                    </Link>
-                    <Link to="/search?category=Beauty" className="block px-4 py-2 text-sm hover:bg-muted rounded-md">
-                      Beauty
-                    </Link>
-                    <Link to="/search" className="block px-4 py-2 text-sm text-primary hover:bg-muted rounded-md">
-                      View All
-                    </Link>
-                  </div>
-                </div>
-              </div>
-              <div className="relative group">
-                <button className="flex items-center hover:text-primary transition-colors">
-                  Categories
-                  <ChevronDown className="h-4 w-4 ml-1" />
-                </button>
-                <div className="absolute z-10 left-0 w-48 mt-2 origin-top-left bg-background border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                  <div className="py-2">
-                    <Link to="/search?discount=true" className="block px-4 py-2 text-sm hover:bg-muted rounded-md">
-                      On Sale
-                    </Link>
-                    <Link to="/search?new=true" className="block px-4 py-2 text-sm hover:bg-muted rounded-md">
-                      New Arrivals
-                    </Link>
-                    <Link to="/search?bestseller=true" className="block px-4 py-2 text-sm hover:bg-muted rounded-md">
-                      Best Sellers
-                    </Link>
-                  </div>
-                </div>
-              </div>
-              <Link to="/about" className="hover:text-primary transition-colors">
-                About Us
-              </Link>
-              <Link to="/contact" className="hover:text-primary transition-colors">
-                Contact
-              </Link>
-            </div>
+            {/* Removed the navigation menu with Products, Categories, About Us, Contact options */}
 
             <div className="flex items-center space-x-2">
               {isSearchOpen ? (
@@ -230,18 +178,11 @@ export const Header = () => {
             <div className="md:hidden py-4 border-t animate-fadeIn">
               <nav className="flex flex-col space-y-4">
                 <Link 
-                  to="/search" 
+                  to="/shipping" 
                   className="px-4 py-2 hover:bg-muted rounded-md"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Products
-                </Link>
-                <Link 
-                  to="/search" 
-                  className="px-4 py-2 hover:bg-muted rounded-md"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Categories
+                  Shipping
                 </Link>
                 <Link 
                   to="/about" 
