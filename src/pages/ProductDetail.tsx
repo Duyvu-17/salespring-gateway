@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -22,21 +21,41 @@ import { Badge } from '@/components/ui/badge';
 import ReviewSection from '@/components/products/ReviewSection';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useWishlist, isInWishlist } from '@/utils/wishlist';
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [product, setProduct] = useState<Product | undefined>(undefined);
+  const [isInWishlistState, setIsInWishlistState] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { toggleWishlist } = useWishlist();
   
   // Find the product
-  useState(() => {
+  useEffect(() => {
     const foundProduct = getProductById(Number(id));
     setProduct(foundProduct);
-  });
+    
+    if (foundProduct) {
+      setIsInWishlistState(isInWishlist(foundProduct.id));
+    }
+    
+    // Listen for wishlist updates
+    const handleWishlistUpdate = () => {
+      if (foundProduct) {
+        setIsInWishlistState(isInWishlist(foundProduct.id));
+      }
+    };
+    
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+    
+    return () => {
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+    };
+  }, [id]);
   
   const relatedProducts = product ? getRelatedProducts(product.id) : [];
   
@@ -108,10 +127,19 @@ const ProductDetail = () => {
   };
 
   const handleAddToWishlist = () => {
-    toast({
-      title: "Added to wishlist",
-      description: `${product.name} has been added to your wishlist`,
-    });
+    if (product) {
+      const simplifiedProduct = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        description: product.description,
+        category: product.category
+      };
+      
+      const isAdded = toggleWishlist(simplifiedProduct);
+      setIsInWishlistState(isAdded);
+    }
   };
 
   const discountedPrice = product.discount 
@@ -296,8 +324,9 @@ const ProductDetail = () => {
                 variant="outline" 
                 size="icon"
                 onClick={handleAddToWishlist}
+                className={isInWishlistState ? "bg-primary/10" : ""}
               >
-                <Heart className="h-5 w-5" />
+                <Heart className={`h-5 w-5 ${isInWishlistState ? "fill-red-500 text-red-500 animate-heartbeat" : ""}`} />
               </Button>
             </div>
           </div>

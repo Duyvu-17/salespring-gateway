@@ -5,38 +5,21 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-  category: string;
-}
+import { useWishlist, WishlistProduct } from '@/utils/wishlist';
 
 const Wishlist = () => {
-  const [likedProducts, setLikedProducts] = useState<Product[]>([]);
+  const [likedProducts, setLikedProducts] = useState<WishlistProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { getWishlistProducts, removeFromWishlist } = useWishlist();
 
   useEffect(() => {
-    // Fetch liked products from localStorage
+    // Fetch liked products
     const fetchLikedProducts = () => {
       setIsLoading(true);
       try {
-        const likedProductIds = JSON.parse(localStorage.getItem('likedProducts') || '[]');
-        
-        // Fetch all products from your data source
-        // For now, we'll simulate this by fetching from localStorage
-        const allProducts = JSON.parse(localStorage.getItem('products') || '[]');
-        
-        // Filter only liked products
-        const liked = allProducts.filter((product: Product) => 
-          likedProductIds.includes(product.id)
-        );
-        
-        setLikedProducts(liked);
+        const products = getWishlistProducts();
+        setLikedProducts(products);
       } catch (error) {
         console.error('Error fetching liked products:', error);
         toast({
@@ -50,34 +33,31 @@ const Wishlist = () => {
     };
 
     fetchLikedProducts();
+    
+    // Listen for wishlist updates
+    const handleWishlistUpdate = () => {
+      fetchLikedProducts();
+    };
+    
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+    
+    return () => {
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+    };
   }, [toast]);
 
-  const handleRemoveFromWishlist = (productId: number) => {
-    try {
-      // Get current liked products
-      const likedProductIds = JSON.parse(localStorage.getItem('likedProducts') || '[]');
-      
-      // Remove the product
-      const updatedLikedProducts = likedProductIds.filter((id: number) => id !== productId);
-      
-      // Update localStorage
-      localStorage.setItem('likedProducts', JSON.stringify(updatedLikedProducts));
-      
-      // Update state
-      setLikedProducts(likedProducts.filter(product => product.id !== productId));
-      
-      toast({
-        title: "Removed from wishlist",
-        description: "Product removed from your wishlist",
-      });
-    } catch (error) {
-      console.error('Error removing product from wishlist:', error);
-      toast({
-        title: "Error",
-        description: "Failed to remove product from wishlist",
-        variant: "destructive",
-      });
-    }
+  const handleRemoveFromWishlist = (product: WishlistProduct) => {
+    removeFromWishlist(product);
+    setLikedProducts(likedProducts.filter(p => p.id !== product.id));
+  };
+
+  const handleAddToCart = (product: WishlistProduct) => {
+    // Here you would add the product to the cart
+    // For now we'll just show a toast
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart`,
+    });
   };
 
   return (
@@ -122,14 +102,15 @@ const Wishlist = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => handleRemoveFromWishlist(product.id)}
+                  onClick={() => handleRemoveFromWishlist(product)}
                 >
-                  <Heart className="h-4 w-4 mr-1 fill-destructive text-destructive" />
+                  <Heart className="h-4 w-4 mr-1 fill-red-500 text-red-500" />
                   Remove
                 </Button>
                 <Button 
                   size="sm" 
                   className="flex-1"
+                  onClick={() => handleAddToCart(product)}
                 >
                   <ShoppingCart className="h-4 w-4 mr-1" />
                   Add to Cart
