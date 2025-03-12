@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -54,6 +53,11 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+        serif: ['Playfair Display', 'serif'],
+        display: ['Playfair Display', 'serif'],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -76,12 +80,53 @@ export default {
           from: { transform: "translateX(100%)" },
           to: { transform: "translateX(0)" },
         },
+        fadeInUp: {
+          from: { 
+            opacity: "0",
+            transform: "translateY(20px)" 
+          },
+          to: { 
+            opacity: "1",
+            transform: "translateY(0)" 
+          },
+        },
+        pulse: {
+          '0%, 100%': { 
+            opacity: "1",
+            transform: "scale(1)" 
+          },
+          '50%': { 
+            opacity: "0.85",
+            transform: "scale(1.05)" 
+          },
+        },
+        float: {
+          '0%, 100%': { transform: "translateY(0)" },
+          '50%': { transform: "translateY(-10px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         fadeIn: "fadeIn 0.3s ease-out",
         slideIn: "slideIn 0.3s ease-out",
+        fadeInUp: "fadeInUp 0.5s ease-out",
+        pulse: "pulse 3s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
+      },
+      boxShadow: {
+        'subtle': '0 2px 10px rgba(0, 0, 0, 0.05)',
+        'card-hover': '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+        'btn': '0 2px 6px rgba(0, 0, 0, 0.08)',
+        'btn-hover': '0 4px 12px rgba(0, 0, 0, 0.12)',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'dotted-pattern': 'radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px)',
+        'hero-gradient': 'linear-gradient(to right, rgba(59, 130, 246, 0.8), rgba(124, 58, 237, 0.8))',
+      },
+      backgroundSize: {
+        'dotted': '20px 20px',
       },
     },
   },
