@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,12 +12,11 @@ import {
   Heart, 
   Bell, 
   Phone, 
-  Mail, 
-  MapPin,
-  ChevronDown
+  Mail
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { Badge } from '@/components/ui/badge';
+import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 
 export const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -103,8 +103,6 @@ export const Header = () => {
               <span className="text-3xl mr-1">S</span>toreX
             </Link>
 
-            {/* Removed the navigation menu with Products, Categories, About Us, Contact options */}
-
             <div className="flex items-center space-x-2">
               {isSearchOpen ? (
                 <form onSubmit={handleSearch} className="animate-fadeIn">
@@ -157,6 +155,9 @@ export const Header = () => {
                   <User className="h-5 w-5" />
                 </Button>
               </Link>
+
+              {/* Add Logout Confirmation Dialog */}
+              {isLoggedIn && <LogoutConfirmDialog />}
 
               <Button 
                 variant="ghost" 

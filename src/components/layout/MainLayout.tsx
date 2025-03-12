@@ -4,8 +4,11 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
+import { useTheme } from '@/context/ThemeContext';
 
 export const MainLayout = () => {
+  const { theme } = useTheme();
+  
   // Add Google Fonts
   useEffect(() => {
     const linkElement = document.createElement('link');
@@ -18,8 +21,24 @@ export const MainLayout = () => {
     };
   }, []);
 
+  // Generate theme-specific background patterns or styles
+  const getThemeStyles = () => {
+    switch (theme) {
+      case 'dark':
+        return 'bg-background text-foreground';
+      case 'light':
+        return 'bg-dotted-pattern bg-dotted bg-background text-foreground';
+      case 'purple':
+        return 'bg-gradient-to-br from-purple-50 to-background text-foreground';
+      case 'ocean':
+        return 'bg-gradient-to-br from-blue-50 to-background text-foreground';
+      default:
+        return 'bg-background text-foreground';
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground font-sans">
+    <div className={`min-h-screen flex flex-col ${getThemeStyles()} font-sans`}>
       <Header />
       <main className="flex-1">
         <Outlet />

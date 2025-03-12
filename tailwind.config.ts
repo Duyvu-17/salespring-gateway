@@ -104,6 +104,12 @@ export default {
           '0%, 100%': { transform: "translateY(0)" },
           '50%': { transform: "translateY(-10px)" },
         },
+        heartBeat: {
+          '0%, 100%': { transform: "scale(1)" },
+          '25%': { transform: "scale(1.1)" },
+          '50%': { transform: "scale(1)" },
+          '75%': { transform: "scale(1.1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -113,6 +119,7 @@ export default {
         fadeInUp: "fadeInUp 0.5s ease-out",
         pulse: "pulse 3s ease-in-out infinite",
         float: "float 3s ease-in-out infinite",
+        heartBeat: "heartBeat 1s ease-in-out",
       },
       boxShadow: {
         'subtle': '0 2px 10px rgba(0, 0, 0, 0.05)',
