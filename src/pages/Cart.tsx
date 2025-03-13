@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface CartItem {
@@ -149,8 +149,11 @@ const Cart = () => {
               </div>
             </div>
             
-            <Button className="w-full" size="lg">
-              Proceed to Checkout
+            <Button className="w-full" size="lg" asChild>
+              <Link to="/checkout" className="flex items-center justify-center">
+                Proceed to Checkout
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>

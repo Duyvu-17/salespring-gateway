@@ -10,7 +10,18 @@ import {
 } from '@/data/products';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { Star, TrendingUp, Package, Award, MousePointerClick, ShoppingBag, ChevronRight, ArrowRight } from 'lucide-react';
+import { 
+  Star, 
+  TrendingUp, 
+  Package, 
+  Award, 
+  MousePointerClick, 
+  ShoppingBag, 
+  ChevronRight, 
+  ArrowRight 
+} from 'lucide-react';
+import { ProductCard } from '@/components/products/ProductCard';
+import { DiscountCollector } from '@/components/discount/DiscountCollector';
 
 const Index = () => {
   const featuredProducts = getFeaturedProducts();
@@ -19,21 +30,23 @@ const Index = () => {
 
   return (
     <div className="space-y-20 pb-20">
-      {/* Hero Section with Animated Overlay */}
+      {/* Hero Section with Enhanced Animated Overlay */}
       <section className="hero-section relative rounded-3xl overflow-hidden mx-4 mt-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/30" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1567&q=80')] bg-cover bg-center opacity-80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70"></div>
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 text-center text-white space-y-8">
           <Badge className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm py-2 px-4 rounded-full animate-fadeIn transition-all duration-300">
             New Collection Available
           </Badge>
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight animate-fadeIn" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-            Discover Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80">Technology</span>
+          <h1 className="text-5xl md:text-7xl font-bold leading-tight animate-fadeInUp" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+            Discover Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-foreground to-primary-foreground/80">Technology</span>
           </h1>
           <p className="text-xl md:text-2xl max-w-2xl mx-auto animate-fadeIn delay-100" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
             Discover premium products with exceptional quality and design that enhance your everyday life
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fadeIn delay-200">
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
               Shop Now <ShoppingBag className="ml-2 h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/20 shadow-lg backdrop-blur-sm">
@@ -110,68 +123,17 @@ const Index = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuredProducts.map((product) => (
-            <Card key={product.id} className="glass-card hover-scale overflow-hidden border-none shadow-lg">
-              <Link to={`/product/${product.id}`} className="block">
-                <div className="relative">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-64 object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                  {product.discount && (
-                    <Badge className="absolute top-2 right-2 bg-red-500 shadow-md">
-                      {product.discount}% OFF
-                    </Badge>
-                  )}
-                  {product.new && (
-                    <Badge className="absolute top-2 left-2 bg-green-500 shadow-md">
-                      NEW
-                    </Badge>
-                  )}
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-xl font-semibold mb-1">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{product.category}</p>
-                    </div>
-                    <div className="text-right">
-                      {product.discount ? (
-                        <>
-                          <p className="text-lg font-medium text-primary">
-                            ${(product.price * (1 - product.discount / 100)).toFixed(2)}
-                          </p>
-                          <p className="text-sm line-through text-muted-foreground">
-                            ${product.price.toFixed(2)}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-lg font-medium text-primary">${product.price.toFixed(2)}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center mt-2 mb-4">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-3 w-3 ${
-                            i < Math.floor(product.rating)
-                              ? "text-yellow-400 fill-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs text-muted-foreground ml-1">
-                      ({product.reviews})
-                    </span>
-                  </div>
-                  <Button className="w-full mt-2 shadow-sm hover:shadow-md transition-shadow">Add to Cart</Button>
-                </div>
-              </Link>
-            </Card>
+            <ProductCard key={product.id} product={product} />
           ))}
+        </div>
+      </section>
+
+      {/* Discount Code Collector Section */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="bg-gradient-to-r from-primary/5 to-transparent p-10 rounded-2xl">
+          <div className="max-w-4xl mx-auto">
+            <DiscountCollector />
+          </div>
         </div>
       </section>
 

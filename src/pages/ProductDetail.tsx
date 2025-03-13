@@ -16,11 +16,12 @@ import {
   MapPin
 } from 'lucide-react';
 import { getProductById, getRelatedProducts, Product, UserReview, Reply } from '@/data/products';
+import { getProductImages } from '@/data/product-images';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ProductGallery } from '@/components/products/ProductGallery';
 import ReviewSection from '@/components/products/ReviewSection';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useWishlist, isInWishlist } from '@/utils/wishlist';
 
 const ProductDetail = () => {
@@ -58,6 +59,7 @@ const ProductDetail = () => {
   }, [id]);
   
   const relatedProducts = product ? getRelatedProducts(product.id) : [];
+  const productImages = product ? getProductImages(product.id) : [];
   
   if (!product) {
     return (
@@ -162,24 +164,14 @@ const ProductDetail = () => {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Product Image */}
-        <div className="overflow-hidden rounded-xl bg-muted/30 flex items-center justify-center p-8 relative">
-          {product.discount && (
-            <Badge className="absolute top-4 left-4 bg-red-500">
-              {product.discount}% OFF
-            </Badge>
-          )}
-          {product.new && (
-            <Badge className="absolute top-4 right-4 bg-green-500">
-              NEW
-            </Badge>
-          )}
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            className="w-full h-auto max-h-[400px] object-contain"
-          />
-        </div>
+        {/* Product Gallery */}
+        <ProductGallery 
+          mainImage={product.image}
+          productName={product.name}
+          additionalImages={productImages}
+          discount={product.discount}
+          isNew={product.new}
+        />
         
         {/* Product Info */}
         <div className="space-y-8">
@@ -349,6 +341,7 @@ const ProductDetail = () => {
         </div>
       </div>
       
+      {/* Rest of the component remains unchanged */}
       {/* Product Description Section */}
       <div className="mt-16 border-t pt-12">
         <div className="prose prose-sm max-w-none">
