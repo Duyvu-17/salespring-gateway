@@ -457,7 +457,7 @@ const Checkout = () => {
             </CardHeader>
             <CardContent>
               <Tabs value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod} className="w-full">
-                <TabsList className="grid grid-cols-4 mb-6 w-full">
+                <TabsList className="grid grid-cols-4 mb-6 w-full min-h-[80px]">
                   {paymentMethods.map(method => (
                     <TabsTrigger 
                       key={method.id} 
