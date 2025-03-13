@@ -7,7 +7,9 @@ import { Separator } from '@/components/ui/separator';
 import { validateDiscountCode, calculateDiscount, DiscountCode } from '@/data/discount-codes';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, CreditCard, Truck, ShieldCheck, X } from 'lucide-react';
+import { ArrowLeft, Check, CreditCard, Truck, ShieldCheck, X, Wallet, CreditCard as CreditCardIcon, Landmark, Banknote } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface CartItem {
   id: number;
@@ -17,12 +19,20 @@ interface CartItem {
   quantity: number;
 }
 
+interface PaymentMethod {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  fields: React.ReactNode;
+}
+
 const Checkout = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [discountCode, setDiscountCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
   const [discountError, setDiscountError] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('credit-card');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -94,9 +104,105 @@ const Checkout = () => {
   const handleCheckout = () => {
     toast({
       title: "Order placed successfully!",
-      description: "Thank you for your order. You will receive a confirmation email shortly.",
+      description: `Thank you for your order. You paid with ${getPaymentMethodName(selectedPaymentMethod)}. You will receive a confirmation email shortly.`,
     });
   };
+
+  const getPaymentMethodName = (id: string) => {
+    switch (id) {
+      case 'credit-card': return 'Credit Card';
+      case 'bank-transfer': return 'Bank Transfer';
+      case 'paypal': return 'PayPal';
+      case 'cash': return 'Cash on Delivery';
+      default: return 'Unknown payment method';
+    }
+  };
+
+  const paymentMethods: PaymentMethod[] = [
+    {
+      id: 'credit-card',
+      name: 'Credit Card',
+      icon: <CreditCardIcon className="h-5 w-5" />,
+      fields: (
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="cardNumber" className="block text-sm font-medium mb-1">Card Number</label>
+            <Input id="cardNumber" placeholder="4242 4242 4242 4242" />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="expiryDate" className="block text-sm font-medium mb-1">Expiry Date</label>
+              <Input id="expiryDate" placeholder="MM/YY" />
+            </div>
+            
+            <div>
+              <label htmlFor="cvv" className="block text-sm font-medium mb-1">CVV</label>
+              <Input id="cvv" placeholder="123" />
+            </div>
+          </div>
+          
+          <div>
+            <label htmlFor="nameOnCard" className="block text-sm font-medium mb-1">Name on Card</label>
+            <Input id="nameOnCard" placeholder="John Doe" />
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'bank-transfer',
+      name: 'Bank Transfer',
+      icon: <Landmark className="h-5 w-5" />,
+      fields: (
+        <div className="space-y-4">
+          <div className="p-4 bg-muted rounded-md">
+            <p className="text-sm font-medium mb-2">Bank Account Details:</p>
+            <p className="text-sm">Bank: Commerce Bank</p>
+            <p className="text-sm">Account Name: TechStore Inc.</p>
+            <p className="text-sm">Account Number: XXXX-XXXX-XXXX-1234</p>
+            <p className="text-sm">Routing Number: XXXXXXXX</p>
+            <p className="text-sm mt-2 text-muted-foreground">Please use your order number as the payment reference.</p>
+          </div>
+          <div>
+            <label htmlFor="transferConfirmation" className="block text-sm font-medium mb-1">Transfer Confirmation Number</label>
+            <Input id="transferConfirmation" placeholder="(Optional) Enter your confirmation number" />
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'paypal',
+      name: 'PayPal',
+      icon: <Wallet className="h-5 w-5" />,
+      fields: (
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="paypalEmail" className="block text-sm font-medium mb-1">PayPal Email</label>
+            <Input id="paypalEmail" type="email" placeholder="your-email@example.com" />
+          </div>
+          <div className="p-4 bg-blue-50 text-blue-800 rounded-md dark:bg-blue-900 dark:text-blue-100">
+            <p className="text-sm">You'll be redirected to PayPal to complete your payment after order confirmation.</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'cash',
+      name: 'Cash on Delivery',
+      icon: <Banknote className="h-5 w-5" />,
+      fields: (
+        <div className="space-y-4">
+          <div className="p-4 bg-muted rounded-md">
+            <p className="text-sm">Pay with cash when your order is delivered. A small handling fee may apply.</p>
+          </div>
+          <div>
+            <label htmlFor="cashNotes" className="block text-sm font-medium mb-1">Special Instructions (Optional)</label>
+            <Input id="cashNotes" placeholder="Any special instructions for delivery" />
+          </div>
+        </div>
+      )
+    }
+  ];
 
   const subtotal = calculateSubtotal();
   const shippingCost = subtotal > 100 ? 0 : 10;
@@ -195,36 +301,32 @@ const Checkout = () => {
           
           {/* Payment Information */}
           <div className="bg-card p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Payment Information</h2>
+            <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
             
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="cardNumber" className="block text-sm font-medium mb-1">Card Number</label>
-                <Input id="cardNumber" placeholder="4242 4242 4242 4242" />
-              </div>
+            <Tabs value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod} className="w-full">
+              <TabsList className="grid grid-cols-4 mb-6 w-full">
+                {paymentMethods.map(method => (
+                  <TabsTrigger 
+                    key={method.id} 
+                    value={method.id}
+                    className="flex flex-col items-center gap-1 py-3 px-1"
+                  >
+                    {method.icon}
+                    <span className="text-xs">{method.name}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="expiryDate" className="block text-sm font-medium mb-1">Expiry Date</label>
-                  <Input id="expiryDate" placeholder="MM/YY" />
-                </div>
-                
-                <div>
-                  <label htmlFor="cvv" className="block text-sm font-medium mb-1">CVV</label>
-                  <Input id="cvv" placeholder="123" />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="nameOnCard" className="block text-sm font-medium mb-1">Name on Card</label>
-                <Input id="nameOnCard" placeholder="John Doe" />
-              </div>
-            </div>
-            
-            <div className="mt-6 flex items-center gap-4">
-              <CreditCard className="h-5 w-5 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Your payment information is encrypted and secure.</p>
-            </div>
+              {paymentMethods.map(method => (
+                <TabsContent key={method.id} value={method.id} className="space-y-4">
+                  {method.fields}
+                  <div className="mt-4 flex items-center gap-4">
+                    <CreditCard className="h-5 w-5 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Your payment information is encrypted and secure.</p>
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
           </div>
         </div>
         
@@ -320,6 +422,9 @@ const Checkout = () => {
                 <span>Total</span>
                 <span>${total.toFixed(2)}</span>
               </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Payment Method: {getPaymentMethodName(selectedPaymentMethod)}
+              </p>
             </div>
             
             <Button 
