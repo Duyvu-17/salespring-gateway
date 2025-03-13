@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,9 +6,31 @@ import { Separator } from '@/components/ui/separator';
 import { validateDiscountCode, calculateDiscount, DiscountCode } from '@/data/discount-codes';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, CreditCard, Truck, ShieldCheck, X, Wallet, CreditCard as CreditCardIcon, Landmark, Banknote } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Check, 
+  CreditCard, 
+  Truck, 
+  ShieldCheck, 
+  X, 
+  Wallet, 
+  CreditCard as CreditCardIcon, 
+  Landmark, 
+  Banknote, 
+  Gift, 
+  Coins 
+} from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  getUserPoints, 
+  calculatePointsEarned, 
+  calculateMaxRedeemablePoints, 
+  calculatePointsDiscount,
+  savePointsTransaction,
+  POINTS_VALUE
+} from '@/data/reward-points';
 
 interface CartItem {
   id: number;
@@ -23,6 +44,7 @@ interface PaymentMethod {
   id: string;
   name: string;
   icon: React.ReactNode;
+  description: string;
   fields: React.ReactNode;
 }
 
@@ -33,7 +55,18 @@ const Checkout = () => {
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
   const [discountError, setDiscountError] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('credit-card');
+  const [rewardPoints, setRewardPoints] = useState(getUserPoints());
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
   const { toast } = useToast();
+  
+  // Calculate various totals
+  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const shippingCost = subtotal > 100 ? 0 : 10;
+  const { discountAmount, discountedTotal } = calculateDiscount(subtotal, appliedDiscount);
+  const pointsDiscount = calculatePointsDiscount(pointsToRedeem);
+  const pointsToEarn = calculatePointsEarned(subtotal);
+  const maxRedeemablePoints = calculateMaxRedeemablePoints(rewardPoints.available, discountedTotal);
+  const total = discountedTotal + shippingCost - pointsDiscount;
 
   useEffect(() => {
     // In a real app, we would fetch this from an API or local storage
@@ -101,7 +134,44 @@ const Checkout = () => {
     });
   };
 
+  const handleRedeemPointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10) || 0;
+    
+    // Don't allow more than available or max redeemable
+    const pointsToUse = Math.min(
+      Math.max(0, value), // Not less than 0
+      rewardPoints.available, // Not more than available
+      maxRedeemablePoints // Not more than max redeemable
+    );
+    
+    setPointsToRedeem(pointsToUse);
+  };
+
+  const handleMaxPointsRedeem = () => {
+    setPointsToRedeem(maxRedeemablePoints);
+  };
+  
+  const handleClearPointsRedeem = () => {
+    setPointsToRedeem(0);
+  };
+
   const handleCheckout = () => {
+    // Process reward points
+    if (pointsToRedeem > 0) {
+      setRewardPoints(savePointsTransaction(rewardPoints, {
+        amount: pointsToRedeem,
+        type: 'redeemed',
+        description: `Redeemed for order discount`
+      }));
+    }
+    
+    // Add new points earned from this purchase
+    setRewardPoints(savePointsTransaction(rewardPoints, {
+      amount: pointsToEarn,
+      type: 'earned',
+      description: `Earned from purchase of ${cartItems.length} items`
+    }));
+    
     toast({
       title: "Order placed successfully!",
       description: `Thank you for your order. You paid with ${getPaymentMethodName(selectedPaymentMethod)}. You will receive a confirmation email shortly.`,
@@ -122,7 +192,8 @@ const Checkout = () => {
     {
       id: 'credit-card',
       name: 'Credit Card',
-      icon: <CreditCardIcon className="h-5 w-5" />,
+      icon: <CreditCardIcon className="h-5 w-5 text-blue-500" />,
+      description: 'Pay securely with your credit or debit card',
       fields: (
         <div className="space-y-4">
           <div>
@@ -152,7 +223,8 @@ const Checkout = () => {
     {
       id: 'bank-transfer',
       name: 'Bank Transfer',
-      icon: <Landmark className="h-5 w-5" />,
+      icon: <Landmark className="h-5 w-5 text-purple-500" />,
+      description: 'Pay directly from your bank account',
       fields: (
         <div className="space-y-4">
           <div className="p-4 bg-muted rounded-md">
@@ -173,7 +245,8 @@ const Checkout = () => {
     {
       id: 'paypal',
       name: 'PayPal',
-      icon: <Wallet className="h-5 w-5" />,
+      icon: <Wallet className="h-5 w-5 text-blue-600" />,
+      description: 'Fast, secure payments with PayPal',
       fields: (
         <div className="space-y-4">
           <div>
@@ -189,7 +262,8 @@ const Checkout = () => {
     {
       id: 'cash',
       name: 'Cash on Delivery',
-      icon: <Banknote className="h-5 w-5" />,
+      icon: <Banknote className="h-5 w-5 text-green-500" />,
+      description: 'Pay when you receive your order',
       fields: (
         <div className="space-y-4">
           <div className="p-4 bg-muted rounded-md">
@@ -203,11 +277,6 @@ const Checkout = () => {
       )
     }
   ];
-
-  const subtotal = calculateSubtotal();
-  const shippingCost = subtotal > 100 ? 0 : 10;
-  const { discountAmount, discountedTotal } = calculateDiscount(subtotal, appliedDiscount);
-  const total = discountedTotal + shippingCost;
 
   if (isLoading) {
     return (
@@ -243,209 +312,325 @@ const Checkout = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           {/* Shipping Information */}
-          <div className="bg-card p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium mb-1">First Name</label>
-                <Input id="firstName" placeholder="John" />
+          <Card>
+            <CardHeader>
+              <CardTitle>Shipping Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium mb-1">First Name</label>
+                  <Input id="firstName" placeholder="John" />
+                </div>
+                
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium mb-1">Last Name</label>
+                  <Input id="lastName" placeholder="Doe" />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label htmlFor="email" className="block text-sm font-medium mb-1">Email Address</label>
+                  <Input id="email" type="email" placeholder="john.doe@example.com" />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label htmlFor="address" className="block text-sm font-medium mb-1">Street Address</label>
+                  <Input id="address" placeholder="123 Main St" />
+                </div>
+                
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium mb-1">City</label>
+                  <Input id="city" placeholder="New York" />
+                </div>
+                
+                <div>
+                  <label htmlFor="state" className="block text-sm font-medium mb-1">State</label>
+                  <Select>
+                    <SelectTrigger id="state">
+                      <SelectValue placeholder="Select a state" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ca">California</SelectItem>
+                      <SelectItem value="ny">New York</SelectItem>
+                      <SelectItem value="tx">Texas</SelectItem>
+                      <SelectItem value="fl">Florida</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label htmlFor="zipCode" className="block text-sm font-medium mb-1">ZIP Code</label>
+                  <Input id="zipCode" placeholder="10001" />
+                </div>
+                
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number</label>
+                  <Input id="phone" placeholder="(123) 456-7890" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Reward Points */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Coins className="h-5 w-5 text-yellow-500" />
+                Reward Points
+              </CardTitle>
+              <CardDescription>
+                Earn and redeem points with your purchase
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gradient-to-r from-yellow-50 to-amber-50 p-4 rounded-lg border border-yellow-100 dark:from-yellow-900/20 dark:to-amber-900/20 dark:border-yellow-800/30">
+                  <h3 className="text-lg font-medium mb-2 flex items-center gap-2">
+                    <Gift className="h-5 w-5 text-yellow-600" />
+                    Available Points
+                  </h3>
+                  <p className="text-3xl font-bold text-yellow-600">
+                    {rewardPoints.available}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Worth ${(rewardPoints.available * POINTS_VALUE).toFixed(2)}
+                  </p>
+                </div>
+                
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-lg border border-emerald-100 dark:from-emerald-900/20 dark:to-teal-900/20 dark:border-emerald-800/30">
+                  <h3 className="text-lg font-medium mb-2 flex items-center gap-2">
+                    <Coins className="h-5 w-5 text-emerald-600" />
+                    Points to Earn
+                  </h3>
+                  <p className="text-3xl font-bold text-emerald-600">
+                    {pointsToEarn}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    From this purchase
+                  </p>
+                </div>
               </div>
               
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium mb-1">Last Name</label>
-                <Input id="lastName" placeholder="Doe" />
+              <div className="mt-6">
+                <label htmlFor="redeemPoints" className="block text-sm font-medium mb-2">
+                  Redeem Points (max: {maxRedeemablePoints})
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    id="redeemPoints"
+                    type="number"
+                    min="0"
+                    max={maxRedeemablePoints}
+                    value={pointsToRedeem || ''}
+                    onChange={handleRedeemPointsChange}
+                    className="flex-1"
+                  />
+                  <Button 
+                    variant="outline" 
+                    onClick={handleMaxPointsRedeem}
+                    disabled={maxRedeemablePoints === 0}
+                  >
+                    Max
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleClearPointsRedeem}
+                    disabled={pointsToRedeem === 0}
+                  >
+                    Clear
+                  </Button>
+                </div>
+                {pointsToRedeem > 0 && (
+                  <p className="text-sm text-green-600 mt-2">
+                    You'll save ${pointsDiscount.toFixed(2)} by redeeming {pointsToRedeem} points
+                  </p>
+                )}
               </div>
-              
-              <div className="md:col-span-2">
-                <label htmlFor="email" className="block text-sm font-medium mb-1">Email Address</label>
-                <Input id="email" type="email" placeholder="john.doe@example.com" />
-              </div>
-              
-              <div className="md:col-span-2">
-                <label htmlFor="address" className="block text-sm font-medium mb-1">Street Address</label>
-                <Input id="address" placeholder="123 Main St" />
-              </div>
-              
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium mb-1">City</label>
-                <Input id="city" placeholder="New York" />
-              </div>
-              
-              <div>
-                <label htmlFor="state" className="block text-sm font-medium mb-1">State</label>
-                <Select>
-                  <SelectTrigger id="state">
-                    <SelectValue placeholder="Select a state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ca">California</SelectItem>
-                    <SelectItem value="ny">New York</SelectItem>
-                    <SelectItem value="tx">Texas</SelectItem>
-                    <SelectItem value="fl">Florida</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <label htmlFor="zipCode" className="block text-sm font-medium mb-1">ZIP Code</label>
-                <Input id="zipCode" placeholder="10001" />
-              </div>
-              
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number</label>
-                <Input id="phone" placeholder="(123) 456-7890" />
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
           
           {/* Payment Information */}
-          <div className="bg-card p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
-            
-            <Tabs value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod} className="w-full">
-              <TabsList className="grid grid-cols-4 mb-6 w-full">
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment Method</CardTitle>
+              <CardDescription>Choose your preferred payment method</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod} className="w-full">
+                <TabsList className="grid grid-cols-4 mb-6 w-full">
+                  {paymentMethods.map(method => (
+                    <TabsTrigger 
+                      key={method.id} 
+                      value={method.id}
+                      className="flex flex-col items-center gap-2 py-4 px-2 data-[state=active]:bg-primary/10 transition-all"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                        {method.icon}
+                      </div>
+                      <span className="text-xs font-medium">{method.name}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                
                 {paymentMethods.map(method => (
-                  <TabsTrigger 
-                    key={method.id} 
-                    value={method.id}
-                    className="flex flex-col items-center gap-1 py-3 px-1"
-                  >
-                    {method.icon}
-                    <span className="text-xs">{method.name}</span>
-                  </TabsTrigger>
+                  <TabsContent key={method.id} value={method.id} className="border-t pt-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        {method.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{method.name}</h3>
+                        <p className="text-sm text-muted-foreground">{method.description}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      {method.fields}
+                    </div>
+                    
+                    <div className="mt-6 flex items-center gap-4 p-3 bg-muted rounded-md">
+                      <ShieldCheck className="h-5 w-5 text-green-500" />
+                      <p className="text-sm">Your payment information is encrypted and secure.</p>
+                    </div>
+                  </TabsContent>
                 ))}
-              </TabsList>
-              
-              {paymentMethods.map(method => (
-                <TabsContent key={method.id} value={method.id} className="space-y-4">
-                  {method.fields}
-                  <div className="mt-4 flex items-center gap-4">
-                    <CreditCard className="h-5 w-5 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Your payment information is encrypted and secure.</p>
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </div>
+              </Tabs>
+            </CardContent>
+          </Card>
         </div>
         
         {/* Order Summary */}
         <div className="lg:col-span-1">
-          <div className="bg-card p-6 rounded-lg shadow-sm sticky top-24">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            
-            <div className="space-y-4 mb-6">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-4">
-                  <img 
-                    src={item.image} 
-                    alt={item.name} 
-                    className="w-16 h-16 object-cover rounded-md"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                  </div>
-                  <p className="font-medium">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </p>
-                </div>
-              ))}
-            </div>
-            
-            <Separator className="my-4" />
-            
-            {/* Discount Code */}
-            <div className="mb-4">
-              <h3 className="font-medium mb-2">Discount Code</h3>
-              
-              {appliedDiscount ? (
-                <div className="flex items-center justify-between p-3 bg-primary/10 rounded-md">
-                  <div>
-                    <p className="font-medium text-sm flex items-center">
-                      <Check className="h-4 w-4 mr-1 text-green-500" />
-                      {appliedDiscount.code}
+          <Card className="sticky top-24">
+            <CardHeader>
+              <CardTitle>Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                {cartItems.map((item) => (
+                  <div key={item.id} className="flex gap-4">
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-medium">{item.name}</h3>
+                      <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="font-medium">
+                      ${(item.price * item.quantity).toFixed(2)}
                     </p>
-                    <p className="text-xs text-muted-foreground">{appliedDiscount.description}</p>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleRemoveDiscount}
-                    className="h-8 w-8 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter code"
-                    value={discountCode}
-                    onChange={(e) => setDiscountCode(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button onClick={handleApplyDiscountCode} variant="outline">Apply</Button>
-                </div>
-              )}
-              
-              {discountError && (
-                <p className="text-red-500 text-sm mt-1">{discountError}</p>
-              )}
-            </div>
-            
-            <Separator className="my-4" />
-            
-            {/* Totals */}
-            <div className="space-y-2 mb-6">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                ))}
               </div>
               
-              {discountAmount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Discount</span>
-                  <span>-${discountAmount.toFixed(2)}</span>
-                </div>
-              )}
+              <Separator />
               
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>{shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}</span>
+              {/* Discount Code */}
+              <div>
+                <h3 className="font-medium mb-2">Discount Code</h3>
+                
+                {appliedDiscount ? (
+                  <div className="flex items-center justify-between p-3 bg-primary/10 rounded-md">
+                    <div>
+                      <p className="font-medium text-sm flex items-center">
+                        <Check className="h-4 w-4 mr-1 text-green-500" />
+                        {appliedDiscount.code}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{appliedDiscount.description}</p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleRemoveDiscount}
+                      className="h-8 w-8 p-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter code"
+                      value={discountCode}
+                      onChange={(e) => setDiscountCode(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button onClick={handleApplyDiscountCode} variant="outline">Apply</Button>
+                  </div>
+                )}
+                
+                {discountError && (
+                  <p className="text-red-500 text-sm mt-1">{discountError}</p>
+                )}
               </div>
-            </div>
-            
-            <div className="border-t pt-4 mb-6">
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+              
+              <Separator />
+              
+              {/* Totals */}
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount</span>
+                    <span>-${discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                
+                {pointsToRedeem > 0 && (
+                  <div className="flex justify-between text-yellow-600">
+                    <span>Reward Points</span>
+                    <span>-${pointsDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span>{shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}</span>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Payment Method: {getPaymentMethodName(selectedPaymentMethod)}
-              </p>
-            </div>
-            
-            <Button 
-              className="w-full mb-4" 
-              size="lg"
-              onClick={handleCheckout}
-            >
-              Complete Order
-            </Button>
-            
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4 flex-shrink-0" />
-                <span>Free shipping on orders over $100</span>
+              
+              <div className="border-t pt-4">
+                <div className="flex justify-between font-bold text-lg">
+                  <span>Total</span>
+                  <span>${total.toFixed(2)}</span>
+                </div>
+                <div className="text-sm text-muted-foreground mt-1 space-y-1">
+                  <p>Payment Method: {getPaymentMethodName(selectedPaymentMethod)}</p>
+                  <p>You'll earn: {pointsToEarn} points</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 flex-shrink-0" />
-                <span>Secure payment processing</span>
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={handleCheckout}
+              >
+                Complete Order
+              </Button>
+              
+              <div className="space-y-3 text-sm text-muted-foreground w-full">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 flex-shrink-0" />
+                  <span>Free shipping on orders over $100</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 flex-shrink-0" />
+                  <span>Secure payment processing</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Coins className="h-4 w-4 flex-shrink-0" />
+                  <span>Earn reward points with every purchase</span>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardFooter>
+          </Card>
         </div>
       </div>
     </div>
