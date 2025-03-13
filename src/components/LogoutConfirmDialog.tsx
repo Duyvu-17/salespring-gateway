@@ -12,26 +12,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export const LogoutConfirmDialog = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const handleLogout = () => {
-    // Clear user data
-    localStorage.removeItem("isLoggedIn");
-    
-    // Show success message
-    toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account",
-    });
-    
-    // Redirect to home page
-    navigate("/");
-  };
+  const { logout } = useAuth();
 
   return (
     <AlertDialog>
@@ -49,7 +33,7 @@ export const LogoutConfirmDialog = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleLogout}>
+          <AlertDialogAction onClick={logout}>
             Log out
           </AlertDialogAction>
         </AlertDialogFooter>

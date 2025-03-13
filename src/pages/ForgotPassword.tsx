@@ -3,49 +3,26 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Mail, KeyRound, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { toast } = useToast();
+  const { forgotPassword, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email) {
-      toast({
-        title: "Error",
-        description: "Please enter your email address",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!email) return;
     
-    setIsLoading(true);
-    
-    // Simulate API call
     try {
-      // In a real app, you would call your backend to send a reset email
-      // For demo, we'll just simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await forgotPassword(email);
       setIsSubmitted(true);
-      toast({
-        title: "Email sent",
-        description: "Check your inbox for password reset instructions",
-      });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send reset email. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      // Error is handled in the auth provider
+      console.error('Forgot password error:', error);
     }
   };
 

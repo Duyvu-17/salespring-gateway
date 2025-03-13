@@ -1,56 +1,27 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Mail, Lock } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const { login, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!email || !password) return;
     
-    setIsLoading(true);
-    
-    // Simulate API call
     try {
-      // In a real app, you would authenticate with your backend
-      // For demo, we'll just simulate a login after a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock successful login
-      localStorage.setItem('isLoggedIn', 'true');
-      
-      toast({
-        title: "Success",
-        description: "You have been logged in successfully",
-      });
-      
-      navigate('/account');
+      await login(email, password);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Invalid email or password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      // Error is handled in the auth provider
+      console.error('Login error:', error);
     }
   };
 

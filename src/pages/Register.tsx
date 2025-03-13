@@ -1,55 +1,28 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+import { Mail, User, Lock } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const { register, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!name || !email || !password) return;
     
-    setIsLoading(true);
-    
-    // Simulate API call
     try {
-      // In a real app, you would register with your backend
-      // For demo, we'll just simulate a registration after a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock successful registration and login
-      localStorage.setItem('isLoggedIn', 'true');
-      
-      toast({
-        title: "Success",
-        description: "Your account has been created",
-      });
-      
-      navigate('/account');
+      await register(name, email, password);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create your account",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      // Error is handled in the auth provider
+      console.error('Registration error:', error);
     }
   };
 
@@ -63,9 +36,10 @@ const Register = () => {
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="name" className="block text-sm font-medium">
+            <Label htmlFor="name" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
               Full Name
-            </label>
+            </Label>
             <Input
               id="name"
               type="text"
@@ -77,9 +51,10 @@ const Register = () => {
           </div>
           
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium">
+            <Label htmlFor="email" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
               Email
-            </label>
+            </Label>
             <Input
               id="email"
               type="email"
@@ -91,9 +66,10 @@ const Register = () => {
           </div>
           
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium">
+            <Label htmlFor="password" className="flex items-center gap-2">
+              <Lock className="h-4 w-4" />
               Password
-            </label>
+            </Label>
             <Input
               id="password"
               type="password"
