@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+import { Mail, Lock } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -62,9 +64,10 @@ const Login = () => {
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium">
+            <Label htmlFor="email" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
               Email
-            </label>
+            </Label>
             <Input
               id="email"
               type="email"
@@ -77,9 +80,10 @@ const Login = () => {
           
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium">
+              <Label htmlFor="password" className="flex items-center gap-2">
+                <Lock className="h-4 w-4" />
                 Password
-              </label>
+              </Label>
               <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                 Forgot password?
               </Link>
