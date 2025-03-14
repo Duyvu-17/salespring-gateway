@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -9,13 +8,13 @@ const Shipping = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">Shipping & Delivery</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">Vận Chuyển & Giao Hàng</h1>
         
         {/* Hero section */}
         <div className="bg-primary/10 rounded-lg p-8 mb-12 text-center">
-          <h2 className="text-2xl font-semibold mb-4">Fast & Reliable Shipping Worldwide</h2>
+          <h2 className="text-2xl font-semibold mb-4">Vận Chuyển Nhanh Chóng & Đáng Tin Cậy Trên Toàn Quốc</h2>
           <p className="text-muted-foreground mb-6">
-            We partner with premium carriers to ensure your packages arrive safely and on time.
+            Chúng tôi hợp tác với các đơn vị vận chuyển hàng đầu để đảm bảo hàng hóa của bạn đến nơi an toàn và đúng hẹn.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
@@ -23,24 +22,24 @@ const Shipping = () => {
               <div className="bg-primary/20 p-4 rounded-full mb-4">
                 <Truck className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-medium">Fast Delivery</h3>
-              <p className="text-sm text-muted-foreground">2-5 business days</p>
+              <h3 className="font-medium">Giao Hàng Nhanh</h3>
+              <p className="text-sm text-muted-foreground">1-3 ngày làm việc</p>
             </div>
             
             <div className="flex flex-col items-center">
               <div className="bg-primary/20 p-4 rounded-full mb-4">
                 <Package className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-medium">Secure Packaging</h3>
-              <p className="text-sm text-muted-foreground">Safe and protected</p>
+              <h3 className="font-medium">Đóng Gói An Toàn</h3>
+              <p className="text-sm text-muted-foreground">Bảo vệ tối đa sản phẩm</p>
             </div>
             
             <div className="flex flex-col items-center">
               <div className="bg-primary/20 p-4 rounded-full mb-4">
                 <Globe className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-medium">Global Shipping</h3>
-              <p className="text-sm text-muted-foreground">Worldwide delivery</p>
+              <h3 className="font-medium">Phủ Sóng Toàn Quốc</h3>
+              <p className="text-sm text-muted-foreground">Giao hàng đến 63 tỉnh thành</p>
             </div>
           </div>
         </div>
@@ -48,41 +47,41 @@ const Shipping = () => {
         {/* Shipping options */}
         <Card className="mb-12">
           <CardHeader>
-            <CardTitle>Shipping Options</CardTitle>
-            <CardDescription>Choose the shipping method that works best for you</CardDescription>
+            <CardTitle>Phương Thức Vận Chuyển</CardTitle>
+            <CardDescription>Lựa chọn phương thức vận chuyển phù hợp nhất với bạn</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               <div className="flex items-start justify-between pb-4 border-b">
                 <div>
-                  <h3 className="font-semibold">Standard Shipping</h3>
-                  <p className="text-sm text-muted-foreground">5-7 business days</p>
+                  <h3 className="font-semibold">Giao Hàng Tiêu Chuẩn</h3>
+                  <p className="text-sm text-muted-foreground">2-3 ngày làm việc</p>
                 </div>
-                <span className="font-medium">$4.99</span>
+                <span className="font-medium">30.000₫</span>
               </div>
               
               <div className="flex items-start justify-between pb-4 border-b">
                 <div>
-                  <h3 className="font-semibold">Express Shipping</h3>
-                  <p className="text-sm text-muted-foreground">2-3 business days</p>
+                  <h3 className="font-semibold">Giao Hàng Nhanh</h3>
+                  <p className="text-sm text-muted-foreground">1-2 ngày làm việc</p>
                 </div>
-                <span className="font-medium">$9.99</span>
+                <span className="font-medium">50.000₫</span>
               </div>
               
               <div className="flex items-start justify-between pb-4 border-b">
                 <div>
-                  <h3 className="font-semibold">Next Day Delivery</h3>
-                  <p className="text-sm text-muted-foreground">Next business day</p>
+                  <h3 className="font-semibold">Giao Hàng Hỏa Tốc</h3>
+                  <p className="text-sm text-muted-foreground">Trong ngày (nội thành Hà Nội và TP.HCM)</p>
                 </div>
-                <span className="font-medium">$19.99</span>
+                <span className="font-medium">100.000₫</span>
               </div>
               
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold">Free Shipping</h3>
-                  <p className="text-sm text-muted-foreground">On orders over $50</p>
+                  <h3 className="font-semibold">Miễn Phí Vận Chuyển</h3>
+                  <p className="text-sm text-muted-foreground">Cho đơn hàng từ 500.000₫</p>
                 </div>
-                <span className="font-medium text-green-600">FREE</span>
+                <span className="font-medium text-green-600">MIỄN PHÍ</span>
               </div>
             </div>
           </CardContent>
@@ -90,41 +89,41 @@ const Shipping = () => {
         
         {/* FAQ section */}
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-semibold mb-6">Câu Hỏi Thường Gặp</h2>
           
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
-              <AccordionTrigger>How do I track my order?</AccordionTrigger>
+              <AccordionTrigger>Làm thế nào để theo dõi đơn hàng của tôi?</AccordionTrigger>
               <AccordionContent>
-                Once your order ships, you will receive a shipping confirmation email with a tracking number and link. You can also track your order in your account dashboard under "Order History."
+                Sau khi đơn hàng được gửi đi, bạn sẽ nhận được email xác nhận giao hàng kèm mã vận đơn và đường dẫn theo dõi. Bạn cũng có thể theo dõi đơn hàng trong trang cá nhân của mình ở mục "Lịch sử đơn hàng".
               </AccordionContent>
             </AccordionItem>
             
             <AccordionItem value="item-2">
-              <AccordionTrigger>Do you ship internationally?</AccordionTrigger>
+              <AccordionTrigger>Giao hàng có tới tất cả các tỉnh thành không?</AccordionTrigger>
               <AccordionContent>
-                Yes, we ship to most countries worldwide. International shipping times vary by location, typically taking 7-14 business days. Additional customs fees or taxes may apply depending on your country.
+                Có, chúng tôi giao hàng đến tất cả 63 tỉnh thành trên toàn quốc. Thời gian giao hàng có thể khác nhau tùy theo khu vực, từ 1-5 ngày làm việc. Những khu vực miền núi, hải đảo có thể cần thêm thời gian.
               </AccordionContent>
             </AccordionItem>
             
             <AccordionItem value="item-3">
-              <AccordionTrigger>What happens if my package is lost or damaged?</AccordionTrigger>
+              <AccordionTrigger>Nếu gói hàng của tôi bị thất lạc hoặc hư hỏng thì sao?</AccordionTrigger>
               <AccordionContent>
-                If your package is lost or damaged during shipping, please contact our customer service team within 48 hours of the scheduled delivery date. We'll work with the carrier to locate your package or process a replacement shipment.
+                Nếu gói hàng của bạn bị thất lạc hoặc hư hỏng trong quá trình vận chuyển, vui lòng liên hệ với đội ngũ chăm sóc khách hàng của chúng tôi trong vòng 48 giờ kể từ ngày dự kiến giao hàng. Chúng tôi sẽ làm việc với đơn vị vận chuyển để tìm kiếm gói hàng hoặc xử lý việc gửi hàng thay thế.
               </AccordionContent>
             </AccordionItem>
             
             <AccordionItem value="item-4">
-              <AccordionTrigger>Can I change my shipping address after placing an order?</AccordionTrigger>
+              <AccordionTrigger>Tôi có thể thay đổi địa chỉ giao hàng sau khi đặt hàng không?</AccordionTrigger>
               <AccordionContent>
-                If you need to change your shipping address, please contact our customer service team as soon as possible. We can usually update the address if the order hasn't been processed yet. Once an order ships, we cannot change the delivery address.
+                Nếu bạn cần thay đổi địa chỉ giao hàng, vui lòng liên hệ với đội ngũ chăm sóc khách hàng của chúng tôi càng sớm càng tốt. Chúng tôi thường có thể cập nhật địa chỉ nếu đơn hàng chưa được xử lý. Sau khi đơn hàng đã được gửi đi, chúng tôi không thể thay đổi địa chỉ giao hàng.
               </AccordionContent>
             </AccordionItem>
             
             <AccordionItem value="item-5">
-              <AccordionTrigger>Do you offer expedited shipping options?</AccordionTrigger>
+              <AccordionTrigger>Bạn có hỗ trợ thanh toán khi nhận hàng (COD) không?</AccordionTrigger>
               <AccordionContent>
-                Yes, we offer express shipping and next-day delivery options at checkout for most locations. Please note that these options are only available for orders placed before 1 PM EST on business days.
+                Có, chúng tôi hỗ trợ thanh toán khi nhận hàng (COD) cho tất cả đơn hàng có giá trị dưới 5 triệu đồng. Lưu ý rằng một số khu vực xa xôi hoặc hải đảo có thể không hỗ trợ dịch vụ này.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -132,33 +131,33 @@ const Shipping = () => {
         
         {/* Shipping policies */}
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">Shipping Policies</h2>
+          <h2 className="text-2xl font-semibold mb-6">Chính Sách Vận Chuyển</h2>
           
           <div className="space-y-6 text-muted-foreground">
             <div>
-              <h3 className="text-lg font-medium text-foreground mb-2">Processing Time</h3>
-              <p>Orders are typically processed within 1-2 business days. During peak seasons or promotional periods, processing may take up to 3 business days.</p>
+              <h3 className="text-lg font-medium text-foreground mb-2">Thời Gian Xử Lý</h3>
+              <p>Đơn hàng thường được xử lý trong vòng 1-2 ngày làm việc. Trong mùa cao điểm hoặc các đợt khuyến mãi, thời gian xử lý có thể kéo dài đến 3 ngày làm việc.</p>
             </div>
             
             <Separator />
             
             <div>
-              <h3 className="text-lg font-medium text-foreground mb-2">Shipping Carriers</h3>
-              <p>We partner with reliable carriers including USPS, FedEx, and UPS to deliver your orders. The carrier used for your shipment depends on your location and selected shipping method.</p>
+              <h3 className="text-lg font-medium text-foreground mb-2">Đơn Vị Vận Chuyển</h3>
+              <p>Chúng tôi hợp tác với các đơn vị vận chuyển uy tín như Giao Hàng Nhanh, Viettel Post, J&T Express và GHTK để giao hàng. Đơn vị vận chuyển được sử dụng cho đơn hàng của bạn phụ thuộc vào địa điểm và phương thức vận chuyển bạn chọn.</p>
             </div>
             
             <Separator />
             
             <div>
-              <h3 className="text-lg font-medium text-foreground mb-2">Delivery Windows</h3>
-              <p>Deliveries occur Monday through Friday, excluding holidays. Saturday delivery is available in select areas for Express and Next Day options. Delivery timeframes are estimates and not guaranteed.</p>
+              <h3 className="text-lg font-medium text-foreground mb-2">Thời Gian Giao Hàng</h3>
+              <p>Giao hàng diễn ra từ thứ Hai đến thứ Bảy, trừ các ngày lễ. Giao hàng vào Chủ nhật có sẵn ở một số khu vực cho các tùy chọn Giao Hàng Nhanh và Hỏa Tốc. Thời gian giao hàng là ước tính và không được đảm bảo tuyệt đối.</p>
             </div>
             
             <Separator />
             
             <div>
-              <h3 className="text-lg font-medium text-foreground mb-2">International Shipping</h3>
-              <p>International orders may require additional time for customs clearance. Any import duties, taxes, or customs fees are the responsibility of the recipient and are not included in our shipping fees.</p>
+              <h3 className="text-lg font-medium text-foreground mb-2">Kiểm Tra Hàng</h3>
+              <p>Khách hàng được phép kiểm tra đơn hàng trước khi thanh toán với dịch vụ COD. Vui lòng kiểm tra kỹ tình trạng bên ngoài của gói hàng trước khi ký nhận. Sau khi đã ký nhận, khiếu nại về tình trạng bên ngoài sẽ không được chấp nhận.</p>
             </div>
           </div>
         </div>
@@ -168,25 +167,25 @@ const Shipping = () => {
           <CardHeader className="bg-primary/5">
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5" />
-              Need Help With Your Shipment?
+              Cần Hỗ Trợ Về Đơn Hàng?
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <p className="mb-4">
-              Our customer service team is available to assist you with any shipping or delivery questions.
+              Đội ngũ chăm sóc khách hàng của chúng tôi luôn sẵn sàng hỗ trợ bạn với mọi thắc mắc về vận chuyển hoặc giao hàng.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-between">
               <div>
-                <p className="font-medium">Email Us:</p>
-                <p className="text-muted-foreground">shipping@storex.com</p>
+                <p className="font-medium">Email:</p>
+                <p className="text-muted-foreground">hotro@storex.vn</p>
               </div>
               <div>
-                <p className="font-medium">Call Us:</p>
-                <p className="text-muted-foreground">+1 (234) 567-8900</p>
+                <p className="font-medium">Hotline:</p>
+                <p className="text-muted-foreground">1900 1234 56</p>
               </div>
               <div>
-                <p className="font-medium">Hours:</p>
-                <p className="text-muted-foreground">Mon-Fri: 9AM - 6PM EST</p>
+                <p className="font-medium">Giờ làm việc:</p>
+                <p className="text-muted-foreground">T2-T7: 8:30 - 18:00</p>
               </div>
             </div>
           </CardContent>
