@@ -19,11 +19,11 @@ const Checkout = () => {
   const shipping = 0;
   
   // Ensure pointsDiscount is explicitly typed as a number to fix the toFixed error
-  const pointsDiscount: number = useRewardPoints 
+  const pointsDiscount = useRewardPoints 
     ? Math.min(rewardPoints * 0.01, subtotal * 0.3) 
     : 0;
     
-  const total: number = subtotal + shipping - pointsDiscount;
+  const total = subtotal + shipping - pointsDiscount;
   
   const handlePlaceOrder = () => {
     setShowSuccess(true);
