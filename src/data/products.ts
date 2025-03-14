@@ -14,6 +14,7 @@ export interface Product {
   models?: ProductModel[];
   relatedProducts?: number[];
   userReviews?: UserReview[];
+  colors?: ProductColor[]; // Add this property to fix the error
 }
 
 export interface ProductModel {
