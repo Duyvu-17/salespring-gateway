@@ -1,56 +1,62 @@
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { ProfileTab } from "@/components/account/ProfileTab";
 import { OrdersTab } from "@/components/account/OrdersTab";
 import { AddressesTab } from "@/components/account/AddressesTab";
 import { PaymentMethodsTab } from "@/components/account/PaymentMethodsTab";
 import { PreferencesTab } from "@/components/account/PreferencesTab";
+import { User, CreditCard, MapPin, Package, Settings } from "lucide-react";
 
 const Account = () => {
+  const [activeTab, setActiveTab] = useState("profile");
+
+  const tabs = [
+    { id: "profile", label: "Profile", icon: <User className="h-5 w-5" /> },
+    { id: "orders", label: "Orders", icon: <Package className="h-5 w-5" /> },
+    { id: "addresses", label: "Addresses", icon: <MapPin className="h-5 w-5" /> },
+    { id: "payment", label: "Payment", icon: <CreditCard className="h-5 w-5" /> },
+    { id: "preferences", label: "Preferences", icon: <Settings className="h-5 w-5" /> },
+  ];
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8">My Account</h1>
       
-      <Tabs defaultValue="profile" className="space-y-8">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
-          <TabsTrigger value="addresses">Addresses</TabsTrigger>
-          <TabsTrigger value="payment">Payment</TabsTrigger>
-          <TabsTrigger value="preferences">Preferences</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="profile">
-          <Card>
-            <ProfileTab />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="md:col-span-1">
+          <Card className="sticky top-20">
+            <CardContent className="p-4">
+              <nav className="space-y-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 text-left rounded-md transition-colors ${
+                      activeTab === tab.id
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted"
+                    }`}
+                  >
+                    {tab.icon}
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
+              </nav>
+            </CardContent>
           </Card>
-        </TabsContent>
+        </div>
         
-        <TabsContent value="orders">
+        <div className="md:col-span-3">
           <Card>
-            <OrdersTab />
+            {activeTab === "profile" && <ProfileTab />}
+            {activeTab === "orders" && <OrdersTab />}
+            {activeTab === "addresses" && <AddressesTab />}
+            {activeTab === "payment" && <PaymentMethodsTab />}
+            {activeTab === "preferences" && <PreferencesTab />}
           </Card>
-        </TabsContent>
-        
-        <TabsContent value="addresses">
-          <Card>
-            <AddressesTab />
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="payment">
-          <Card>
-            <PaymentMethodsTab />
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="preferences">
-          <Card>
-            <PreferencesTab />
-          </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   );
 };
