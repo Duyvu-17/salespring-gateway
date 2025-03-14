@@ -543,10 +543,17 @@ products.forEach(product => {
       {
         id: 1,
         name: "Standard",
-        colors: product.colors.map((color, index) => ({
-          name: color,
-          code: getColorCode(color),
-        }))
+        colors: product.colors.map((color, index) => {
+          // Check if color is already a ProductColor object
+          if (typeof color === 'object' && 'name' in color && 'code' in color) {
+            return color as ProductColor;
+          }
+          // If it's a string (old format), convert it to ProductColor
+          return {
+            name: color as unknown as string,
+            code: getColorCode(color as unknown as string),
+          };
+        })
       }
     ];
   }
