@@ -17,9 +17,13 @@ const Checkout = () => {
   
   const subtotal = 299.99;
   const shipping = 0;
-  // Explicitly define the type as number and ensure the calculation returns a number
-  const pointsDiscount = useRewardPoints ? Math.min(rewardPoints * 0.01, subtotal * 0.3) : 0;
-  const total = subtotal + shipping - pointsDiscount;
+  
+  // Ensure pointsDiscount is explicitly typed as a number to fix the toFixed error
+  const pointsDiscount: number = useRewardPoints 
+    ? Math.min(rewardPoints * 0.01, subtotal * 0.3) 
+    : 0;
+    
+  const total: number = subtotal + shipping - pointsDiscount;
   
   const handlePlaceOrder = () => {
     setShowSuccess(true);
