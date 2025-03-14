@@ -182,9 +182,6 @@ export const Header = () => {
                 </Button>
               </Link>
 
-              {/* Add Logout Confirmation Dialog */}
-              {isLoggedIn && <LogoutConfirmDialog />}
-
               <Button 
                 variant="ghost" 
                 size="icon" 

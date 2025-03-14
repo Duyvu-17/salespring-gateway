@@ -20,9 +20,10 @@ export const LogoutConfirmDialog = () => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-          <LogOut className="h-5 w-5" />
-        </Button>
+      <Button variant="outline" className="hover:bg-destructive/10 hover:text-destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[425px]">
         <AlertDialogHeader>

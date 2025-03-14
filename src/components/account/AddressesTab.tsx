@@ -1,9 +1,22 @@
-
 import { useState } from "react";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Pencil, Trash2, Check } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -20,7 +33,7 @@ export const AddressesTab = () => {
       state: "NY",
       postal: "10001",
       country: "United States",
-      isDefault: true
+      isDefault: true,
     },
     {
       id: 2,
@@ -31,14 +44,14 @@ export const AddressesTab = () => {
       state: "CA",
       postal: "94103",
       country: "United States",
-      isDefault: false
-    }
+      isDefault: false,
+    },
   ]);
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const handleOpenAddNew = () => {
     setCurrentAddress({
       id: Date.now(),
@@ -49,79 +62,83 @@ export const AddressesTab = () => {
       state: "",
       postal: "",
       country: "",
-      isDefault: false
+      isDefault: false,
     });
     setIsEditing(false);
     setIsOpen(true);
   };
-  
+
   const handleOpenEdit = (address: any) => {
     setCurrentAddress(address);
     setIsEditing(true);
     setIsOpen(true);
   };
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCurrentAddress((prev: any) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
-  
+
   const handleSave = () => {
     if (isEditing) {
-      setAddresses(addresses.map(a => a.id === currentAddress.id ? currentAddress : a));
+      setAddresses(
+        addresses.map((a) => (a.id === currentAddress.id ? currentAddress : a))
+      );
       toast({
         title: "Address updated",
-        description: "Your address has been updated successfully."
+        description: "Your address has been updated successfully.",
       });
     } else {
       setAddresses([...addresses, currentAddress]);
       toast({
         title: "Address added",
-        description: "Your new address has been added successfully."
+        description: "Your new address has been added successfully.",
       });
     }
     setIsOpen(false);
   };
-  
+
   const handleDelete = (id: number) => {
-    setAddresses(addresses.filter(a => a.id !== id));
+    setAddresses(addresses.filter((a) => a.id !== id));
     toast({
       title: "Address removed",
-      description: "Your address has been removed successfully."
+      description: "Your address has been removed successfully.",
     });
   };
-  
+
   const handleSetDefault = (id: number) => {
-    setAddresses(addresses.map(a => ({
-      ...a,
-      isDefault: a.id === id
-    })));
+    setAddresses(
+      addresses.map((a) => ({
+        ...a,
+        isDefault: a.id === id,
+      }))
+    );
     toast({
       title: "Default address updated",
-      description: "Your default address has been updated successfully."
+      description: "Your default address has been updated successfully.",
     });
   };
-  
+
   return (
-    <>
+    <Card>
       <CardHeader>
         <CardTitle>Shipping Addresses</CardTitle>
         <CardDescription>Manage your shipping addresses</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="w-full justify-start"
             onClick={handleOpenAddNew}
           >
             <PlusCircle className="h-4 w-4 mr-2" />
             Add New Address
           </Button>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {addresses.map((address) => (
               <div key={address.id} className="border rounded-lg p-4 relative">
@@ -135,21 +152,23 @@ export const AddressesTab = () => {
                   <div className="text-sm text-muted-foreground">
                     <p>{address.line1}</p>
                     {address.line2 && <p>{address.line2}</p>}
-                    <p>{address.city}, {address.state} {address.postal}</p>
+                    <p>
+                      {address.city}, {address.state} {address.postal}
+                    </p>
                     <p>{address.country}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => handleOpenEdit(address)}
                   >
                     <Pencil className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => handleDelete(address.id)}
                   >
@@ -157,8 +176,8 @@ export const AddressesTab = () => {
                     Delete
                   </Button>
                   {!address.isDefault && (
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => handleSetDefault(address.id)}
                     >
@@ -172,20 +191,24 @@ export const AddressesTab = () => {
           </div>
         </div>
       </CardContent>
-      
+
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isEditing ? "Edit Address" : "Add New Address"}</DialogTitle>
+            <DialogTitle>
+              {isEditing ? "Edit Address" : "Add New Address"}
+            </DialogTitle>
             <DialogDescription>
-              {isEditing ? "Update your address information below" : "Fill in the address information below"}
+              {isEditing
+                ? "Update your address information below"
+                : "Fill in the address information below"}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="name">Address Name</Label>
-              <Input 
+              <Input
                 id="name"
                 name="name"
                 value={currentAddress?.name || ""}
@@ -193,10 +216,10 @@ export const AddressesTab = () => {
                 placeholder="Home, Work, etc."
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="line1">Address Line 1</Label>
-              <Input 
+              <Input
                 id="line1"
                 name="line1"
                 value={currentAddress?.line1 || ""}
@@ -204,10 +227,10 @@ export const AddressesTab = () => {
                 placeholder="Street address"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="line2">Address Line 2 (Optional)</Label>
-              <Input 
+              <Input
                 id="line2"
                 name="line2"
                 value={currentAddress?.line2 || ""}
@@ -215,11 +238,11 @@ export const AddressesTab = () => {
                 placeholder="Apartment, suite, etc."
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="city">City</Label>
-                <Input 
+                <Input
                   id="city"
                   name="city"
                   value={currentAddress?.city || ""}
@@ -228,7 +251,7 @@ export const AddressesTab = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="state">State/Province</Label>
-                <Input 
+                <Input
                   id="state"
                   name="state"
                   value={currentAddress?.state || ""}
@@ -236,11 +259,11 @@ export const AddressesTab = () => {
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="postal">Postal Code</Label>
-                <Input 
+                <Input
                   id="postal"
                   name="postal"
                   value={currentAddress?.postal || ""}
@@ -249,7 +272,7 @@ export const AddressesTab = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">Country</Label>
-                <Input 
+                <Input
                   id="country"
                   name="country"
                   value={currentAddress?.country || ""}
@@ -258,21 +281,33 @@ export const AddressesTab = () => {
               </div>
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>{isEditing ? "Update Address" : "Add Address"}</Button>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>
+              {isEditing ? "Update Address" : "Add Address"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </Card>
   );
 };
 
 // Define Badge component here since we need it
-const Badge = ({ children, className }: { children: React.ReactNode, className?: string }) => {
+const Badge = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${className}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${className}`}
+    >
       {children}
     </span>
   );

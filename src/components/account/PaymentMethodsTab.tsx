@@ -1,8 +1,24 @@
-
 import { useState } from "react";
-import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, CreditCard, Trash2, Check, Wallet, Banknote, Edit, ChevronRight, ChevronsUpDown, Settings } from "lucide-react";
+import {
+  PlusCircle,
+  CreditCard,
+  Trash2,
+  Check,
+  Wallet,
+  Banknote,
+  Edit,
+  ChevronRight,
+  ChevronsUpDown,
+  Settings,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
 import {
@@ -17,8 +33,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const PaymentMethodsTab = () => {
   const { toast } = useToast();
@@ -30,25 +51,25 @@ export const PaymentMethodsTab = () => {
   const [newCardNumber, setNewCardNumber] = useState("");
   const [newCardName, setNewCardName] = useState("");
   const [newCardExpiry, setNewCardExpiry] = useState("");
-  
+
   const handleAddCard = () => {
     setShowAddDialog(true);
   };
-  
+
   const handleSaveNewCard = () => {
     if (!newCardNumber || !newCardName || !newCardExpiry) {
       toast({
         title: "Missing information",
-        description: "Please fill out all required fields."
+        description: "Please fill out all required fields.",
       });
       return;
     }
-    
+
     toast({
       title: "Payment method added",
-      description: "Your new payment method has been added successfully."
+      description: "Your new payment method has been added successfully.",
     });
-    
+
     setShowAddDialog(false);
     // Reset form fields
     setNewCardType("visa");
@@ -56,54 +77,63 @@ export const PaymentMethodsTab = () => {
     setNewCardName("");
     setNewCardExpiry("");
   };
-  
+
   const handleRemoveCard = () => {
     toast({
       title: "Card removed",
-      description: "Your card has been removed successfully."
+      description: "Your card has been removed successfully.",
     });
   };
-  
+
   const handleSetDefault = () => {
     toast({
       title: "Default payment method updated",
-      description: "Your default payment method has been updated successfully."
+      description: "Your default payment method has been updated successfully.",
     });
   };
 
   const formatCardNumber = (number: string) => {
-    return number.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+    return number
+      .replace(/\s/g, "")
+      .replace(/(\d{4})/g, "$1 ")
+      .trim();
   };
-  
+
   return (
-    <>
+    <Card>
       <CardHeader>
         <CardTitle>Payment Methods</CardTitle>
-        <CardDescription>Manage your payment methods and settings</CardDescription>
+        <CardDescription>
+          Manage your payment methods and settings
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium">Your Payment Methods</h3>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => setShowDetails(!showDetails)}
             >
               {showDetails ? "Hide" : "Show"} Details
-              <ChevronRight className={`h-4 w-4 ml-1 transition-transform ${showDetails ? "rotate-90" : ""}`} />
+              <ChevronRight
+                className={`h-4 w-4 ml-1 transition-transform ${
+                  showDetails ? "rotate-90" : ""
+                }`}
+              />
             </Button>
           </div>
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             className="w-full justify-start"
             onClick={handleAddCard}
           >
             <PlusCircle className="h-4 w-4 mr-2" />
             Add New Payment Method
           </Button>
-          
+
           <div className="space-y-4">
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start">
@@ -118,28 +148,38 @@ export const PaymentMethodsTab = () => {
                         Default
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">Expires 04/25</p>
+                    <p className="text-sm text-muted-foreground">
+                      Expires 04/25
+                    </p>
                     {showDetails && (
                       <div className="mt-2 text-sm">
-                        <p><strong>Card holder:</strong> Nguyen Van A</p>
-                        <p><strong>Billing address:</strong> 123 Nguyen Hue, District 1, Ho Chi Minh City</p>
+                        <p>
+                          <strong>Card holder:</strong> Nguyen Van A
+                        </p>
+                        <p>
+                          <strong>Billing address:</strong> 123 Nguyen Hue,
+                          District 1, Ho Chi Minh City
+                        </p>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
-                    onClick={() => toast({
-                      title: "Edit feature coming soon",
-                      description: "Editing payment methods will be available soon."
-                    })}
+                    onClick={() =>
+                      toast({
+                        title: "Edit feature coming soon",
+                        description:
+                          "Editing payment methods will be available soon.",
+                      })
+                    }
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleRemoveCard}
                   >
@@ -148,7 +188,7 @@ export const PaymentMethodsTab = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start">
                 <div className="flex items-start gap-3">
@@ -157,26 +197,33 @@ export const PaymentMethodsTab = () => {
                   </div>
                   <div>
                     <h3 className="font-medium">Mastercard ending in 8888</h3>
-                    <p className="text-sm text-muted-foreground">Expires 07/24</p>
+                    <p className="text-sm text-muted-foreground">
+                      Expires 07/24
+                    </p>
                     {showDetails && (
                       <div className="mt-2 text-sm">
-                        <p><strong>Card holder:</strong> Nguyen Thi B</p>
-                        <p><strong>Billing address:</strong> 456 Le Loi, District 1, Ho Chi Minh City</p>
+                        <p>
+                          <strong>Card holder:</strong> Nguyen Thi B
+                        </p>
+                        <p>
+                          <strong>Billing address:</strong> 456 Le Loi, District
+                          1, Ho Chi Minh City
+                        </p>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleSetDefault}
                   >
                     <Check className="h-4 w-4 mr-1" />
                     Set Default
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleRemoveCard}
                   >
@@ -185,7 +232,7 @@ export const PaymentMethodsTab = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start">
                 <div className="flex items-start gap-3">
@@ -194,26 +241,32 @@ export const PaymentMethodsTab = () => {
                   </div>
                   <div>
                     <h3 className="font-medium">MoMo Wallet</h3>
-                    <p className="text-sm text-muted-foreground">Connected to +84 123 456 789</p>
+                    <p className="text-sm text-muted-foreground">
+                      Connected to +84 123 456 789
+                    </p>
                     {showDetails && (
                       <div className="mt-2 text-sm">
-                        <p><strong>Name:</strong> Tran Van C</p>
-                        <p><strong>Last used:</strong> 05/06/2023</p>
+                        <p>
+                          <strong>Name:</strong> Tran Van C
+                        </p>
+                        <p>
+                          <strong>Last used:</strong> 05/06/2023
+                        </p>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleSetDefault}
                   >
                     <Check className="h-4 w-4 mr-1" />
                     Set Default
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleRemoveCard}
                   >
@@ -222,7 +275,7 @@ export const PaymentMethodsTab = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start">
                 <div className="flex items-start gap-3">
@@ -231,26 +284,32 @@ export const PaymentMethodsTab = () => {
                   </div>
                   <div>
                     <h3 className="font-medium">VNPay</h3>
-                    <p className="text-sm text-muted-foreground">QR payment via mobile app</p>
+                    <p className="text-sm text-muted-foreground">
+                      QR payment via mobile app
+                    </p>
                     {showDetails && (
                       <div className="mt-2 text-sm">
-                        <p><strong>Linked bank:</strong> VietcomBank</p>
-                        <p><strong>Last used:</strong> 12/05/2023</p>
+                        <p>
+                          <strong>Linked bank:</strong> VietcomBank
+                        </p>
+                        <p>
+                          <strong>Last used:</strong> 12/05/2023
+                        </p>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleSetDefault}
                   >
                     <Check className="h-4 w-4 mr-1" />
                     Set Default
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleRemoveCard}
                   >
@@ -260,65 +319,17 @@ export const PaymentMethodsTab = () => {
               </div>
             </div>
           </div>
-          
-          <div className="pt-4 border-t">
-            <Button 
-              variant="outline" 
-              className="w-full justify-between"
-              onClick={() => setShowThemeSettings(!showThemeSettings)}
-            >
-              <span className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Theme Settings
-              </span>
-              <ChevronsUpDown className={`h-4 w-4 transition-transform ${showThemeSettings ? "rotate-180" : ""}`} />
-            </Button>
-            
-            {showThemeSettings && (
-              <div className="mt-4 p-4 border rounded-lg">
-                <div className="grid grid-cols-2 gap-4">
-                  <Button 
-                    variant={theme === "light" ? "default" : "outline"}
-                    className="justify-center"
-                    onClick={() => setTheme("light")}
-                  >
-                    Light
-                  </Button>
-                  <Button 
-                    variant={theme === "dark" ? "default" : "outline"}
-                    className="justify-center"
-                    onClick={() => setTheme("dark")}
-                  >
-                    Dark
-                  </Button>
-                  <Button 
-                    variant={theme === "purple" ? "default" : "outline"}
-                    className="justify-center"
-                    onClick={() => setTheme("purple")}
-                  >
-                    Purple
-                  </Button>
-                  <Button 
-                    variant={theme === "ocean" ? "default" : "outline"}
-                    className="justify-center"
-                    onClick={() => setTheme("ocean")}
-                  >
-                    Ocean
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-          
+
           <div className="text-sm text-muted-foreground mt-4">
             <p>
-              Your payment information is stored securely and in compliance with industry standards.
-              We never store your full card number or security code.
+              Your payment information is stored securely and in compliance with
+              industry standards. We never store your full card number or
+              security code.
             </p>
           </div>
         </div>
       </CardContent>
-      
+
       <AlertDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <AlertDialogContent className="sm:max-w-[425px]">
           <AlertDialogHeader>
@@ -343,7 +354,7 @@ export const PaymentMethodsTab = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             {(newCardType === "visa" || newCardType === "mastercard") && (
               <>
                 <div className="space-y-2">
@@ -352,7 +363,9 @@ export const PaymentMethodsTab = () => {
                     id="card-number"
                     placeholder="1234 5678 9012 3456"
                     value={newCardNumber}
-                    onChange={(e) => setNewCardNumber(formatCardNumber(e.target.value))}
+                    onChange={(e) =>
+                      setNewCardNumber(formatCardNumber(e.target.value))
+                    }
                     maxLength={19}
                   />
                 </div>
@@ -373,9 +386,10 @@ export const PaymentMethodsTab = () => {
                       placeholder="MM/YY"
                       value={newCardExpiry}
                       onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, '');
+                        let value = e.target.value.replace(/\D/g, "");
                         if (value.length > 2) {
-                          value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                          value =
+                            value.substring(0, 2) + "/" + value.substring(2, 4);
                         }
                         setNewCardExpiry(value);
                       }}
@@ -394,17 +408,14 @@ export const PaymentMethodsTab = () => {
                 </div>
               </>
             )}
-            
+
             {(newCardType === "momo" || newCardType === "zalopay") && (
               <div className="space-y-2">
                 <Label htmlFor="phone-number">Phone Number</Label>
-                <Input
-                  id="phone-number"
-                  placeholder="+84 xxx xxx xxx"
-                />
+                <Input id="phone-number" placeholder="+84 xxx xxx xxx" />
               </div>
             )}
-            
+
             {newCardType === "vnpay" && (
               <div className="space-y-2">
                 <Label htmlFor="bank">Select Bank</Label>
@@ -425,10 +436,12 @@ export const PaymentMethodsTab = () => {
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSaveNewCard}>Save</AlertDialogAction>
+            <AlertDialogAction onClick={handleSaveNewCard}>
+              Save
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </Card>
   );
 };

@@ -1,132 +1,163 @@
-
-import { useState } from "react";
+import {  Edit, Save } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import AvatarChanger from "@/components/user/AvatarChanger";
-
-export const ProfileTab = () => {
-  const { toast } = useToast();
+import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/input";
+import { toast } from "sonner";
+export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    firstName: "John",
-    lastName: "Doe",
+
+  const [profile, setProfile] = useState({
+    name: "John Doe",
     email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567"
+    phone: "(555) 123-4567",
+    address: "123 Main St, Anytown, USA",
+    bio: "I am a tech enthusiast and love exploring new gadgets and applications.",
+    avatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
   });
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProfileData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handleSave = () => {
+
+  const handleProfileUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
     setIsEditing(false);
     toast({
       title: "Profile updated",
-      description: "Your profile information has been updated successfully."
+      description: "Your profile has been updated successfully",
+      variant: "default",
     });
   };
-  
-  const handleCancel = () => {
-    setIsEditing(false);
-    // Reset to original data
-    setProfileData({
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      phone: "+1 (555) 123-4567"
-    });
-  };
-  
+
   return (
     <>
-      <CardHeader>
-        <CardTitle>Profile Information</CardTitle>
-        <CardDescription>Manage your personal information</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-8">
-        <div className="flex flex-col items-center space-y-4">
-          <AvatarChanger />
-          <div className="text-center">
-            <h3 className="text-lg font-semibold">{profileData.firstName} {profileData.lastName}</h3>
-            <p className="text-sm text-muted-foreground">Member since Jan 2022</p>
-          </div>
-        </div>
-        
-        <Separator />
-        
-        <div className="grid gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input 
-                id="firstName"
-                name="firstName"
-                value={profileData.firstName}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={!isEditing ? "bg-muted" : ""}
-              />
+      <div className="space-y-6 animate-fadeIn">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>Update your personal details</CardDescription>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input 
-                id="lastName"
-                name="lastName"
-                value={profileData.lastName}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={!isEditing ? "bg-muted" : ""}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input 
-              id="email"
-              name="email"
-              type="email"
-              value={profileData.email}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={!isEditing ? "bg-muted" : ""}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input 
-              id="phone"
-              name="phone"
-              value={profileData.phone}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className={!isEditing ? "bg-muted" : ""}
-            />
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        {isEditing ? (
-          <>
-            <Button variant="outline" onClick={handleCancel}>Cancel</Button>
-            <Button onClick={handleSave}>Save Changes</Button>
-          </>
-        ) : (
-          <>
-            <Button variant="outline">Change Password</Button>
-            <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
-          </>
-        )}
-      </CardFooter>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditing(!isEditing)}
+              className="flex items-center gap-2"
+            >
+              {isEditing ? (
+                <Save className="h-4 w-4" />
+              ) : (
+                <Edit className="h-4 w-4" />
+              )}
+              {isEditing ? "Save" : "Edit"}
+            </Button>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleProfileUpdate} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium">
+                    Full Name
+                  </Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={profile.name}
+                    onChange={(e) =>
+                      setProfile({ ...profile, name: e.target.value })
+                    }
+                    disabled={!isEditing}
+                    className={isEditing ? "border-primary/50" : ""}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={profile.email}
+                    onChange={(e) =>
+                      setProfile({ ...profile, email: e.target.value })
+                    }
+                    disabled={!isEditing}
+                    className={isEditing ? "border-primary/50" : ""}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm font-medium">
+                    Phone
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={profile.phone}
+                    onChange={(e) =>
+                      setProfile({ ...profile, phone: e.target.value })
+                    }
+                    disabled={!isEditing}
+                    className={isEditing ? "border-primary/50" : ""}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="address" className="text-sm font-medium">
+                    Address
+                  </Label>
+                  <Input
+                    id="address"
+                    type="text"
+                    value={profile.address}
+                    onChange={(e) =>
+                      setProfile({
+                        ...profile,
+                        address: e.target.value,
+                      })
+                    }
+                    disabled={!isEditing}
+                    className={isEditing ? "border-primary/50" : ""}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bio" className="text-sm font-medium">
+                  Bio
+                </Label>
+                <Textarea
+                  id="bio"
+                  value={profile.bio}
+                  onChange={(e) =>
+                    setProfile({ ...profile, bio: e.target.value })
+                  }
+                  disabled={!isEditing}
+                  className={`min-h-[100px] ${
+                    isEditing ? "border-primary/50" : ""
+                  }`}
+                />
+              </div>
+
+              {isEditing && (
+                <Button type="submit" className="mt-4">
+                  Save Changes
+                </Button>
+              )}
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </>
   );
 };
+
+export default Profile;
