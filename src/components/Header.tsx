@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,8 @@ import {
   Heart, 
   Bell, 
   Phone, 
-  Mail
+  Mail,
+  Palette
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { Badge } from '@/components/ui/badge';
@@ -80,11 +80,7 @@ export const Header = () => {
     }
   };
 
-  const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'purple' : 
-                     theme === 'purple' ? 'ocean' : 'light';
-    setTheme(nextTheme);
-  };
+  const { theme, toggleTheme, themeLabel } = useTheme();
 
   return (
     <>

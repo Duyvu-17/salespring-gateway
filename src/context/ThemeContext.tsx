@@ -6,6 +6,8 @@ type ThemeType = 'light' | 'dark' | 'purple' | 'ocean';
 interface ThemeContextType {
   theme: ThemeType;
   setTheme: (theme: ThemeType) => void;
+  toggleTheme: () => void;
+  themeLabel: string;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -15,6 +17,14 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const savedTheme = localStorage.getItem('theme');
     return (savedTheme as ThemeType) || 'light';
   });
+
+  const themeLabel = theme.charAt(0).toUpperCase() + theme.slice(1);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'purple' : 
+                     theme === 'purple' ? 'ocean' : 'light';
+    setTheme(nextTheme);
+  };
 
   useEffect(() => {
     // Save theme to localStorage
@@ -28,7 +38,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, themeLabel }}>
       {children}
     </ThemeContext.Provider>
   );

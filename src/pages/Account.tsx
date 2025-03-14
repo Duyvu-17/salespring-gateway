@@ -6,7 +6,8 @@ import { OrdersTab } from "@/components/account/OrdersTab";
 import { AddressesTab } from "@/components/account/AddressesTab";
 import { PaymentMethodsTab } from "@/components/account/PaymentMethodsTab";
 import { PreferencesTab } from "@/components/account/PreferencesTab";
-import { User, CreditCard, MapPin, Package, Settings } from "lucide-react";
+import { OrderDetailsTab } from "@/components/account/OrderDetailsTab";
+import { User, CreditCard, MapPin, Package, Settings, FileText } from "lucide-react";
 
 const Account = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -14,6 +15,7 @@ const Account = () => {
   const tabs = [
     { id: "profile", label: "Profile", icon: <User className="h-5 w-5" /> },
     { id: "orders", label: "Orders", icon: <Package className="h-5 w-5" /> },
+    { id: "orderDetails", label: "Order Details", icon: <FileText className="h-5 w-5" /> },
     { id: "addresses", label: "Addresses", icon: <MapPin className="h-5 w-5" /> },
     { id: "payment", label: "Payment", icon: <CreditCard className="h-5 w-5" /> },
     { id: "preferences", label: "Preferences", icon: <Settings className="h-5 w-5" /> },
@@ -51,6 +53,7 @@ const Account = () => {
           <Card>
             {activeTab === "profile" && <ProfileTab />}
             {activeTab === "orders" && <OrdersTab />}
+            {activeTab === "orderDetails" && <OrderDetailsTab />}
             {activeTab === "addresses" && <AddressesTab />}
             {activeTab === "payment" && <PaymentMethodsTab />}
             {activeTab === "preferences" && <PreferencesTab />}
