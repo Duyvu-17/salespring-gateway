@@ -49,6 +49,24 @@ export const OrdersTab = () => {
         return null;
     }
   };
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "delivered":
+        return (
+          <Badge className="bg-green-500 hover:bg-green-600">Delivered</Badge>
+        );
+      case "shipped":
+        return <Badge className="bg-blue-500 hover:bg-blue-600">Shipped</Badge>;
+      case "processing":
+        return (
+          <Badge className="bg-amber-500 hover:bg-amber-600">Processing</Badge>
+        );
+      case "cancelled":
+        return <Badge className="bg-red-500 hover:bg-red-600">Cancelled</Badge>;
+      default:
+        return <Badge>{status}</Badge>;
+    }
+  };
 
   const orders = [
     {
@@ -65,7 +83,7 @@ export const OrdersTab = () => {
           name: "Wireless Earbuds Pro",
           quantity: 1,
           price: 129.99,
-          image: "https://via.placeholder.com/64",
+          image: "https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D",
         },
       ],
     },
@@ -83,11 +101,12 @@ export const OrdersTab = () => {
           name: "Smart Watch Pro",
           quantity: 1,
           price: 399.99,
-          image: "https://via.placeholder.com/64",
+          image: "https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D",
         },
       ],
     },
   ];
+
 
   return (
     <>
@@ -186,7 +205,7 @@ export const OrdersTab = () => {
                   <div key={item.id} className="flex gap-4">
                     <div className="w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
                       <img
-                        src={item.image}
+                        src={item?.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />
@@ -271,7 +290,7 @@ export const OrdersTab = () => {
                             >
                               <div className="w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
                                 <img
-                                  src={item.image}
+                                  src={item?.image}
                                   alt={item.name}
                                   className="w-full h-full object-cover"
                                 />
@@ -347,6 +366,7 @@ export const OrdersTab = () => {
                         </Button>
                       )}
                     </div>
+                    
                   </SheetContent>
                 </Sheet>
               </div>
