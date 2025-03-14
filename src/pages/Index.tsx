@@ -167,34 +167,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Categories with Gradient Overlays */}
-      {/* <section className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-10">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold">Shop by Category</h2>
-            <p className="text-muted-foreground mt-2">Browse our collection by category</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {categories.slice(0, 6).map((category) => (
-            <Link 
-              key={category.id} 
-              to={`/search?category=${category.name}`}
-              className="block"
-            >
-              <div className="relative h-48 md:h-64 rounded-xl overflow-hidden hover-scale shadow-lg">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent transition-opacity duration-300 hover:opacity-75" />
-                <div className="absolute bottom-0 left-0 p-6">
-                  <h3 className="text-2xl font-bold text-white" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>{category.name}</h3>
-                  <p className="text-white/80 text-sm mt-1 flex items-center">
-                    Shop now <ChevronRight className="ml-1 h-4 w-4" />
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section> */}
       <section className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-10">
           <div>
