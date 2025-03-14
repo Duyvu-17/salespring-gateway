@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Download, Package, TruckIcon } from "lucide-react";
+import { Eye, Download, Package, TruckIcon, CheckCircle, Truck, AlertTriangle, Clock } from "lucide-react";
 import {
   Sheet,
   SheetTrigger,
@@ -18,7 +18,21 @@ import {
 import OrderHistoryItem from "@/pages/OrderHistoryItem";
 
 export const OrdersTab = () => {
-  const [selectedOrder, setSelectedOrder] = useState(null); // Lưu đơn hàng được chọn
+  const [selectedOrder, setSelectedOrder] = useState(null); 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'delivered':
+        return <CheckCircle className="text-green-500 h-5 w-5" />;
+      case 'shipped':
+        return <Truck className="text-blue-500 h-5 w-5" />;
+      case 'processing':
+        return <Clock className="text-amber-500 h-5 w-5" />;
+      case 'cancelled':
+        return <AlertTriangle className="text-red-500 h-5 w-5" />;
+      default:
+        return null;
+    }
+  };
 
   const orders = [
     {
@@ -84,50 +98,7 @@ export const OrdersTab = () => {
                   <p className="text-sm text-muted-foreground">{order.date}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* <Sheet>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
-                        <Eye className="h-4 w-4 mr-1" />
-                        Details
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent className="overflow-y-auto">
-                      {selectedOrder && <OrderHistoryItem order={selectedOrder} getStatusIcon={() => null} />}
-                    </SheetContent>
-                  </Sheet> */}
-                  {/* <Sheet>
-                    <SheetTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedOrder(order)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Details
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent className="overflow-y-auto">
-                      <SheetHeader>
-                        <SheetTitle>Order Details</SheetTitle>
-                      </SheetHeader>
-                      {selectedOrder ? (
-                        <OrderHistoryItem
-                          order={selectedOrder}
-                          getStatusIcon={() => null}
-                        />
-                      ) : (
-                        <p className="text-center">Loading...</p>
-                      )}
-                    </SheetContent>
-                  </Sheet> */}
                   <OrderHistoryItem order={order} getStatusIcon={getStatusIcon}/>
-
-                  {order.status === "delivered" && (
-                    <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-1" />
-                      Invoice
-                    </Button>
-                  )}
                 </div>
               </div>
 
