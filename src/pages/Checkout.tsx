@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,8 +17,9 @@ const Checkout = () => {
   
   const subtotal = 299.99;
   const shipping = 0;
-  const pointsDiscount: number = useRewardPoints ? Math.min(rewardPoints * 0.01, subtotal * 0.3) : 0;
-  const total: number = subtotal + shipping - pointsDiscount;
+  // Explicitly define the type as number and ensure the calculation returns a number
+  const pointsDiscount = useRewardPoints ? Math.min(rewardPoints * 0.01, subtotal * 0.3) : 0;
+  const total = subtotal + shipping - pointsDiscount;
   
   const handlePlaceOrder = () => {
     setShowSuccess(true);
