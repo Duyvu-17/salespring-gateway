@@ -11,10 +11,23 @@ export interface Product {
   inStock: boolean;
   discount?: number;
   new?: boolean;
-  colors?: string[];
-  sizes?: string[];
+  models?: ProductModel[];
   relatedProducts?: number[];
   userReviews?: UserReview[];
+}
+
+export interface ProductModel {
+  id: number;
+  name: string;
+  price?: number; // If price differs from base product
+  colors: ProductColor[];
+  inStock?: boolean; // Override base product stock status
+}
+
+export interface ProductColor {
+  name: string;
+  code: string;
+  image?: string; // Optional image showing product in this color
 }
 
 export interface UserReview {
@@ -65,7 +78,26 @@ export const products: Product[] = [
     rating: 4.7,
     reviews: 328,
     inStock: true,
-    colors: ["Black", "Silver", "Blue"],
+    models: [
+      {
+        id: 1,
+        name: "Standard Edition",
+        colors: [
+          { name: "Black", code: "#000000" },
+          { name: "Silver", code: "#C0C0C0" },
+          { name: "Blue", code: "#0000FF" }
+        ]
+      },
+      {
+        id: 2,
+        name: "Pro Edition",
+        price: 349.99,
+        colors: [
+          { name: "Matte Black", code: "#1E1E1E" },
+          { name: "Space Gray", code: "#8A8A8A" }
+        ]
+      }
+    ],
     relatedProducts: [2, 4, 7]
   },
   {
@@ -86,7 +118,26 @@ export const products: Product[] = [
     reviews: 195,
     inStock: true,
     discount: 15,
-    colors: ["Black", "Gray", "Red"],
+    models: [
+      {
+        id: 1,
+        name: "Compact",
+        colors: [
+          { name: "Black", code: "#000000" },
+          { name: "Gray", code: "#808080" },
+          { name: "Red", code: "#FF0000" }
+        ]
+      },
+      {
+        id: 2,
+        name: "XL Edition",
+        price: 249.99,
+        colors: [
+          { name: "Black", code: "#000000" },
+          { name: "Navy Blue", code: "#000080" }
+        ]
+      }
+    ],
     relatedProducts: [1, 3, 5]
   },
   {
@@ -107,8 +158,26 @@ export const products: Product[] = [
     reviews: 415,
     inStock: true,
     new: true,
-    colors: ["Black", "Silver", "Rose Gold"],
-    sizes: ["40mm", "44mm"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black", code: "#000000" },
+          { name: "Silver", code: "#C0C0C0" },
+          { name: "Rose Gold", code: "#B76E79" }
+        ]
+      },
+      {
+        id: 2,
+        name: "Premium",
+        price: 449.99,
+        colors: [
+          { name: "Graphite", code: "#383838" },
+          { name: "Gold", code: "#FFD700" }
+        ]
+      }
+    ],
     relatedProducts: [5, 8, 10]
   },
   {
@@ -128,7 +197,17 @@ export const products: Product[] = [
     rating: 4.6,
     reviews: 248,
     inStock: true,
-    colors: ["White", "Black", "Blue"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "White", code: "#FFFFFF" },
+          { name: "Black", code: "#000000" },
+          { name: "Blue", code: "#0000FF" }
+        ]
+      }
+    ],
     relatedProducts: [1, 2, 7]
   },
   {
@@ -149,7 +228,18 @@ export const products: Product[] = [
     reviews: 187,
     inStock: true,
     discount: 20,
-    colors: ["Black", "Blue", "Red", "Green"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black", code: "#000000" },
+          { name: "Blue", code: "#0000FF" },
+          { name: "Red", code: "#FF0000" },
+          { name: "Green", code: "#008000" }
+        ]
+      }
+    ],
     relatedProducts: [3, 8, 10]
   },
   {
@@ -169,7 +259,16 @@ export const products: Product[] = [
     rating: 4.7,
     reviews: 134,
     inStock: true,
-    colors: ["Black", "Silver"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black", code: "#000000" },
+          { name: "Silver", code: "#C0C0C0" }
+        ]
+      }
+    ],
     relatedProducts: [11, 12]
   },
   {
@@ -189,7 +288,15 @@ export const products: Product[] = [
     rating: 4.9,
     reviews: 89,
     inStock: false,
-    colors: ["Black"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black", code: "#000000" }
+        ]
+      }
+    ],
     relatedProducts: [1, 4]
   },
   {
@@ -210,7 +317,16 @@ export const products: Product[] = [
     reviews: 76,
     inStock: true,
     new: true,
-    colors: ["Black", "White"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black", code: "#000000" },
+          { name: "White", code: "#FFFFFF" }
+        ]
+      }
+    ],
     relatedProducts: [3, 5]
   },
   {
@@ -231,7 +347,16 @@ export const products: Product[] = [
     reviews: 152,
     inStock: true,
     discount: 10,
-    colors: ["Black", "White"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black", code: "#000000" },
+          { name: "White", code: "#FFFFFF" }
+        ]
+      }
+    ],
     relatedProducts: [11, 12]
   },
   {
@@ -251,8 +376,17 @@ export const products: Product[] = [
     rating: 4.4,
     reviews: 63,
     inStock: true,
-    colors: ["Black/Red", "Gray/Blue", "White/Green"],
-    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black/Red", code: "#000000" },
+          { name: "Gray/Blue", code: "#808080" },
+          { name: "White/Green", code: "#FFFFFF" }
+        ]
+      }
+    ],
     relatedProducts: [3, 5, 8]
   },
   {
@@ -272,7 +406,16 @@ export const products: Product[] = [
     rating: 4.6,
     reviews: 87,
     inStock: true,
-    colors: ["White", "Black"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "White", code: "#FFFFFF" },
+          { name: "Black", code: "#000000" }
+        ]
+      }
+    ],
     relatedProducts: [12, 13]
   },
   {
@@ -293,7 +436,15 @@ export const products: Product[] = [
     reviews: 112,
     inStock: true,
     new: true,
-    colors: ["Black"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black", code: "#000000" }
+        ]
+      }
+    ],
     relatedProducts: [6, 13]
   },
   {
@@ -313,7 +464,16 @@ export const products: Product[] = [
     rating: 4.5,
     reviews: 94,
     inStock: true,
-    colors: ["White", "Black"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "White", code: "#FFFFFF" },
+          { name: "Black", code: "#000000" }
+        ]
+      }
+    ],
     relatedProducts: [11, 12]
   },
   {
@@ -333,7 +493,16 @@ export const products: Product[] = [
     rating: 4.8,
     reviews: 67,
     inStock: true,
-    colors: ["Silver", "Space Gray"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Silver", code: "#C0C0C0" },
+          { name: "Space Gray", code: "#8A8A8A" }
+        ]
+      }
+    ],
     relatedProducts: [6, 15]
   },
   {
@@ -353,10 +522,72 @@ export const products: Product[] = [
     rating: 4.7,
     reviews: 53,
     inStock: true,
-    colors: ["Black"],
+    models: [
+      {
+        id: 1,
+        name: "Standard",
+        colors: [
+          { name: "Black", code: "#000000" }
+        ]
+      }
+    ],
     relatedProducts: [14]
   }
 ];
+
+// Add models to products that don't have them yet
+products.forEach(product => {
+  if (!product.models && product.colors) {
+    product.models = [
+      {
+        id: 1,
+        name: "Standard",
+        colors: product.colors.map((color, index) => ({
+          name: color,
+          code: getColorCode(color),
+        }))
+      }
+    ];
+  }
+});
+
+// Helper function to get color codes
+function getColorCode(colorName: string): string {
+  const colorMap: Record<string, string> = {
+    "Black": "#000000",
+    "White": "#FFFFFF",
+    "Red": "#FF0000",
+    "Blue": "#0000FF",
+    "Green": "#008000",
+    "Yellow": "#FFFF00",
+    "Purple": "#800080",
+    "Orange": "#FFA500",
+    "Pink": "#FFC0CB",
+    "Gray": "#808080",
+    "Silver": "#C0C0C0",
+    "Gold": "#FFD700",
+    "Brown": "#A52A2A",
+    "Navy": "#000080",
+    "Teal": "#008080",
+    "Maroon": "#800000",
+    "Olive": "#808000",
+    "Lime": "#00FF00",
+    "Aqua": "#00FFFF",
+    "Fuchsia": "#FF00FF",
+    "Rose Gold": "#B76E79",
+    "Space Gray": "#8A8A8A"
+  };
+  
+  // Match partial color names
+  for (const key in colorMap) {
+    if (colorName.toLowerCase().includes(key.toLowerCase())) {
+      return colorMap[key];
+    }
+  }
+  
+  // Default color if no match is found
+  return "#CCCCCC";
+}
 
 // Add some sample reviews to products
 products.forEach(product => {

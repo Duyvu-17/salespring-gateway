@@ -13,9 +13,10 @@ import {
   Info,
   Package,
   Heart,
-  MapPin
+  MapPin,
+  CreditCard
 } from 'lucide-react';
-import { getProductById, getRelatedProducts, Product, UserReview, Reply } from '@/data/products';
+import { getProductById, getRelatedProducts, Product, UserReview, Reply, ProductModel, ProductColor } from '@/data/products';
 import { getProductImages } from '@/data/product-images';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,17 +24,21 @@ import { ProductGallery } from '@/components/products/ProductGallery';
 import ReviewSection from '@/components/products/ReviewSection';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useWishlist, isInWishlist } from '@/utils/wishlist';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { useAuth } from '@/context/AuthContext';
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<ProductModel | null>(null);
+  const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
   const [product, setProduct] = useState<Product | undefined>(undefined);
   const [isInWishlistState, setIsInWishlistState] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { toggleWishlist } = useWishlist();
+  const { isAuthenticated } = useAuth();
   
   // Find the product
   useEffect(() => {
@@ -42,6 +47,14 @@ const ProductDetail = () => {
     
     if (foundProduct) {
       setIsInWishlistState(isInWishlist(foundProduct.id));
+      
+      // Set initial model and color if available
+      if (foundProduct.models && foundProduct.models.length > 0) {
+        setSelectedModel(foundProduct.models[0]);
+        if (foundProduct.models[0].colors && foundProduct.models[0].colors.length > 0) {
+          setSelectedColor(foundProduct.models[0].colors[0]);
+        }
+      }
     }
     
     // Listen for wishlist updates
@@ -74,15 +87,63 @@ const ProductDetail = () => {
   }
   
   const handleAddToCart = () => {
+    if (!selectedModel || !selectedColor) {
+      toast({
+        title: "Selection required",
+        description: "Please select a model and color before adding to cart",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     toast({
       title: "Added to cart",
-      description: `${product.name} (x${quantity}) has been added to your cart`,
+      description: `${product.name} - ${selectedModel.name} (${selectedColor.name}) x${quantity} has been added to your cart`,
     });
+  };
+  
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login required",
+        description: "Please login to continue with your purchase",
+        variant: "destructive"
+      });
+      navigate("/login", { state: { from: `/product/${product.id}` } });
+      return;
+    }
+    
+    if (!selectedModel || !selectedColor) {
+      toast({
+        title: "Selection required",
+        description: "Please select a model and color before purchasing",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Add to cart and navigate to checkout
+    handleAddToCart();
+    navigate("/checkout");
   };
   
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) return;
     setQuantity(newQuantity);
+  };
+
+  const handleModelSelect = (model: ProductModel) => {
+    setSelectedModel(model);
+    // Reset color selection when model changes
+    if (model.colors && model.colors.length > 0) {
+      setSelectedColor(model.colors[0]);
+    } else {
+      setSelectedColor(null);
+    }
+  };
+
+  const handleColorSelect = (color: ProductColor) => {
+    setSelectedColor(color);
   };
 
   const handleAddReview = (newReview: Omit<UserReview, 'id'>) => {
@@ -144,9 +205,26 @@ const ProductDetail = () => {
     }
   };
 
+  // Get current price based on selected model
+  const getCurrentPrice = () => {
+    if (selectedModel && selectedModel.price !== undefined) {
+      return selectedModel.price;
+    }
+    return product.price;
+  };
+
+  const currentPrice = getCurrentPrice();
   const discountedPrice = product.discount 
-    ? product.price * (1 - product.discount / 100)
+    ? currentPrice * (1 - product.discount / 100)
     : null;
+
+  // Check if product is in stock based on selected model
+  const isCurrentlyInStock = () => {
+    if (selectedModel && selectedModel.inStock !== undefined) {
+      return selectedModel.inStock;
+    }
+    return product.inStock;
+  };
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -166,7 +244,7 @@ const ProductDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Product Gallery */}
         <ProductGallery 
-          mainImage={product.image}
+          mainImage={selectedColor?.image || product.image}
           productName={product.name}
           additionalImages={productImages}
           discount={product.discount}
@@ -212,12 +290,12 @@ const ProductDetail = () => {
                   ${discountedPrice.toFixed(2)}
                 </div>
                 <div className="text-muted-foreground line-through">
-                  ${product.price.toFixed(2)}
+                  ${currentPrice.toFixed(2)}
                 </div>
               </>
             ) : (
               <div className="text-2xl font-bold text-primary">
-                ${product.price.toFixed(2)}
+                ${currentPrice.toFixed(2)}
               </div>
             )}
           </div>
@@ -225,54 +303,81 @@ const ProductDetail = () => {
           {/* Short Description */}
           <p className="text-muted-foreground">{product.description.slice(0, 150)}...</p>
           
-          {product.colors && product.colors.length > 0 && (
+          {/* Model Selection */}
+          {product.models && product.models.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-sm font-medium">Color</h3>
-              <div className="flex gap-2">
-                {product.colors.map(color => (
-                  <button
-                    key={color}
-                    type="button"
-                    className={`px-3 py-1 border rounded-md text-sm ${
-                      selectedColor === color
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                    onClick={() => setSelectedColor(color)}
-                  >
-                    {color}
-                  </button>
+              <h3 className="text-sm font-medium">Model</h3>
+              <RadioGroup 
+                defaultValue={product.models[0].id.toString()}
+                onValueChange={(value) => {
+                  const model = product.models?.find(m => m.id.toString() === value);
+                  if (model) handleModelSelect(model);
+                }}
+                className="flex flex-wrap gap-2"
+              >
+                {product.models.map(model => (
+                  <div key={model.id} className="flex items-center space-x-2">
+                    <RadioGroupItem 
+                      value={model.id.toString()} 
+                      id={`model-${model.id}`}
+                    />
+                    <Label 
+                      htmlFor={`model-${model.id}`}
+                      className={`px-3 py-1 border rounded-md text-sm cursor-pointer ${
+                        selectedModel?.id === model.id
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {model.name} {model.price !== undefined && model.price !== product.price && 
+                        `(+$${(model.price - product.price).toFixed(2)})`
+                      }
+                    </Label>
+                  </div>
                 ))}
-              </div>
+              </RadioGroup>
             </div>
           )}
           
-          {product.sizes && product.sizes.length > 0 && (
+          {/* Color Selection */}
+          {selectedModel && selectedModel.colors && selectedModel.colors.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-sm font-medium">Size</h3>
-              <div className="flex gap-2">
-                {product.sizes.map(size => (
+              <h3 className="text-sm font-medium">Color</h3>
+              <div className="flex flex-wrap gap-3">
+                {selectedModel.colors.map((color) => (
                   <button
-                    key={size}
+                    key={color.name}
                     type="button"
-                    className={`px-3 py-1 border rounded-md text-sm ${
-                      selectedSize === size
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:border-primary/50"
+                    onClick={() => handleColorSelect(color)}
+                    className={`relative p-1 rounded-full border-2 ${
+                      selectedColor?.name === color.name
+                        ? "border-primary"
+                        : "border-transparent"
                     }`}
-                    onClick={() => setSelectedSize(size)}
+                    title={color.name}
                   >
-                    {size}
+                    <div
+                      className="w-8 h-8 rounded-full"
+                      style={{ backgroundColor: color.code }}
+                    ></div>
+                    {selectedColor?.name === color.name && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Check className="text-white drop-shadow-md h-4 w-4" />
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
+              <p className="text-sm text-muted-foreground">
+                Selected: <span className="font-medium">{selectedColor?.name}</span>
+              </p>
             </div>
           )}
           
           <div className="space-y-4">
             <div className="flex items-center">
-              <span className={product.inStock ? "text-green-600 flex items-center" : "text-red-600 flex items-center"}>
-                {product.inStock ? (
+              <span className={isCurrentlyInStock() ? "text-green-600 flex items-center" : "text-red-600 flex items-center"}>
+                {isCurrentlyInStock() ? (
                   <>
                     <Check className="h-4 w-4 mr-1" />
                     In Stock
@@ -289,7 +394,7 @@ const ProductDetail = () => {
                   variant="ghost" 
                   size="icon"
                   onClick={() => handleQuantityChange(quantity - 1)}
-                  disabled={!product.inStock}
+                  disabled={!isCurrentlyInStock()}
                 >
                   -
                 </Button>
@@ -298,7 +403,7 @@ const ProductDetail = () => {
                   variant="ghost" 
                   size="icon"
                   onClick={() => handleQuantityChange(quantity + 1)}
-                  disabled={!product.inStock}
+                  disabled={!isCurrentlyInStock()}
                 >
                   +
                 </Button>
@@ -307,9 +412,9 @@ const ProductDetail = () => {
               <Button 
                 className="flex-1"
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={!isCurrentlyInStock()}
               >
-                {product.inStock ? "Add to Cart" : "Out of Stock"}
+                {isCurrentlyInStock() ? "Add to Cart" : "Out of Stock"}
               </Button>
               
               <Button 
@@ -321,6 +426,16 @@ const ProductDetail = () => {
                 <Heart className={`h-5 w-5 ${isInWishlistState ? "fill-red-500 text-red-500 animate-heartbeat" : ""}`} />
               </Button>
             </div>
+            
+            {/* Buy Now Button */}
+            <Button 
+              className="w-full bg-green-600 hover:bg-green-700 flex gap-2 items-center justify-center"
+              onClick={handleBuyNow}
+              disabled={!isCurrentlyInStock()}
+            >
+              <CreditCard className="h-5 w-5" />
+              {isCurrentlyInStock() ? "Buy Now" : "Out of Stock"}
+            </Button>
           </div>
 
           {/* Quick info cards */}
