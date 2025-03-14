@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, CreditCard, Trash2, Check, Wallet, Banknote, Edit, ChevronRight, ChevronsUpDown } from "lucide-react";
+import { PlusCircle, CreditCard, Trash2, Check, Wallet, Banknote, Edit, ChevronRight, ChevronsUpDown, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
 import {
