@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,8 +53,8 @@ const Contact = () => {
     setTimeout(() => {
       setIsSubmitting(false);
       toast({
-        title: "Message Sent",
-        description: "Thank you for contacting us. We'll respond to you shortly.",
+        title: "Tin nhắn đã được gửi",
+        description: "Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ phản hồi bạn trong thời gian sớm nhất.",
       });
       setFormData({
         name: '',
@@ -72,9 +71,9 @@ const Contact = () => {
       <div className="max-w-5xl mx-auto">
         {/* Hero section */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold mb-4">Get In Touch</h1>
+          <h1 className="text-3xl font-bold mb-4">Liên hệ với chúng tôi</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            We'd love to hear from you. Whether you have a question about our products, services, or anything else, our team is ready to answer all your questions.
+            Chúng tôi rất mong nhận được phản hồi từ bạn. Dù bạn có câu hỏi về sản phẩm, dịch vụ, hay bất cứ điều gì khác, đội ngũ của chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc của bạn.
           </p>
         </div>
         
@@ -85,12 +84,12 @@ const Contact = () => {
               <div className="mx-auto bg-primary/10 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-2">
                 <Phone className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle className="text-lg">Call Us</CardTitle>
+              <CardTitle className="text-lg">Gọi cho chúng tôi</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-2">Customer Support</p>
+              <p className="text-muted-foreground mb-2">Hỗ trợ khách hàng</p>
               <p className="font-medium">+1 (234) 567-8900</p>
-              <p className="text-muted-foreground mt-4 mb-2">Sales Inquiries</p>
+              <p className="text-muted-foreground mt-4 mb-2">Yêu cầu bán hàng</p>
               <p className="font-medium">+1 (234) 567-8901</p>
             </CardContent>
           </Card>
@@ -100,12 +99,12 @@ const Contact = () => {
               <div className="mx-auto bg-primary/10 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-2">
                 <Mail className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle className="text-lg">Email Us</CardTitle>
+              <CardTitle className="text-lg">Gửi email cho chúng tôi</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-2">Customer Support</p>
+              <p className="text-muted-foreground mb-2">Hỗ trợ khách hàng</p>
               <p className="font-medium">support@storex.com</p>
-              <p className="text-muted-foreground mt-4 mb-2">Sales Inquiries</p>
+              <p className="text-muted-foreground mt-4 mb-2">Yêu cầu bán hàng</p>
               <p className="font-medium">sales@storex.com</p>
             </CardContent>
           </Card>
@@ -115,13 +114,13 @@ const Contact = () => {
               <div className="mx-auto bg-primary/10 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-2">
                 <MapPin className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle className="text-lg">Visit Us</CardTitle>
+              <CardTitle className="text-lg">Đến thăm chúng tôi</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-2">Headquarters</p>
+              <p className="text-muted-foreground mb-2">Trụ sở chính</p>
               <p className="font-medium">123 Commerce St, New York, NY 10001, USA</p>
-              <p className="text-muted-foreground mt-4 mb-2">Business Hours</p>
-              <p className="font-medium">Mon-Fri: 9AM - 6PM EST</p>
+              <p className="text-muted-foreground mt-4 mb-2">Giờ làm việc</p>
+              <p className="font-medium">Thứ Hai - Thứ Sáu: 9AM - 6PM EST</p>
             </CardContent>
           </Card>
         </div>
@@ -130,9 +129,9 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-16">
           <Card className="lg:col-span-3">
             <CardHeader>
-              <CardTitle>Send a Message</CardTitle>
+              <CardTitle>Gửi tin nhắn</CardTitle>
               <CardDescription>
-                Fill out the form below and we'll get back to you as soon as possible.
+                Điền vào mẫu dưới đây và chúng tôi sẽ trả lời bạn trong thời gian sớm nhất.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -140,7 +139,7 @@ const Contact = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-medium">
-                      Your Name
+                      Tên của bạn
                     </label>
                     <Input
                       id="name"
@@ -154,7 +153,7 @@ const Contact = () => {
                   
                   <div className="space-y-2">
                     <label htmlFor="email" className="text-sm font-medium">
-                      Email Address
+                      Địa chỉ email
                     </label>
                     <Input
                       id="email"
@@ -170,30 +169,30 @@ const Contact = () => {
                 
                 <div className="space-y-2">
                   <label htmlFor="department" className="text-sm font-medium">
-                    Department
+                    Bộ phận
                   </label>
                   <Select onValueChange={handleSelectChange} value={formData.department}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a department" />
+                      <SelectValue placeholder="Chọn một bộ phận" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="customerSupport">Customer Support</SelectItem>
-                      <SelectItem value="sales">Sales</SelectItem>
-                      <SelectItem value="technical">Technical Support</SelectItem>
-                      <SelectItem value="billing">Billing & Payments</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="customerSupport">Hỗ trợ khách hàng</SelectItem>
+                      <SelectItem value="sales">Bán hàng</SelectItem>
+                      <SelectItem value="technical">Hỗ trợ kỹ thuật</SelectItem>
+                      <SelectItem value="billing">Hóa đơn và thanh toán</SelectItem>
+                      <SelectItem value="other">Khác</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
                   <label htmlFor="subject" className="text-sm font-medium">
-                    Subject
+                    Chủ đề
                   </label>
                   <Input
                     id="subject"
                     name="subject"
-                    placeholder="What is your message about?"
+                    placeholder="Tin nhắn của bạn về điều gì?"
                     required
                     value={formData.subject}
                     onChange={handleChange}
@@ -202,12 +201,12 @@ const Contact = () => {
                 
                 <div className="space-y-2">
                   <label htmlFor="message" className="text-sm font-medium">
-                    Message
+                    Tin nhắn
                   </label>
                   <Textarea
                     id="message"
                     name="message"
-                    placeholder="Tell us how we can help..."
+                    placeholder="Hãy cho chúng tôi biết bạn cần gì..."
                     rows={5}
                     required
                     value={formData.message}
@@ -217,10 +216,10 @@ const Contact = () => {
                 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? (
-                    <>Sending<span className="ml-2 animate-pulse">...</span></>
+                    <>Đang gửi<span className="ml-2 animate-pulse">...</span></>
                   ) : (
                     <>
-                      Send Message
+                      Gửi tin nhắn
                       <Send className="ml-2 h-4 w-4" />
                     </>
                   )}
@@ -232,9 +231,9 @@ const Contact = () => {
           <div className="lg:col-span-2">
             <Card className="h-full">
               <CardHeader>
-                <CardTitle>Our Location</CardTitle>
+                <CardTitle>Vị trí của chúng tôi</CardTitle>
                 <CardDescription>
-                  Find us at our headquarters in New York City
+                  Tìm chúng tôi tại trụ sở chính ở Thành phố New York
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0 aspect-square">
@@ -246,7 +245,7 @@ const Contact = () => {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="StoreX Headquarters Location"
+                  title="Vị trí trụ sở StoreX"
                 ></iframe>
               </CardContent>
             </Card>
@@ -255,25 +254,25 @@ const Contact = () => {
         
         {/* FAQs */}
         <div className="mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold text-center mb-8">Câu hỏi thường gặp</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
+            {[ 
               {
-                question: "What are your business hours?",
-                answer: "Our customer service team is available Monday through Friday from 9AM to 6PM Eastern Time. We're closed on weekends and major holidays."
+                question: "Giờ làm việc của bạn là gì?",
+                answer: "Đội ngũ hỗ trợ khách hàng của chúng tôi làm việc từ Thứ Hai đến Thứ Sáu, từ 9AM đến 6PM Giờ miền Đông. Chúng tôi nghỉ vào cuối tuần và các ngày lễ."
               },
               {
-                question: "How quickly can I expect a response?",
-                answer: "We aim to respond to all inquiries within 24 business hours. For urgent matters, please call our customer support line for immediate assistance."
+                question: "Tôi có thể nhận phản hồi nhanh chóng không?",
+                answer: "Chúng tôi sẽ cố gắng phản hồi tất cả các yêu cầu trong vòng 24 giờ làm việc. Đối với các vấn đề khẩn cấp, vui lòng gọi cho đường dây hỗ trợ khách hàng của chúng tôi."
               },
               {
-                question: "Do you have retail locations?",
-                answer: "Currently, StoreX operates exclusively online. Our headquarters in New York is not open to the public for retail purchases."
+                question: "Bạn có cửa hàng bán lẻ không?",
+                answer: "Hiện tại, StoreX chỉ hoạt động trực tuyến. Trụ sở chính của chúng tôi tại New York không mở cửa cho công chúng đến mua sắm."
               },
               {
-                question: "How can I track my order?",
-                answer: "You can track your order by logging into your account and visiting the 'Order History' section. Alternatively, use the tracking link provided in your shipping confirmation email."
+                question: "Làm thế nào để theo dõi đơn hàng của tôi?",
+                answer: "Bạn có thể theo dõi đơn hàng của mình bằng cách đăng nhập vào tài khoản và vào phần 'Lịch sử đơn hàng'. Ngoài ra, bạn có thể sử dụng liên kết theo dõi trong email xác nhận giao hàng."
               }
             ].map((item, index) => (
               <Card key={index} className="bg-muted/30">
@@ -293,9 +292,9 @@ const Contact = () => {
         
         {/* Social & Support */}
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Connect With Us</h2>
+          <h2 className="text-2xl font-bold mb-4">Kết nối với chúng tôi</h2>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Stay up to date with our latest products, news, and promotions by following us on social media.
+            Cập nhật các sản phẩm, tin tức và khuyến mãi mới nhất của chúng tôi qua các kênh mạng xã hội.
           </p>
           
           <div className="flex justify-center space-x-4 mb-8">
@@ -317,7 +316,7 @@ const Contact = () => {
           
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <Clock className="h-4 w-4" />
-            <span className="text-sm">We typically respond within 24 hours</span>
+            <span className="text-sm">Chúng tôi thường phản hồi trong vòng 24 giờ</span>
           </div>
         </div>
       </div>
