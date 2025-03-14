@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import {
   User,
   Package,
   CreditCard,
   Palette,
   Shield,
-  Bell,
   UserCog,
   MapPin,
   Settings,
@@ -31,7 +29,6 @@ const Account = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("profile");
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [profile, setProfile] = useState({
     name: "John Doe",
     email: "john.doe@example.com",
@@ -92,7 +89,7 @@ const Account = () => {
     },
     {
       id: "orderDetails",
-      label: "orderDetails",
+      label: "Order Details",
       icon: <FileText className="mr-2 h-4 w-4" />,
     },
     {

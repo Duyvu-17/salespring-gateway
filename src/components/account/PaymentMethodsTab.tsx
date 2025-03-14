@@ -16,8 +16,6 @@ import {
   Banknote,
   Edit,
   ChevronRight,
-  ChevronsUpDown,
-  Settings,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";

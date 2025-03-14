@@ -6,21 +6,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "recharts";
 
 import { toast } from "sonner";
-import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import { useTheme } from "@/context/ThemeContext";
 export const Appearance = () => {
   const { theme, setTheme } = useTheme();
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme as "light" | "dark" | "purple" | "ocean");
-    toast({
-      title: "Theme updated",
-      description: `Theme changed to ${newTheme}`,
-    });
-  };
-
   return (
     <>
       <div className="space-y-6 animate-fadeIn">
@@ -36,75 +26,6 @@ export const Appearance = () => {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Theme</h3>
-                {/* <RadioGroup
-                  defaultValue={theme}
-                  onValueChange={handleThemeChange}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                >
-                  <div className="flex items-center space-x-2 border rounded-lg p-4 relative transition-all hover:shadow-md">
-                    <RadioGroupItem value="light" id="theme-light" />
-                    <Label
-                      name="theme-light"
-                      className="flex items-center cursor-pointer w-full"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 mr-3 shadow-md"></div>
-                      <div>
-                        <p className="font-medium">Light Theme</p>
-                        <p className="text-sm text-muted-foreground">
-                          Clean, bright appearance
-                        </p>
-                      </div>
-                    </Label>
-                  </div>
-
-                  <div className="flex items-center space-x-2 border rounded-lg p-4 relative transition-all hover:shadow-md">
-                    <RadioGroupItem value="dark" id="theme-dark" />
-                    <Label
-                      name="theme-dark"
-                      className="flex items-center cursor-pointer w-full"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 mr-3 shadow-md"></div>
-                      <div>
-                        <p className="font-medium">Dark Theme</p>
-                        <p className="text-sm text-muted-foreground">
-                          Easy on the eyes
-                        </p>
-                      </div>
-                    </Label>
-                  </div>
-
-                  <div className="flex items-center space-x-2 border rounded-lg p-4 relative transition-all hover:shadow-md">
-                    <RadioGroupItem value="purple" id="theme-purple" />
-                    <Label
-                      name="theme-purple"
-                      className="flex items-center cursor-pointer w-full"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-700 mr-3 shadow-md"></div>
-                      <div>
-                        <p className="font-medium">Purple Theme</p>
-                        <p className="text-sm text-muted-foreground">
-                          Rich purple gradients
-                        </p>
-                      </div>
-                    </Label>
-                  </div>
-
-                  <div className="flex items-center space-x-2 border rounded-lg p-4 relative transition-all hover:shadow-md">
-                    <RadioGroupItem value="ocean" id="theme-ocean" />
-                    <Label
-                      name="theme-ocean"
-                      className="flex items-center cursor-pointer w-full"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 mr-3 shadow-md"></div>
-                      <div>
-                        <p className="font-medium">Ocean Theme</p>
-                        <p className="text-sm text-muted-foreground">
-                          Calming blue tones
-                        </p>
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup> */}
                 <div className="mt-4 p-4 border rounded-lg">
                   <div className="grid grid-cols-2 gap-4">
                     <Button
