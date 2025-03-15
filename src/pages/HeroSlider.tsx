@@ -33,6 +33,33 @@ const HeroSlider = () => {
       description:
         "Discover innovative smart solutions that make your daily life more convenient and efficient",
     },
+    {
+      id: 4,
+      image:
+        "https://images.unsplash.com/photo-1570816019847-78ad7f87f423?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80",
+      badge: "Trending Now",
+      title: "Latest Smartphones",
+      description:
+        "Check out the newest smartphones with top-notch features and designs",
+    },
+    {
+      id: 5,
+      image:
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80",
+      badge: "Best Sellers",
+      title: "Smart Watches",
+      description:
+        "Stay connected and track your health with our latest collection of smartwatches",
+    },
+    {
+      id: 6,
+      image:
+        "https://images.unsplash.com/photo-1580910051072-1662a74dc6fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80",
+      badge: "Exclusive Deals",
+      title: "Laptops & Accessories",
+      description:
+        "Upgrade your work setup with high-performance laptops and premium accessories",
+    },
   ];
 
   // State để theo dõi slide hiện tại
