@@ -1,10 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { DiscountCode, getDiscountCodes } from "@/data/discount-codes";
-import { ArrowRight, Copy, Sparkles, Ticket } from "lucide-react";
+import { ArrowRight, Copy, Loader2, Sparkles, Ticket } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -14,23 +13,28 @@ export const DiscountCollector = () => {
   const discountCodes = getDiscountCodes();
   const [email, setEmail] = useState("");
   const [showCodes, setShowCodes] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes('@')) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address",
-        variant: "destructive"
-      });
+    setError("");
+    
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email address");
       return;
     }
     
-    setShowCodes(true);
-    toast({
-      title: "Success!",
-      description: "Check out these discount codes just for you!",
-    });
+    setLoading(true);
+    
+    setTimeout(() => {
+      setLoading(false);
+      setShowCodes(true);
+      toast({
+        title: "Success!",
+        description: "Check out these discount codes just for you!",
+      });
+    }, 2000);
   };
 
   const copyToClipboard = (code: string) => {
@@ -59,16 +63,24 @@ export const DiscountCollector = () => {
           
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1"
-                required
-              />
-              <Button type="submit">
-                Get Discounts <ArrowRight className="ml-2 h-4 w-4" />
+              <div className="flex-1">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+              </div>
+              <Button type="submit" disabled={loading}>
+                {loading ? (
+                  <Loader2 className="animate-spin h-5 w-5" />
+                ) : (
+                  <>
+                    Get Discounts <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </form>
           </CardContent>

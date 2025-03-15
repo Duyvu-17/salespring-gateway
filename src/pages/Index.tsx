@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ProductCard } from "@/components/products/ProductCard";
 import { DiscountCollector } from "@/components/discount/DiscountCollector";
+import HeroSlider from "./HeroSlider";
 
 const Index = () => {
   const featuredProducts = getFeaturedProducts();
@@ -29,50 +30,7 @@ const Index = () => {
 
   return (
     <div className="space-y-20 pb-20">
-      {/* Hero Section with Enhanced Animated Overlay */}
-      <section className="hero-section relative rounded-3xl overflow-hidden mx-4 mt-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/30" />
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1567&q=80')] bg-cover bg-center opacity-80"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70"></div>
-        <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 text-center text-white space-y-8">
-          <Badge className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm py-2 px-4 rounded-full animate-fadeIn transition-all duration-300">
-            New Collection Available
-          </Badge>
-          <h1
-            className="text-5xl md:text-7xl font-bold leading-tight animate-fadeInUp"
-            style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
-          >
-            Discover Premium{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-foreground to-primary-foreground/80">
-              Technology
-            </span>
-          </h1>
-          <p
-            className="text-xl md:text-2xl max-w-2xl mx-auto animate-fadeIn delay-100"
-            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
-          >
-            Discover premium products with exceptional quality and design that
-            enhance your everyday life
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fadeIn delay-200">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
-            >
-              Shop Now <ShoppingBag className="ml-2 h-4 w-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-transparent border-white text-white hover:bg-white/20 shadow-lg backdrop-blur-sm"
-            >
-              Explore Collections <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Store Benefits */}
+       <HeroSlider/>
       <section className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="glass-card border-none shadow-lg">
