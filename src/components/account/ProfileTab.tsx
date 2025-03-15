@@ -1,4 +1,3 @@
-
 import { Edit, Save, Upload } from "lucide-react";
 import {
   Card,
@@ -33,14 +32,21 @@ export const Profile = () => {
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     // Update actual avatar with preview if available
-    if (previewAvatar) {
-      setProfile({ ...profile, avatar: previewAvatar });
-      setPreviewAvatar(null);
+    try {
+      if (previewAvatar) {
+        setProfile({ ...profile, avatar: previewAvatar });
+        setPreviewAvatar(null);
+      }
+
+      setIsEditing(false);
+      toast.success("Cập nhật thành công", {
+        description: "Thông tin hồ sơ của bạn đã được cập nhật.",
+      });
+    } catch (error) {
+      toast.error("Cập nhật thất bại", {
+        description: "Có lỗi xảy ra, vui lòng thử lại sau.",
+      });
     }
-    setIsEditing(false);
-    toast("Profile updated", {
-      description: "Your profile has been updated successfully",
-    });
   };
 
   const handleAvatarClick = () => {
@@ -90,8 +96,10 @@ export const Profile = () => {
             <form onSubmit={handleProfileUpdate} className="space-y-6">
               {/* Avatar section */}
               <div className="flex flex-col items-center mb-6">
-                <div 
-                  className={`relative w-24 h-24 rounded-full overflow-hidden cursor-pointer ${isEditing ? "hover:opacity-80" : ""}`}
+                <div
+                  className={`relative w-24 h-24 rounded-full overflow-hidden cursor-pointer ${
+                    isEditing ? "hover:opacity-80" : ""
+                  }`}
                   onClick={handleAvatarClick}
                 >
                   <img
@@ -106,7 +114,9 @@ export const Profile = () => {
                   )}
                 </div>
                 {isEditing && (
-                  <span className="text-sm text-gray-500 mt-2">Click to change avatar</span>
+                  <span className="text-sm text-gray-500 mt-2">
+                    Click to change avatar
+                  </span>
                 )}
                 <input
                   type="file"
