@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useState } from "react";
 import { DiscountCode, getDiscountCodes } from "@/data/discount-codes";
 import { ArrowRight, Copy, Loader2, Sparkles, Ticket } from "lucide-react";
@@ -19,14 +26,14 @@ export const DiscountCollector = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
+
     if (!email || !email.includes("@")) {
       setError("Please enter a valid email address");
       return;
     }
-    
+
     setLoading(true);
-    
+
     setTimeout(() => {
       setLoading(false);
       setShowCodes(true);
@@ -48,7 +55,7 @@ export const DiscountCollector = () => {
   return (
     <Card className="w-full max-w-4xl mx-auto overflow-hidden">
       <div className="bg-gradient-to-r from-primary/20 to-primary/5 p-1"></div>
-      
+
       {!showCodes ? (
         <>
           <CardHeader className="pb-2">
@@ -57,12 +64,16 @@ export const DiscountCollector = () => {
               <CardTitle>Get Exclusive Discount Codes</CardTitle>
             </div>
             <CardDescription>
-              Subscribe to receive special discount codes and be the first to know about promotions
+              Subscribe to receive special discount codes and be the first to
+              know about promotions
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col sm:flex-row gap-3"
+            >
               <div className="flex-1">
                 <Input
                   type="email"
@@ -84,9 +95,10 @@ export const DiscountCollector = () => {
               </Button>
             </form>
           </CardContent>
-          
+
           <CardFooter className="text-sm text-muted-foreground pt-0">
-            No spam, unsubscribe at any time. Your email is only used to deliver discount codes.
+            No spam, unsubscribe at any time. Your email is only used to deliver
+            discount codes.
           </CardFooter>
         </>
       ) : (
@@ -100,23 +112,27 @@ export const DiscountCollector = () => {
               Use these codes at checkout to save on your purchase
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <div className="grid gap-3">
               {discountCodes.map((discount) => (
-                <div 
-                  key={discount.id} 
+                <div
+                  key={discount.id}
                   className={cn(
                     "flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border",
-                    discount.discountPercentage >= 20 
-                      ? "bg-primary/5 border-primary/20" 
+                    discount.discountPercentage >= 20
+                      ? "bg-primary/5 border-primary/20"
                       : "bg-muted/30 border-muted"
                   )}
                 >
                   <div className="mb-3 sm:mb-0">
                     <div className="flex items-center gap-2">
-                      <Badge 
-                        className={discount.discountPercentage >= 20 ? "bg-primary" : undefined}
+                      <Badge
+                        className={
+                          discount.discountPercentage >= 20
+                            ? "bg-primary"
+                            : undefined
+                        }
                       >
                         {discount.discountPercentage}% OFF
                       </Badge>
@@ -128,16 +144,17 @@ export const DiscountCollector = () => {
                     </div>
                     <p className="font-medium mt-2">{discount.description}</p>
                     <p className="text-sm text-muted-foreground">
-                      Valid until {new Date(discount.validUntil).toLocaleDateString()}
+                      Valid until{" "}
+                      {new Date(discount.validUntil).toLocaleDateString()}
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <div className="font-mono bg-muted px-3 py-1 rounded border mr-2">
                       {discount.code}
                     </div>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="ghost"
                       onClick={() => copyToClipboard(discount.code)}
                     >
