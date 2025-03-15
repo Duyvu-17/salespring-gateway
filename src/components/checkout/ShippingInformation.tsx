@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,8 +47,7 @@ const ShippingInformation = () => {
   const handleNewAddressSave = () => {
     // Validate form
     if (!newAddress.name || !newAddress.street || !newAddress.city || !newAddress.phone) {
-      toast({
-        title: "Missing information",
+      toast("Missing information", {
         description: "Please fill in all required fields.",
       });
       return;
@@ -61,8 +59,7 @@ const ShippingInformation = () => {
     setSavedAddresses([...savedAddresses, { id: addressId, ...newAddress }]);
     setSelectedAddress(addressId);
     
-    toast({
-      title: "Address added",
+    toast("Address added", {
       description: "Your new shipping address has been saved.",
     });
     
@@ -267,8 +264,7 @@ const ShippingInformation = () => {
               </Button>
               {selectedAddress !== "new" && (
                 <Button onClick={() => {
-                  toast({
-                    title: "Address updated",
+                  toast("Address updated", {
                     description: "Your shipping address has been updated.",
                   });
                   setShowAddressDialog(false);

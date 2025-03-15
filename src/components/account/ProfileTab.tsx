@@ -1,3 +1,4 @@
+
 import { Edit, Save, Upload } from "lucide-react";
 import {
   Card,
@@ -37,10 +38,8 @@ export const Profile = () => {
       setPreviewAvatar(null);
     }
     setIsEditing(false);
-    toast({
-      title: "Profile updated",
+    toast("Profile updated", {
       description: "Your profile has been updated successfully",
-      variant: "default",
     });
   };
 

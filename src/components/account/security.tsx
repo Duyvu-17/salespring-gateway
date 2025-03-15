@@ -39,39 +39,37 @@ export const Security = () => {
       ...securitySettings,
       [key]: !securitySettings[key],
     });
-    toast({
-      title: "Security settings updated",
+    toast("Security settings updated", {
       description: `${key} ${!securitySettings[key] ? "enabled" : "disabled"}`,
     });
   };
+  
   const handleEnableTwoFactor = () => {
     setSecuritySettings({
       ...securitySettings,
       twoFactorEnabled: true,
     });
-    toast({
-      title: "Two-factor authentication enabled",
+    toast("Two-factor authentication enabled", {
       description: "Your account is now more secure",
     });
   };
+  
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "New passwords don't match",
-        variant: "destructive",
       });
       return;
     }
-    toast({
-      title: "Password updated",
+    toast("Password updated", {
       description: "Your password has been updated successfully",
     });
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
   };
+  
   return (
     <>
       <div className="space-y-6 animate-fadeIn">
