@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./components/layout/MainLayout";
@@ -21,7 +22,6 @@ import Checkout from "./pages/Checkout";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
-import { OrderDetails } from "./components/account/OrderDetails";
 
 const queryClient = new QueryClient();
 
@@ -50,7 +50,7 @@ const App = () => (
                 <Route path="/shipping" element={<Shipping />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/notifications" element={<Notifications />} />
-                <Route path="order/:orderId" element={<OrderDetails />} />
+                <Route path="/order/:orderId" element={<OrderDetailsPage />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
