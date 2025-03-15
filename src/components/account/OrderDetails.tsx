@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
   CalendarIcon, 
   PackageIcon, 
@@ -8,7 +8,8 @@ import {
   DownloadIcon, 
   ClockIcon,
   CircleDollarSignIcon,
-  HomeIcon
+  HomeIcon,
+  RefreshCwIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -157,6 +158,7 @@ const OrderDetails = () => {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     // In a real app, this would be an API call
@@ -245,6 +247,22 @@ const OrderDetails = () => {
       description: "Your invoice is being generated and will be downloaded shortly."
     });
   };
+
+  const handleBuyAgain = () => {
+    // Add all products from this order to cart
+    toast({
+      title: "Items added to cart",
+      description: `${order.items.length} items from order ${order.id} have been added to your cart`
+    });
+    
+    // In a real app, you would add the items to the cart here
+    // Navigate to cart page after adding items
+    navigate("/cart");
+  };
+  
+  const handleProductClick = (productId: number) => {
+    navigate(`/product/${productId}`);
+  };
   
   return (
     <div className="space-y-6">
@@ -311,7 +329,7 @@ const OrderDetails = () => {
                   </TableHeader>
                   <TableBody>
                     {order.items.map((item: any) => (
-                      <TableRow key={item.id}>
+                      <TableRow key={item.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleProductClick(item.id)}>
                         <TableCell className="flex items-center space-x-3">
                           <div className="w-16 h-16 rounded border overflow-hidden flex-shrink-0">
                             <img 
@@ -408,6 +426,14 @@ const OrderDetails = () => {
                 <span>Total</span>
                 <span>{formatCurrency(order.total)}</span>
               </div>
+              
+              <Button 
+                className="w-full mt-4" 
+                variant="default" 
+                onClick={handleBuyAgain}
+              >
+                <RefreshCwIcon className="h-4 w-4 mr-2" /> Buy Again
+              </Button>
               
               <div className="mt-6 space-y-2">
                 <h4 className="text-sm font-medium">Need Help?</h4>
