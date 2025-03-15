@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { 
@@ -224,13 +225,15 @@ const OrderDetails = () => {
   };
   
   const handleTrackOrder = () => {
-    toast("Tracking Information", {
+    toast({
+      title: "Tracking Information",
       description: `Tracking number: ${order.shipping.trackingNumber}. We'll redirect you to the shipping carrier's website.`
     });
   };
   
   const handleDownloadInvoice = () => {
-    toast("Invoice Download", {
+    toast({
+      title: "Invoice Download",
       description: "Your invoice is being generated and will be downloaded shortly."
     });
   };

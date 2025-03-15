@@ -40,13 +40,15 @@ export const OrderDetailsTab = () => {
   ];
   
   const handleSearch = () => {
-    toast("Searching orders", {
+    toast({
+      title: "Searching orders",
       description: `Searching for order ${orderNumber || "all orders"} in the ${timeFrame} timeframe with status ${orderStatus}`
     });
   };
   
   const handleExport = () => {
-    toast("Export started", {
+    toast({
+      title: "Export started",
       description: "Your order details are being exported. You'll receive a download link shortly."
     });
   };
