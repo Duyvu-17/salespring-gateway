@@ -26,7 +26,7 @@ export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
-  // const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme, themeLabel } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -80,8 +80,6 @@ export const Header = () => {
     }
   };
 
-  const { theme, toggleTheme, themeLabel } = useTheme();
-
   return (
     <>
       {/* Top Bar with Contact Info */}
@@ -100,7 +98,7 @@ export const Header = () => {
           
           <div className="flex space-x-4 items-center">
             <button onClick={toggleTheme} className="text-xs hover:text-primary">
-              Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
+              Theme: {themeLabel}
             </button>
             <div className="h-4 border-r border-muted-foreground/30"></div>
             <Link to="/shipping" className="hover:text-primary transition-colors">

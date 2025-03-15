@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type ThemeType = 'light' | 'dark' | 'purple' | 'ocean';
+type ThemeType = 'light' | 'dark' | 'purple' | 'ocean' | 'sunset' | 'forest' | 'midnight' | 'coffee';
 
 interface ThemeContextType {
   theme: ThemeType;
@@ -21,9 +21,10 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const themeLabel = theme.charAt(0).toUpperCase() + theme.slice(1);
 
   const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'purple' : 
-                     theme === 'purple' ? 'ocean' : 'light';
-    setTheme(nextTheme);
+    const themes: ThemeType[] = ['light', 'dark', 'purple', 'ocean', 'sunset', 'forest', 'midnight', 'coffee'];
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
   };
 
   useEffect(() => {
@@ -31,7 +32,16 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('theme', theme);
     
     // Remove any previous theme classes
-    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-purple', 'theme-ocean');
+    document.documentElement.classList.remove(
+      'theme-light', 
+      'theme-dark', 
+      'theme-purple', 
+      'theme-ocean', 
+      'theme-sunset', 
+      'theme-forest', 
+      'theme-midnight', 
+      'theme-coffee'
+    );
     
     // Add current theme class
     document.documentElement.classList.add(`theme-${theme}`);

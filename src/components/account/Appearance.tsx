@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -6,11 +7,29 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
 import { toast } from "sonner";
 import { useTheme } from "@/context/ThemeContext";
+import { Check } from "lucide-react";
+
 export const Appearance = () => {
   const { theme, setTheme } = useTheme();
+  
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme as any);
+    toast.success(`Theme changed to ${newTheme}`);
+  };
+  
+  const themes = [
+    { id: "light", name: "Light" },
+    { id: "dark", name: "Dark" },
+    { id: "purple", name: "Purple" },
+    { id: "ocean", name: "Ocean" },
+    { id: "sunset", name: "Sunset" },
+    { id: "forest", name: "Forest" },
+    { id: "midnight", name: "Midnight" },
+    { id: "coffee", name: "Coffee" },
+  ];
+
   return (
     <>
       <div className="space-y-6 animate-fadeIn">
@@ -27,35 +46,19 @@ export const Appearance = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Theme</h3>
                 <div className="mt-4 p-4 border rounded-lg">
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button
-                      variant={theme === "light" ? "default" : "outline"}
-                      className="justify-center"
-                      onClick={() => setTheme("light")}
-                    >
-                      Light
-                    </Button>
-                    <Button
-                      variant={theme === "dark" ? "default" : "outline"}
-                      className="justify-center"
-                      onClick={() => setTheme("dark")}
-                    >
-                      Dark
-                    </Button>
-                    <Button
-                      variant={theme === "purple" ? "default" : "outline"}
-                      className="justify-center"
-                      onClick={() => setTheme("purple")}
-                    >
-                      Purple
-                    </Button>
-                    <Button
-                      variant={theme === "ocean" ? "default" : "outline"}
-                      className="justify-center"
-                      onClick={() => setTheme("ocean")}
-                    >
-                      Ocean
-                    </Button>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {themes.map((t) => (
+                      <Button
+                        key={t.id}
+                        variant={theme === t.id ? "default" : "outline"}
+                        className="justify-center"
+                        onClick={() => handleThemeChange(t.id)}
+                      >
+                        <span className={`mr-2 rounded-full w-3 h-3 inline-block theme-dot bg-primary`}></span>
+                        {t.name}
+                        {theme === t.id && <Check className="ml-2 h-4 w-4" />}
+                      </Button>
+                    ))}
                   </div>
                 </div>
 

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Card,
@@ -16,6 +17,7 @@ import {
   Banknote,
   Edit,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
@@ -29,72 +31,179 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import EditPaymentMethod from "./EditPaymentMethod";
+import getPaymentIcon from "./getPaymentIcon";
+
+interface PaymentMethod {
+  id: string;
+  type: string;
+  lastFour?: string;
+  expiryDate?: string;
+  holderName?: string;
+  isDefault: boolean;
+  billingAddress?: string;
+  phoneNumber?: string;
+  email?: string;
+}
 
 export const PaymentMethodsTab = () => {
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showThemeSettings, setShowThemeSettings] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [newCardType, setNewCardType] = useState("visa");
-  const [newCardNumber, setNewCardNumber] = useState("");
-  const [newCardName, setNewCardName] = useState("");
-  const [newCardExpiry, setNewCardExpiry] = useState("");
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [currentEditPaymentMethod, setCurrentEditPaymentMethod] = useState<PaymentMethod | undefined>(undefined);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null);
+  
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
+    {
+      id: "visa1",
+      type: "visa",
+      lastFour: "4242",
+      expiryDate: "04/25",
+      holderName: "Nguyen Van A",
+      isDefault: true,
+      billingAddress: "123 Nguyen Hue, District 1, Ho Chi Minh City",
+    },
+    {
+      id: "mc1",
+      type: "mastercard",
+      lastFour: "8888",
+      expiryDate: "07/24",
+      holderName: "Nguyen Thi B",
+      isDefault: false,
+      billingAddress: "456 Le Loi, District 1, Ho Chi Minh City",
+    },
+    {
+      id: "momo1",
+      type: "momo",
+      phoneNumber: "+84 123 456 789",
+      holderName: "Tran Van C",
+      isDefault: false,
+    },
+    {
+      id: "vnpay1",
+      type: "vnpay",
+      holderName: "VietcomBank",
+      isDefault: false,
+    },
+  ]);
 
   const handleAddCard = () => {
-    setShowAddDialog(true);
+    setCurrentEditPaymentMethod(undefined);
+    setShowEditDialog(true);
   };
 
-  const handleSaveNewCard = () => {
-    if (!newCardNumber || !newCardName || !newCardExpiry) {
+  const handleEditPaymentMethod = (paymentMethod: PaymentMethod) => {
+    setCurrentEditPaymentMethod(paymentMethod);
+    setShowEditDialog(true);
+  };
+
+  const handleSavePaymentMethod = (paymentMethod: PaymentMethod) => {
+    if (currentEditPaymentMethod) {
+      // Update existing payment method
+      setPaymentMethods(
+        paymentMethods.map((pm) =>
+          pm.id === currentEditPaymentMethod.id ? paymentMethod : pm
+        )
+      );
+      
       toast({
-        title: "Missing information",
-        description: "Please fill out all required fields.",
+        title: "Payment method updated",
+        description: "Your payment method has been updated successfully.",
       });
-      return;
+    } else {
+      // Add new payment method
+      setPaymentMethods([...paymentMethods, paymentMethod]);
+      
+      toast({
+        title: "Payment method added",
+        description: "Your new payment method has been added successfully.",
+      });
     }
+  };
 
-    toast({
-      title: "Payment method added",
-      description: "Your new payment method has been added successfully.",
-    });
-
-    setShowAddDialog(false);
-    // Reset form fields
-    setNewCardType("visa");
-    setNewCardNumber("");
-    setNewCardName("");
-    setNewCardExpiry("");
+  const handleDeleteConfirm = (id: string) => {
+    setPaymentToDelete(id);
+    setShowDeleteConfirm(true);
   };
 
   const handleRemoveCard = () => {
-    toast({
-      title: "Card removed",
-      description: "Your card has been removed successfully.",
-    });
+    if (paymentToDelete) {
+      setPaymentMethods(paymentMethods.filter(pm => pm.id !== paymentToDelete));
+      
+      toast({
+        title: "Payment method removed",
+        description: "Your payment method has been removed successfully.",
+      });
+      
+      setShowDeleteConfirm(false);
+      setPaymentToDelete(null);
+    }
   };
 
-  const handleSetDefault = () => {
+  const handleSetDefault = (id: string) => {
+    setPaymentMethods(
+      paymentMethods.map((pm) => ({
+        ...pm,
+        isDefault: pm.id === id,
+      }))
+    );
+    
     toast({
       title: "Default payment method updated",
       description: "Your default payment method has been updated successfully.",
     });
   };
 
-  const formatCardNumber = (number: string) => {
-    return number
-      .replace(/\s/g, "")
-      .replace(/(\d{4})/g, "$1 ")
-      .trim();
+  const getPaymentMethodIcon = (type: string) => {
+    switch (type) {
+      case "visa":
+      case "mastercard":
+        return <div className="bg-blue-100 p-3 rounded-md"><CreditCard className="h-5 w-5 text-blue-600" /></div>;
+      case "momo":
+        return <div className="bg-pink-100 p-3 rounded-md"><Wallet className="h-5 w-5 text-pink-600" /></div>;
+      case "vnpay":
+        return <div className="bg-purple-100 p-3 rounded-md"><Banknote className="h-5 w-5 text-purple-600" /></div>;
+      case "zalopay":
+        return <div className="bg-blue-100 p-3 rounded-md"><Wallet className="h-5 w-5 text-blue-600" /></div>;
+      default:
+        return <div className="bg-gray-100 p-3 rounded-md"><CreditCard className="h-5 w-5 text-gray-600" /></div>;
+    }
+  };
+
+  const getPaymentMethodName = (method: PaymentMethod) => {
+    switch (method.type) {
+      case "visa":
+        return `Visa ending in ${method.lastFour}`;
+      case "mastercard":
+        return `Mastercard ending in ${method.lastFour}`;
+      case "momo":
+        return "MoMo Wallet";
+      case "vnpay":
+        return "VNPay";
+      case "zalopay":
+        return "ZaloPay";
+      default:
+        return "Payment Method";
+    }
+  };
+
+  const getPaymentMethodDetails = (method: PaymentMethod) => {
+    switch (method.type) {
+      case "visa":
+      case "mastercard":
+        return `Expires ${method.expiryDate}`;
+      case "momo":
+      case "zalopay":
+        return `Connected to ${method.phoneNumber}`;
+      case "vnpay":
+        return `QR payment via mobile app`;
+      default:
+        return "";
+    }
   };
 
   return (
@@ -133,189 +242,73 @@ export const PaymentMethodsTab = () => {
           </Button>
 
           <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex items-start gap-3">
-                  <div className="bg-blue-100 p-3 rounded-md">
-                    <CreditCard className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium">Visa ending in 4242</h3>
-                      <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-                        Default
-                      </span>
+            {paymentMethods.map((method) => (
+              <div key={method.id} className="border rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-start gap-3">
+                    {getPaymentMethodIcon(method.type)}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium">{getPaymentMethodName(method)}</h3>
+                        {method.isDefault && (
+                          <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {getPaymentMethodDetails(method)}
+                      </p>
+                      {showDetails && (
+                        <div className="mt-2 text-sm">
+                          {method.holderName && (
+                            <p>
+                              <strong>Name/Bank:</strong> {method.holderName}
+                            </p>
+                          )}
+                          {method.billingAddress && (
+                            <p>
+                              <strong>Billing address:</strong> {method.billingAddress}
+                            </p>
+                          )}
+                          {method.phoneNumber && !method.type.includes("card") && (
+                            <p>
+                              <strong>Phone:</strong> {method.phoneNumber}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Expires 04/25
-                    </p>
-                    {showDetails && (
-                      <div className="mt-2 text-sm">
-                        <p>
-                          <strong>Card holder:</strong> Nguyen Van A
-                        </p>
-                        <p>
-                          <strong>Billing address:</strong> 123 Nguyen Hue,
-                          District 1, Ho Chi Minh City
-                        </p>
-                      </div>
-                    )}
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      toast({
-                        title: "Edit feature coming soon",
-                        description:
-                          "Editing payment methods will be available soon.",
-                      })
-                    }
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRemoveCard}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    {!method.isDefault && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSetDefault(method.id)}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Set Default
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditPaymentMethod(method)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteConfirm(method.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="border rounded-lg p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex items-start gap-3">
-                  <div className="bg-orange-100 p-3 rounded-md">
-                    <CreditCard className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Mastercard ending in 8888</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Expires 07/24
-                    </p>
-                    {showDetails && (
-                      <div className="mt-2 text-sm">
-                        <p>
-                          <strong>Card holder:</strong> Nguyen Thi B
-                        </p>
-                        <p>
-                          <strong>Billing address:</strong> 456 Le Loi, District
-                          1, Ho Chi Minh City
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSetDefault}
-                  >
-                    <Check className="h-4 w-4 mr-1" />
-                    Set Default
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRemoveCard}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="border rounded-lg p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex items-start gap-3">
-                  <div className="bg-green-100 p-3 rounded-md">
-                    <Wallet className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">MoMo Wallet</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Connected to +84 123 456 789
-                    </p>
-                    {showDetails && (
-                      <div className="mt-2 text-sm">
-                        <p>
-                          <strong>Name:</strong> Tran Van C
-                        </p>
-                        <p>
-                          <strong>Last used:</strong> 05/06/2023
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSetDefault}
-                  >
-                    <Check className="h-4 w-4 mr-1" />
-                    Set Default
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRemoveCard}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="border rounded-lg p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex items-start gap-3">
-                  <div className="bg-purple-100 p-3 rounded-md">
-                    <Banknote className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">VNPay</h3>
-                    <p className="text-sm text-muted-foreground">
-                      QR payment via mobile app
-                    </p>
-                    {showDetails && (
-                      <div className="mt-2 text-sm">
-                        <p>
-                          <strong>Linked bank:</strong> VietcomBank
-                        </p>
-                        <p>
-                          <strong>Last used:</strong> 12/05/2023
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSetDefault}
-                  >
-                    <Check className="h-4 w-4 mr-1" />
-                    Set Default
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRemoveCard}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="text-sm text-muted-foreground mt-4">
@@ -328,115 +321,26 @@ export const PaymentMethodsTab = () => {
         </div>
       </CardContent>
 
-      <AlertDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <AlertDialogContent className="sm:max-w-[425px]">
+      {/* Edit Payment Method Dialog */}
+      <EditPaymentMethod
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        paymentMethod={currentEditPaymentMethod}
+        onSave={handleSavePaymentMethod}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Add New Payment Method</AlertDialogTitle>
+            <AlertDialogTitle>Remove Payment Method</AlertDialogTitle>
             <AlertDialogDescription>
-              Fill in the details to add a new payment method to your account.
+              Are you sure you want to remove this payment method? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="card-type">Payment Type</Label>
-              <Select value={newCardType} onValueChange={setNewCardType}>
-                <SelectTrigger id="card-type">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="visa">Visa</SelectItem>
-                  <SelectItem value="mastercard">Mastercard</SelectItem>
-                  <SelectItem value="momo">MoMo Wallet</SelectItem>
-                  <SelectItem value="vnpay">VNPay</SelectItem>
-                  <SelectItem value="zalopay">ZaloPay</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {(newCardType === "visa" || newCardType === "mastercard") && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="card-number">Card Number</Label>
-                  <Input
-                    id="card-number"
-                    placeholder="1234 5678 9012 3456"
-                    value={newCardNumber}
-                    onChange={(e) =>
-                      setNewCardNumber(formatCardNumber(e.target.value))
-                    }
-                    maxLength={19}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="card-name">Cardholder Name</Label>
-                  <Input
-                    id="card-name"
-                    placeholder="John Doe"
-                    value={newCardName}
-                    onChange={(e) => setNewCardName(e.target.value)}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expiry">Expiration Date</Label>
-                    <Input
-                      id="expiry"
-                      placeholder="MM/YY"
-                      value={newCardExpiry}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-                        if (value.length > 2) {
-                          value =
-                            value.substring(0, 2) + "/" + value.substring(2, 4);
-                        }
-                        setNewCardExpiry(value);
-                      }}
-                      maxLength={5}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cvv">CVV</Label>
-                    <Input
-                      id="cvv"
-                      type="password"
-                      placeholder="•••"
-                      maxLength={3}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {(newCardType === "momo" || newCardType === "zalopay") && (
-              <div className="space-y-2">
-                <Label htmlFor="phone-number">Phone Number</Label>
-                <Input id="phone-number" placeholder="+84 xxx xxx xxx" />
-              </div>
-            )}
-
-            {newCardType === "vnpay" && (
-              <div className="space-y-2">
-                <Label htmlFor="bank">Select Bank</Label>
-                <Select>
-                  <SelectTrigger id="bank">
-                    <SelectValue placeholder="Select bank" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="vcb">VietcomBank</SelectItem>
-                    <SelectItem value="tcb">TechcomBank</SelectItem>
-                    <SelectItem value="vib">VIB</SelectItem>
-                    <SelectItem value="acb">ACB</SelectItem>
-                    <SelectItem value="bidv">BIDV</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSaveNewCard}>
-              Save
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleRemoveCard}>Remove</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
