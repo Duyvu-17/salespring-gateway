@@ -4,9 +4,11 @@ import { MainLayout } from "@/components/layout/MainLayout";
 
 const OrderDetailsPage = () => {
   return (
-    <div className="container py-8">
-      <OrderDetails />
-    </div>
+    <MainLayout>
+      <div className="container py-8">
+        <OrderDetails />
+      </div>
+    </MainLayout>
   );
 };
 

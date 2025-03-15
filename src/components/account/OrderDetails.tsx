@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { 
@@ -17,6 +16,15 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 
 // Sample order for demonstration
 const mockOrders = {
@@ -178,7 +186,7 @@ const OrderDetails = () => {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <Link to="/account">
+          <Link to="/account?tab=order-details">
             <Button>
               <ArrowLeftIcon className="mr-2 h-4 w-4" /> Back to Account
             </Button>
@@ -292,26 +300,37 @@ const OrderDetails = () => {
             <CardContent className="space-y-6">
               <div>
                 <h3 className="font-medium mb-3">Items</h3>
-                <div className="border rounded-lg overflow-hidden">
-                  {order.items.map((item: any) => (
-                    <div key={item.id} className="flex items-center p-4 border-b last:border-b-0">
-                      <div className="w-16 h-16 rounded border overflow-hidden mr-4 flex-shrink-0">
-                        <img 
-                          src={item.image} 
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                      </div>
-                      <div className="text-right font-medium">
-                        {formatCurrency(item.price)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {order.items.map((item: any) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="flex items-center space-x-3">
+                          <div className="w-16 h-16 rounded border overflow-hidden flex-shrink-0">
+                            <img 
+                              src={item.image} 
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <p className="font-medium">{item.name}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatCurrency(item.price)}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
