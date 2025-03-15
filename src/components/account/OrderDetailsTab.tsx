@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { Link } from "react-router-dom"; 
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,15 +40,13 @@ export const OrderDetailsTab = () => {
   ];
   
   const handleSearch = () => {
-    toast({
-      title: "Searching orders",
+    toast("Searching orders", {
       description: `Searching for order ${orderNumber || "all orders"} in the ${timeFrame} timeframe with status ${orderStatus}`
     });
   };
   
   const handleExport = () => {
-    toast({
-      title: "Export started",
+    toast("Export started", {
       description: "Your order details are being exported. You'll receive a download link shortly."
     });
   };
@@ -194,14 +192,11 @@ export const OrderDetailsTab = () => {
                           {order.items} items
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Button variant="ghost" size="sm" onClick={() => {
-                            toast({
-                              title: "Order details",
-                              description: `Viewing details for order ${order.id}`
-                            });
-                          }}>
-                            View
-                          </Button>
+                          <Link to={`/order/${order.id}`}>
+                            <Button variant="ghost" size="sm">
+                              View
+                            </Button>
+                          </Link>
                         </td>
                       </tr>
                     ))}
