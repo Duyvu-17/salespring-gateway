@@ -456,56 +456,6 @@ const ProductDetail = () => {
         </div>
       </div>
       
-      {/* Rest of the component remains unchanged */}
-      {/* Product Description Section */}
-      <div className="mt-16 border-t pt-12">
-        <div className="prose prose-sm max-w-none">
-          <h2 className="text-2xl font-bold mb-6 flex items-center">
-            <Info className="h-5 w-5 mr-2" />
-            Product Description
-          </h2>
-          <p className="text-muted-foreground">{product.description}</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Key Highlights</h3>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Premium quality materials</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Designed for everyday use</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Built to last</span>
-                </li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">What's Included</h3>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Main product</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                  <span>User manual</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Warranty card</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      
       {/* Product Features Section */}
       <div className="mt-16 border-t pt-12">
         <div className="prose prose-sm max-w-none">
