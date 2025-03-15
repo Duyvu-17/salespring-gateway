@@ -24,6 +24,7 @@ import { DiscountCollector } from "@/components/discount/DiscountCollector";
 import HeroSlider from "./HeroSlider";
 import Newsletter from "./Newsletter";
 import ShopByCategory from "./ShopByCategory";
+import TrendingProducts from "./TrendingProducts";
 
 const Index = () => {
   const featuredProducts = getFeaturedProducts();
@@ -35,62 +36,72 @@ const Index = () => {
       <HeroSlider />
       <section className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="glass-card border-none shadow-lg">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Package className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Free Shipping</h3>
-                <p className="text-sm text-muted-foreground">
-                  On all orders over $50
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link to="/shipping" className="block">
+            <Card className="glass-card border-none shadow-lg">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <Package className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Free Shipping</h3>
+                  <p className="text-sm text-muted-foreground">
+                    On all orders over $50
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="glass-card border-none shadow-lg">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Award className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Quality Guarantee</h3>
-                <p className="text-sm text-muted-foreground">
-                  30-day money back
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link to="/quality-guarantee" className="block">
+            <Card className="glass-card border-none shadow-lg">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <Award className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Quality Guarantee</h3>
+                  <p className="text-sm text-muted-foreground">
+                    30-day money back
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="glass-card border-none shadow-lg">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <MousePointerClick className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Secure Checkout</h3>
-                <p className="text-sm text-muted-foreground">
-                  100% protected payment
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link to="/secure-checkout" className="block">
+            <Card className="glass-card border-none shadow-lg">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <MousePointerClick className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Secure Checkout</h3>
+                  <p className="text-sm text-muted-foreground">
+                    100% protected payment
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="glass-card border-none shadow-lg">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Trending Products</h3>
-                <p className="text-sm text-muted-foreground">Updated weekly</p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link to="/trending-products" className="block">
+            <Card className="glass-card border-none shadow-lg">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <TrendingUp className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Trending Products</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Updated weekly
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </section>
-
+      <TrendingProducts />
       {/* Featured Products with Enhanced Styling */}
       <section className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-10">
