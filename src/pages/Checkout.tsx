@@ -34,7 +34,14 @@ const Checkout = () => {
   const toggleRewardPoints = () => {
     setUseRewardPoints(!useRewardPoints);
   };
-  
+  const savedPaymentMethods = {
+    momo: { phoneNumber: '0123456789' },
+    bank: { 
+      cardNumber: '1234567890', 
+      bankName: 'Vietcombank' 
+    },
+    zalopay: { phoneNumber: '0987654321' }
+  };
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
@@ -48,6 +55,7 @@ const Checkout = () => {
           <PaymentMethod 
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
+            savedPaymentMethods={savedPaymentMethods}
           />
           
           {/* Reward Points Component */}
