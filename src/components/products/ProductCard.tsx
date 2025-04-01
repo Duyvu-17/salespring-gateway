@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Star, ShoppingBag } from "lucide-react";
+import { Star, ShoppingBag, Lightning, Eye } from "lucide-react";
 import { getSecondImage } from "@/data/product-images";
 import { Product } from "@/data/products";
 import { useWishlist, isInWishlist } from "@/utils/wishlist";
@@ -15,6 +16,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
   const { toggleWishlist } = useWishlist();
   const { toast } = useToast();
@@ -55,6 +57,29 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       description: `${product.name} has been added to your cart`,
     });
   };
+  
+  const handleQuickBuy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toast({
+      title: "Quick Buy",
+      description: `${product.name} has been added to cart. Redirecting to checkout...`,
+    });
+    
+    // In a real implementation, you would add the product to cart first
+    // Then redirect to checkout
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 1000);
+  };
+  
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    navigate(`/product/${product.id}`);
+  };
 
   return (
     <Card className="glass-card hover-scale overflow-hidden border-none shadow-lg h-full flex flex-col">
@@ -92,6 +117,28 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             <Badge className="absolute bottom-2 left-2 bg-green-500 shadow-md">
               NEW
             </Badge>
+          )}
+          
+          {/* Quick action buttons that appear on hover */}
+          {isHovered && (
+            <div className="absolute bottom-4 left-0 right-0 mx-auto flex justify-center space-x-2 animate-fade-in">
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                className="bg-white/80 hover:bg-white text-gray-800"
+                onClick={handleQuickView}
+              >
+                <Eye className="h-4 w-4 mr-1" /> Quick View
+              </Button>
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                className="bg-primary/90 hover:bg-primary text-white"
+                onClick={handleQuickBuy}
+              >
+                <Lightning className="h-4 w-4 mr-1" /> Quick Buy
+              </Button>
+            </div>
           )}
         </div>
         <div className="p-6 flex flex-col flex-1">

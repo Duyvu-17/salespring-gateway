@@ -22,40 +22,67 @@ import Checkout from "./pages/Checkout";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
+import { useCartNotification } from "./hooks/use-cart-notification";
 
 const queryClient = new QueryClient();
+
+// Create a context provider for cart notifications
+import { createContext, useContext } from "react";
+
+export const CartNotificationContext = createContext<ReturnType<typeof useCartNotification> | null>(null);
+
+export const useCartNotificationContext = () => {
+  const context = useContext(CartNotificationContext);
+  if (!context) {
+    throw new Error("useCartNotificationContext must be used within a CartNotificationProvider");
+  }
+  return context;
+};
+
+const CartNotificationProvider = ({ children }: { children: React.ReactNode }) => {
+  const cartNotification = useCartNotification();
+  
+  return (
+    <CartNotificationContext.Provider value={cartNotification}>
+      {children}
+      <cartNotification.CartNotification />
+    </CartNotificationContext.Provider>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              
-              {/* Protected routes */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/shipping" element={<Shipping />} />
-                <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+          <CartNotificationProvider>
+            <Routes>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                
+                {/* Protected routes */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/account" element={<Account />} />
+                  <Route path="/shipping" element={<Shipping />} />
+                  <Route path="/wishlist" element={<Wishlist />} />
+                  <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+                </Route>
+                
+                <Route path="*" element={<NotFound />} />
               </Route>
-              
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
+            </Routes>
+          </CartNotificationProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

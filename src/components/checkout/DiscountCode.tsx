@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { validateDiscountCode } from "@/data/discount-codes";
-import { BadgePercent, Loader2 } from "lucide-react";
+import { BadgePercent, Loader2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DiscountCodeProps {
@@ -16,6 +16,9 @@ const DiscountCode = ({ onApplyDiscount, subtotal }: DiscountCodeProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [appliedCode, setAppliedCode] = useState("");
   const { toast } = useToast();
+  
+  // Sample coupon codes to recommend to users
+  const popularCodes = ["WELCOME10", "SUMMER20", "NEWUSER15"];
   
   const handleApplyDiscount = () => {
     if (!code.trim()) return;
@@ -76,6 +79,15 @@ const DiscountCode = ({ onApplyDiscount, subtotal }: DiscountCodeProps) => {
     });
   };
   
+  const copyCode = (couponCode: string) => {
+    setCode(couponCode);
+    navigator.clipboard.writeText(couponCode);
+    toast({
+      title: "Copied to clipboard",
+      description: `${couponCode} has been copied. Click Apply to use it.`,
+    });
+  };
+  
   if (appliedCode) {
     return (
       <div className="flex items-center justify-between bg-muted/50 p-3 rounded-md">
@@ -91,19 +103,39 @@ const DiscountCode = ({ onApplyDiscount, subtotal }: DiscountCodeProps) => {
   }
   
   return (
-    <div className="flex gap-2">
-      <Input
-        placeholder="Enter discount code"
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        className="flex-1"
-      />
-      <Button
-        onClick={handleApplyDiscount}
-        disabled={isLoading || !code.trim()}
-      >
-        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
-      </Button>
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Input
+          placeholder="Enter discount code"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          className="flex-1"
+        />
+        <Button
+          onClick={handleApplyDiscount}
+          disabled={isLoading || !code.trim()}
+        >
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+        </Button>
+      </div>
+      
+      <div className="pt-2">
+        <p className="text-xs text-muted-foreground mb-2">Popular discount codes:</p>
+        <div className="flex flex-wrap gap-2">
+          {popularCodes.map((couponCode) => (
+            <Button 
+              key={couponCode}
+              variant="outline" 
+              size="sm"
+              className="text-xs flex items-center gap-1"
+              onClick={() => copyCode(couponCode)}
+            >
+              {couponCode}
+              <Copy className="h-3 w-3 ml-1" />
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

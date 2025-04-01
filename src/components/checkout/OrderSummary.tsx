@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { ShoppingBag, Gift } from "lucide-react";
 
 interface OrderSummaryProps {
   subtotal: number;
@@ -11,6 +12,7 @@ interface OrderSummaryProps {
   total: number;
   useRewardPoints: boolean;
   onPlaceOrder: () => void;
+  isProcessing?: boolean;
 }
 
 const OrderSummary = ({ 
@@ -20,7 +22,8 @@ const OrderSummary = ({
   discountAmount = 0,
   total, 
   useRewardPoints, 
-  onPlaceOrder 
+  onPlaceOrder,
+  isProcessing = false
 }: OrderSummaryProps) => {
   return (
     <Card className="sticky top-6">
@@ -63,9 +66,21 @@ const OrderSummary = ({
             className="w-full" 
             size="lg"
             onClick={onPlaceOrder}
+            disabled={isProcessing}
           >
-            Place Order
+            {isProcessing ? (
+              <>Processing...</>
+            ) : (
+              <>
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Place Order
+              </>
+            )}
           </Button>
+          <div className="flex items-center justify-center gap-1 text-xs text-center text-muted-foreground mt-3">
+            <Gift className="h-3 w-3" />
+            <p>Gift wrapping available at checkout</p>
+          </div>
           <p className="text-xs text-center text-muted-foreground mt-2">
             By placing your order, you agree to our Terms of Service and Privacy Policy
           </p>

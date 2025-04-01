@@ -25,11 +25,18 @@ import HeroSlider from "./HeroSlider";
 import Newsletter from "./Newsletter";
 import ShopByCategory from "./ShopByCategory";
 import TrendingProducts from "./TrendingProducts";
+import WishlistButton from "@/components/products/WishlistButton";
+import { useCartNotificationContext } from "../App";
 
 const Index = () => {
   const featuredProducts = getFeaturedProducts();
   const newProducts = getNewProducts().slice(0, 4);
   const discountedProducts = getDiscountedProducts().slice(0, 4);
+  const { showCartNotification } = useCartNotificationContext();
+  
+  const handleQuickAddToCart = (product) => {
+    showCartNotification(product);
+  };
 
   return (
     <div className="space-y-20 pb-20">
