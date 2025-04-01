@@ -8,6 +8,9 @@ import OrderSummary from "@/components/checkout/OrderSummary";
 import SuccessDialog from "@/components/checkout/SuccessDialog";
 import { calculatePointsDiscount, calculateTotal } from "@/components/checkout/CheckoutCalculator";
 import DiscountCode from "@/components/checkout/DiscountCode";
+import GiftWrap from "@/components/checkout/GiftWrap";
+import ShippingMethod from "@/components/checkout/ShippingMethod";
+import OrderNotes from "@/components/checkout/OrderNotes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 
@@ -19,18 +22,40 @@ const Checkout = () => {
   const [useRewardPoints, setUseRewardPoints] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [shippingMethod, setShippingMethod] = useState("standard");
+  const [shippingCost, setShippingCost] = useState(0);
+  const [isGiftWrap, setIsGiftWrap] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
+  const [orderNotes, setOrderNotes] = useState("");
   
   const subtotal = 299.99;
-  const shipping = 0;
+  const giftWrapCost = isGiftWrap ? 5 : 0;
   
   // Calculate the discount from reward points
   const pointsDiscount = calculatePointsDiscount(useRewardPoints, rewardPoints, subtotal);
   
   // Calculate the final total
-  const total = calculateTotal(subtotal, shipping, pointsDiscount + discountAmount);
+  const total = calculateTotal(subtotal, shippingCost + giftWrapCost, pointsDiscount + discountAmount);
   
   const handleApplyDiscount = (amount: number) => {
     setDiscountAmount(amount);
+  };
+  
+  const handleShippingMethodChange = (method: string, cost: number) => {
+    setShippingMethod(method);
+    setShippingCost(cost);
+  };
+  
+  const handleGiftWrapChange = (isChecked: boolean) => {
+    setIsGiftWrap(isChecked);
+  };
+  
+  const handleGiftMessageChange = (message: string) => {
+    setGiftMessage(message);
+  };
+  
+  const handleOrderNotesChange = (notes: string) => {
+    setOrderNotes(notes);
   };
   
   const handlePlaceOrder = () => {
@@ -79,6 +104,9 @@ const Checkout = () => {
           {/* Shipping Information Component */}
           <ShippingInformation />
           
+          {/* Shipping Method Component */}
+          <ShippingMethod onShippingMethodChange={handleShippingMethodChange} />
+          
           {/* Payment Method Component */}
           <PaymentMethod 
             paymentMethod={paymentMethod}
@@ -93,6 +121,15 @@ const Checkout = () => {
             toggleRewardPoints={toggleRewardPoints}
           />
           
+          {/* Gift Wrap Component */}
+          <GiftWrap 
+            onGiftWrapChange={handleGiftWrapChange}
+            onGiftMessageChange={handleGiftMessageChange}
+          />
+          
+          {/* Order Notes Component */}
+          <OrderNotes onNotesChange={handleOrderNotesChange} />
+          
           {/* Discount Code Component */}
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <h2 className="text-xl font-semibold mb-4">Discount Code</h2>
@@ -106,9 +143,11 @@ const Checkout = () => {
         {/* Order Summary Component */}
         <OrderSummary 
           subtotal={subtotal}
-          shipping={shipping}
+          shipping={shippingCost}
           pointsDiscount={pointsDiscount}
           discountAmount={discountAmount}
+          additionalFees={giftWrapCost}
+          additionalFeesLabel={isGiftWrap ? "Gift Wrapping" : ""}
           total={total}
           useRewardPoints={useRewardPoints}
           onPlaceOrder={handlePlaceOrder}
