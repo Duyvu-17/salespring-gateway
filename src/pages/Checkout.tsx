@@ -6,12 +6,14 @@ import RewardPoints from "@/components/checkout/RewardPoints";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import SuccessDialog from "@/components/checkout/SuccessDialog";
 import { calculatePointsDiscount, calculateTotal } from "@/components/checkout/CheckoutCalculator";
+import DiscountCode from "@/components/checkout/DiscountCode";
 
 const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("momo");
   const [showSuccess, setShowSuccess] = useState(false);
   const [rewardPoints, setRewardPoints] = useState(500); // Example points
   const [useRewardPoints, setUseRewardPoints] = useState(false);
+  const [discountAmount, setDiscountAmount] = useState(0);
   
   const subtotal = 299.99;
   const shipping = 0;
@@ -20,7 +22,11 @@ const Checkout = () => {
   const pointsDiscount = calculatePointsDiscount(useRewardPoints, rewardPoints, subtotal);
   
   // Calculate the final total
-  const total = calculateTotal(subtotal, shipping, pointsDiscount);
+  const total = calculateTotal(subtotal, shipping, pointsDiscount + discountAmount);
+  
+  const handleApplyDiscount = (amount: number) => {
+    setDiscountAmount(amount);
+  };
   
   const handlePlaceOrder = () => {
     setShowSuccess(true);
@@ -34,6 +40,7 @@ const Checkout = () => {
   const toggleRewardPoints = () => {
     setUseRewardPoints(!useRewardPoints);
   };
+  
   const savedPaymentMethods = {
     momo: { phoneNumber: '0123456789' },
     bank: { 
@@ -42,6 +49,7 @@ const Checkout = () => {
     },
     zalopay: { phoneNumber: '0987654321' }
   };
+  
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
@@ -64,6 +72,15 @@ const Checkout = () => {
             useRewardPoints={useRewardPoints}
             toggleRewardPoints={toggleRewardPoints}
           />
+          
+          {/* Discount Code Component */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <h2 className="text-xl font-semibold mb-4">Discount Code</h2>
+            <DiscountCode 
+              onApplyDiscount={handleApplyDiscount}
+              subtotal={subtotal}
+            />
+          </div>
         </div>
         
         {/* Order Summary Component */}
@@ -71,6 +88,7 @@ const Checkout = () => {
           subtotal={subtotal}
           shipping={shipping}
           pointsDiscount={pointsDiscount}
+          discountAmount={discountAmount}
           total={total}
           useRewardPoints={useRewardPoints}
           onPlaceOrder={handlePlaceOrder}

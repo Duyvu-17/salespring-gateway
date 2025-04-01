@@ -7,6 +7,7 @@ interface OrderSummaryProps {
   subtotal: number;
   shipping: number;
   pointsDiscount: number;
+  discountAmount?: number;
   total: number;
   useRewardPoints: boolean;
   onPlaceOrder: () => void;
@@ -16,6 +17,7 @@ const OrderSummary = ({
   subtotal, 
   shipping, 
   pointsDiscount, 
+  discountAmount = 0,
   total, 
   useRewardPoints, 
   onPlaceOrder 
@@ -39,6 +41,12 @@ const OrderSummary = ({
             <div className="flex justify-between text-green-600">
               <span>Reward Points Discount</span>
               <span>-${pointsDiscount.toFixed(2)}</span>
+            </div>
+          )}
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Promo Code Discount</span>
+              <span>-${discountAmount.toFixed(2)}</span>
             </div>
           )}
         </div>
