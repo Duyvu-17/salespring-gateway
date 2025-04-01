@@ -13,9 +13,11 @@ import ShippingMethod from "@/components/checkout/ShippingMethod";
 import OrderNotes from "@/components/checkout/OrderNotes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [paymentMethod, setPaymentMethod] = useState("momo");
   const [showSuccess, setShowSuccess] = useState(false);
   const [rewardPoints, setRewardPoints] = useState(500); // Example points
@@ -27,6 +29,7 @@ const Checkout = () => {
   const [isGiftWrap, setIsGiftWrap] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
   
   const subtotal = 299.99;
   const giftWrapCost = isGiftWrap ? 5 : 0;
@@ -61,16 +64,34 @@ const Checkout = () => {
   const handlePlaceOrder = () => {
     setIsProcessing(true);
     
+    // Generate a random order number
+    const generatedOrderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+    setOrderNumber(generatedOrderNumber);
+    
     // Simulate order processing
     setTimeout(() => {
       setIsProcessing(false);
+      
+      // Show success toast notification
+      toast({
+        title: "Order Placed Successfully!",
+        description: `Your order #${generatedOrderNumber} has been placed.`,
+        duration: 5000,
+      });
+      
+      // Show success dialog
       setShowSuccess(true);
       
-      // Simulate order completion
+      // Reduce user's reward points if they used them
+      if (useRewardPoints) {
+        setRewardPoints(Math.max(0, rewardPoints - Math.floor(pointsDiscount * 10)));
+      }
+      
+      // Simulate order completion and redirect
       setTimeout(() => {
         setShowSuccess(false);
         navigate('/');
-      }, 3000);
+      }, 5000); // Extended to 5 seconds to give users more time to see the dialog
     }, 2000);
   };
   
@@ -103,8 +124,6 @@ const Checkout = () => {
           
           {/* Shipping Information Component */}
           <ShippingInformation />
-          
-          {/* Shipping Method Component */}
           <ShippingMethod onShippingMethodChange={handleShippingMethodChange} />
           
           {/* Payment Method Component */}
@@ -156,7 +175,11 @@ const Checkout = () => {
       </div>
       
       {/* Success Dialog Component */}
-      <SuccessDialog open={showSuccess} />
+      <SuccessDialog 
+        open={showSuccess} 
+        orderNumber={orderNumber}
+        orderTotal={total}
+      />
     </div>
   );
 };

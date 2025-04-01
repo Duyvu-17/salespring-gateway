@@ -5,6 +5,7 @@ import { MainLayout } from "./components/layout/MainLayout";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Toaster } from "@/components/ui/toaster";
 import Index from "./pages/Index";
 import Cart from "./pages/Cart";
 import Login from "./pages/Login";
@@ -82,6 +83,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
+            <Toaster />
           </CartNotificationProvider>
         </AuthProvider>
       </BrowserRouter>
