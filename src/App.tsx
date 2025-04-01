@@ -30,10 +30,10 @@ const queryClient = new QueryClient();
 // Create a context provider for cart notifications
 import { createContext, useContext } from "react";
 
-export const CartNotificationContext = createContext<ReturnType<typeof useCartNotification> | null>(null);
+export const CartNotifiCationContext = createContext<ReturnType<typeof useCartNotification> | null>(null);
 
 export const useCartNotificationContext = () => {
-  const context = useContext(CartNotificationContext);
+  const context = useContext(CartNotifiCationContext);
   if (!context) {
     throw new Error("useCartNotificationContext must be used within a CartNotificationProvider");
   }
@@ -44,10 +44,10 @@ const CartNotificationProvider = ({ children }: { children: React.ReactNode }) =
   const cartNotification = useCartNotification();
   
   return (
-    <CartNotificationContext.Provider value={cartNotification}>
+    <CartNotifiCationContext.Provider value={cartNotification}>
       {children}
       <cartNotification.CartNotification />
-    </CartNotificationContext.Provider>
+    </CartNotifiCationContext.Provider>
   );
 };
 

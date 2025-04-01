@@ -139,6 +139,13 @@ const Checkout = () => {
             useRewardPoints={useRewardPoints}
             toggleRewardPoints={toggleRewardPoints}
           />
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <h2 className="text-xl font-semibold mb-4">Discount Code</h2>
+            <DiscountCode 
+              onApplyDiscount={handleApplyDiscount}
+              subtotal={subtotal}
+            />
+          </div>
           
           {/* Gift Wrap Component */}
           <GiftWrap 
@@ -150,13 +157,7 @@ const Checkout = () => {
           <OrderNotes onNotesChange={handleOrderNotesChange} />
           
           {/* Discount Code Component */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h2 className="text-xl font-semibold mb-4">Discount Code</h2>
-            <DiscountCode 
-              onApplyDiscount={handleApplyDiscount}
-              subtotal={subtotal}
-            />
-          </div>
+        
         </div>
         
         {/* Order Summary Component */}
