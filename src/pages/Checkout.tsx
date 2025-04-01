@@ -9,7 +9,7 @@ import SuccessDialog from "@/components/checkout/SuccessDialog";
 import { calculatePointsDiscount, calculateTotal } from "@/components/checkout/CheckoutCalculator";
 import DiscountCode from "@/components/checkout/DiscountCode";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { InfoIcon } from "lucide-react";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ const Checkout = () => {
         <div className="md:col-span-2 space-y-8">
           {/* Alert for estimated delivery */}
           <Alert className="bg-blue-50 border-blue-200">
-            <InfoCircledIcon className="h-4 w-4 text-blue-600" />
+            <InfoIcon className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-blue-600">
               Estimated delivery: 2-4 business days
             </AlertDescription>

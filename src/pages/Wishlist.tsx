@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart, Heart, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist, WishlistProduct } from '@/utils/wishlist';
-import { getFeaturedProducts, getDiscountedProducts } from '@/data/products';
+import { getFeaturedProducts, getDiscountedProducts, Product } from '@/data/products';
 import { useCartNotificationContext } from '../App';
 
 const Wishlist = () => {
@@ -59,8 +59,17 @@ const Wishlist = () => {
   };
 
   const handleAddToCart = (product: WishlistProduct) => {
-    // Show notification
-    showCartNotification(product);
+    // Convert WishlistProduct to a partial Product for notification
+    // This adds the missing required fields for Product type
+    const enhancedProduct: Product = {
+      ...product,
+      rating: 0,
+      reviews: 0,
+      inStock: true
+    };
+    
+    // Show notification with enhanced product that satisfies Product type
+    showCartNotification(enhancedProduct);
   };
 
   return (

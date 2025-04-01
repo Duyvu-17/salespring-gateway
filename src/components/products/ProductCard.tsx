@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Star, ShoppingBag, Lightning, Eye } from "lucide-react";
+import { Star, ShoppingBag, Zap, Eye } from "lucide-react";
 import { getSecondImage } from "@/data/product-images";
 import { Product } from "@/data/products";
 import { useWishlist, isInWishlist } from "@/utils/wishlist";
@@ -136,7 +136,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                 className="bg-primary/90 hover:bg-primary text-white"
                 onClick={handleQuickBuy}
               >
-                <Lightning className="h-4 w-4 mr-1" /> Quick Buy
+                <Zap className="h-4 w-4 mr-1" /> Quick Buy
               </Button>
             </div>
           )}
