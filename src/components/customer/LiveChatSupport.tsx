@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   MessageSquare, 
@@ -24,8 +23,7 @@ interface Message {
   sender: 'user' | 'agent';
   timestamp: Date;
 }
-
-export const LiveChatSupport: React.FC = () => {
+const LiveChatSupport: React.FC = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -197,163 +195,167 @@ export const LiveChatSupport: React.FC = () => {
     </div>
   );
 
-  // Desktop chat widget - smaller version
   return (
     <>
-      {/* Mobile version */}
-      <div className="md:hidden fixed z-50 bottom-4 right-4">
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
+      {/* Mobile version - only shows on mobile devices */}
+      {isMobile && (
+        <div className="fixed z-50 bottom-4 right-4">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button 
+                className="rounded-full h-10 w-10 shadow-lg p-0"
+                variant="secondary"
+              >
+                <MessageSquare className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[70vh] p-0">
+              <ChatSheetContent />
+            </SheetContent>
+          </Sheet>
+        </div>
+      )}
+
+      {/* Desktop version - only shows on desktop devices */}
+      {!isMobile && (
+        <div className="fixed z-50 bottom-4 right-4">
+          {!isOpen ? (
             <Button 
+              onClick={() => {
+                setIsOpen(true);
+                setIsMinimized(false);
+              }} 
               className="rounded-full h-10 w-10 shadow-lg p-0"
-              variant="primary"
+              variant="secondary"
             >
               <MessageSquare className="h-5 w-5" />
             </Button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="h-[70vh] p-0">
-            <ChatSheetContent />
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Desktop version - smaller and more compact */}
-      <div className="hidden md:block fixed z-50 bottom-4 right-4">
-        {!isOpen ? (
-          <Button 
-            onClick={() => {
-              setIsOpen(true);
-              setIsMinimized(false);
-            }} 
-            className="rounded-full h-10 w-10 shadow-lg p-0"
-            variant="primary"
-          >
-            <MessageSquare className="h-5 w-5" />
-          </Button>
-        ) : (
-          <div 
-            className={cn(
-              "bg-card rounded-lg shadow-lg border transition-all duration-300 ease-in-out flex flex-col",
-              isMinimized ? "w-60 h-10" : "w-72 h-[400px]"
-            )}
-          >
+          ) : (
             <div 
-              className="flex items-center justify-between bg-primary p-2 text-primary-foreground rounded-t-lg cursor-pointer"
-              onClick={toggleMinimize}
+              className={cn(
+                "bg-card rounded-lg shadow-lg border transition-all duration-300 ease-in-out flex flex-col",
+                isMinimized ? "w-60 h-10" : "w-72 h-[400px]"
+              )}
             >
-              <div className="flex items-center gap-2">
-                <Avatar className="h-5 w-5 border border-primary-foreground">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback>CS</AvatarFallback>
-                </Avatar>
-                <h3 className="font-medium text-xs">Customer Support</h3>
+              <div 
+                className="flex items-center justify-between bg-primary p-2 text-primary-foreground rounded-t-lg cursor-pointer"
+                onClick={toggleMinimize}
+              >
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-5 w-5 border border-primary-foreground">
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback>CS</AvatarFallback>
+                  </Avatar>
+                  <h3 className="font-medium text-xs">Customer Support</h3>
+                </div>
+                <div className="flex items-center">
+                  {isMinimized ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-5 w-5 text-primary-foreground hover:bg-primary-foreground/20"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMinimize();
+                        }}
+                      >
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-5 w-5 text-primary-foreground hover:bg-primary-foreground/20"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClose();
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center">
-                {isMinimized ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-5 w-5 text-primary-foreground hover:bg-primary-foreground/20"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleMinimize();
-                      }}
-                    >
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-5 w-5 text-primary-foreground hover:bg-primary-foreground/20"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleClose();
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-            
-            {!isMinimized && (
-              <>
-                <div className="flex-1 overflow-auto p-3 space-y-3 bg-muted/30">
-                  {messages.map((message) => (
-                    <div 
-                      key={message.id}
-                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      {message.sender === 'agent' && (
+              
+              {!isMinimized && (
+                <>
+                  <div className="flex-1 overflow-auto p-3 space-y-3 bg-muted/30">
+                    {messages.map((message) => (
+                      <div 
+                        key={message.id}
+                        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        {message.sender === 'agent' && (
+                          <Avatar className="h-5 w-5 mr-1 mt-1">
+                            <AvatarImage src="/placeholder.svg" />
+                            <AvatarFallback>
+                              <Bot className="h-3 w-3" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div className={`max-w-[80%] rounded-lg p-2 ${
+                          message.sender === 'user' 
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'bg-muted'
+                        }`}>
+                          <p className="text-xs">{message.content}</p>
+                          <p className="text-xs opacity-70 mt-1 text-right">
+                            {formatTime(message.timestamp)}
+                          </p>
+                        </div>
+                        {message.sender === 'user' && (
+                          <Avatar className="h-5 w-5 ml-1 mt-1">
+                            <AvatarFallback>
+                              <User className="h-3 w-3" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                      </div>
+                    ))}
+                    {isTyping && (
+                      <div className="flex justify-start">
                         <Avatar className="h-5 w-5 mr-1 mt-1">
                           <AvatarImage src="/placeholder.svg" />
                           <AvatarFallback>
                             <Bot className="h-3 w-3" />
                           </AvatarFallback>
                         </Avatar>
-                      )}
-                      <div className={`max-w-[80%] rounded-lg p-2 ${
-                        message.sender === 'user' 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-muted'
-                      }`}>
-                        <p className="text-xs">{message.content}</p>
-                        <p className="text-xs opacity-70 mt-1 text-right">
-                          {formatTime(message.timestamp)}
-                        </p>
-                      </div>
-                      {message.sender === 'user' && (
-                        <Avatar className="h-5 w-5 ml-1 mt-1">
-                          <AvatarFallback>
-                            <User className="h-3 w-3" />
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                    </div>
-                  ))}
-                  {isTyping && (
-                    <div className="flex justify-start">
-                      <Avatar className="h-5 w-5 mr-1 mt-1">
-                        <AvatarImage src="/placeholder.svg" />
-                        <AvatarFallback>
-                          <Bot className="h-3 w-3" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="max-w-[80%] rounded-lg p-2 bg-muted">
-                        <div className="flex space-x-1">
-                          <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce"></div>
-                          <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                          <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                        <div className="max-w-[80%] rounded-lg p-2 bg-muted">
+                          <div className="flex space-x-1">
+                            <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce"></div>
+                            <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                            <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-                
-                <div className="p-2 border-t">
-                  <div className="flex gap-2">
-                    <Input
-                      value={userMessage}
-                      onChange={(e) => setUserMessage(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Type your message..."
-                      className="flex-1 text-xs h-7"
-                    />
-                    <Button size="sm" onClick={handleSend} disabled={!userMessage.trim()} className="h-7 px-2">
-                      <Send className="h-3 w-3" />
-                    </Button>
+                    )}
+                    <div ref={messagesEndRef} />
                   </div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
+                  
+                  <div className="p-2 border-t">
+                    <div className="flex gap-2">
+                      <Input
+                        value={userMessage}
+                        onChange={(e) => setUserMessage(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type your message..."
+                        className="flex-1 text-xs h-7"
+                      />
+                      <Button size="sm" onClick={handleSend} disabled={!userMessage.trim()} className="h-7 px-2">
+                        <Send className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 };
+export default LiveChatSupport;
