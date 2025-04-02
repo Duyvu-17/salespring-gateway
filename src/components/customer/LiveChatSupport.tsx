@@ -4,8 +4,8 @@ import {
   MessageSquare, 
   Send, 
   X, 
-  ArrowUp,
-  ArrowDown,
+  ChevronDown,
+  ChevronUp,
   User,
   Bot,
   Paperclip
@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Message {
   id: number;
@@ -25,8 +27,9 @@ interface Message {
 
 export const LiveChatSupport: React.FC = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
   const [userMessage, setUserMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -44,8 +47,10 @@ export const LiveChatSupport: React.FC = () => {
   };
   
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (!isMinimized) {
+      scrollToBottom();
+    }
+  }, [messages, isMinimized]);
   
   const handleSend = () => {
     if (!userMessage.trim()) return;
@@ -105,10 +110,14 @@ export const LiveChatSupport: React.FC = () => {
   
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
+    if (isMinimized) {
+      setIsOpen(true);
+    }
   };
   
   const handleClose = () => {
     setIsOpen(false);
+    setIsMinimized(true);
     toast({
       title: "Chat Ended",
       description: "Your chat session has ended. A transcript has been sent to your email.",
@@ -118,9 +127,9 @@ export const LiveChatSupport: React.FC = () => {
   // For mobile view
   const ChatSheetContent = () => (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between bg-primary p-4 text-primary-foreground">
+      <div className="flex items-center justify-between bg-primary p-3 text-primary-foreground">
         <div className="flex items-center gap-2">
-          <Avatar className="h-8 w-8 border-2 border-primary-foreground">
+          <Avatar className="h-6 w-6 border border-primary-foreground">
             <AvatarImage src="/placeholder.svg" />
             <AvatarFallback>CS</AvatarFallback>
           </Avatar>
@@ -131,21 +140,21 @@ export const LiveChatSupport: React.FC = () => {
         </div>
         <Button 
           variant="ghost" 
-          size="icon"
-          className="text-primary-foreground hover:bg-primary-foreground/20"
+          size="sm"
+          className="text-primary-foreground hover:bg-primary-foreground/20 h-7 w-7"
           onClick={handleClose}
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </Button>
       </div>
       
-      <div className="flex-1 overflow-auto p-4 space-y-4 bg-muted/30">
+      <div className="flex-1 overflow-auto p-3 space-y-3 bg-muted/30">
         {messages.map((message) => (
           <div 
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div className={`max-w-[80%] rounded-lg p-3 ${
+            <div className={`max-w-[80%] rounded-lg p-2 ${
               message.sender === 'user' 
                 ? 'bg-primary text-primary-foreground' 
                 : 'bg-muted'
@@ -159,7 +168,7 @@ export const LiveChatSupport: React.FC = () => {
         ))}
         {isTyping && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] rounded-lg p-3 bg-muted">
+            <div className="max-w-[80%] rounded-lg p-2 bg-muted">
               <div className="flex space-x-1">
                 <div className="h-2 w-2 rounded-full bg-foreground/70 animate-bounce"></div>
                 <div className="h-2 w-2 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
@@ -171,96 +180,100 @@ export const LiveChatSupport: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="p-4 border-t bg-card">
+      <div className="p-3 border-t bg-card">
         <div className="flex gap-2">
-          <Button variant="outline" size="icon">
-            <Paperclip className="h-4 w-4" />
-          </Button>
           <Input
             value={userMessage}
             onChange={(e) => setUserMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
-            className="flex-1"
+            className="flex-1 text-sm h-8"
           />
-          <Button onClick={handleSend} disabled={!userMessage.trim()}>
-            <Send className="h-4 w-4" />
+          <Button size="sm" onClick={handleSend} disabled={!userMessage.trim()} className="h-8 px-3">
+            <Send className="h-3 w-3" />
           </Button>
         </div>
       </div>
     </div>
   );
 
-  // Desktop chat widget
+  // Desktop chat widget - smaller version
   return (
     <>
       {/* Mobile version */}
-      <div className="md:hidden fixed z-50 bottom-5 right-5">
+      <div className="md:hidden fixed z-50 bottom-4 right-4">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button 
-              className="rounded-full h-14 w-14 shadow-lg"
+              className="rounded-full h-10 w-10 shadow-lg p-0"
+              variant="primary"
             >
-              <MessageSquare className="h-6 w-6" />
+              <MessageSquare className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[80vh] p-0">
+          <SheetContent side="bottom" className="h-[70vh] p-0">
             <ChatSheetContent />
           </SheetContent>
         </Sheet>
       </div>
 
-      {/* Desktop version */}
-      <div className="hidden md:block fixed z-50 bottom-5 right-5">
+      {/* Desktop version - smaller and more compact */}
+      <div className="hidden md:block fixed z-50 bottom-4 right-4">
         {!isOpen ? (
           <Button 
-            onClick={() => setIsOpen(true)} 
-            className="rounded-full h-14 w-14 shadow-lg"
+            onClick={() => {
+              setIsOpen(true);
+              setIsMinimized(false);
+            }} 
+            className="rounded-full h-10 w-10 shadow-lg p-0"
+            variant="primary"
           >
-            <MessageSquare className="h-6 w-6" />
+            <MessageSquare className="h-5 w-5" />
           </Button>
         ) : (
           <div 
-            className={`bg-card rounded-lg shadow-lg border w-80 transition-all duration-300 ease-in-out flex flex-col ${
-              isMinimized ? 'h-14' : 'h-[450px]'
-            }`}
+            className={cn(
+              "bg-card rounded-lg shadow-lg border transition-all duration-300 ease-in-out flex flex-col",
+              isMinimized ? "w-60 h-10" : "w-72 h-[400px]"
+            )}
           >
-            <div className="flex items-center justify-between bg-primary p-3 text-primary-foreground rounded-t-lg cursor-pointer"
+            <div 
+              className="flex items-center justify-between bg-primary p-2 text-primary-foreground rounded-t-lg cursor-pointer"
               onClick={toggleMinimize}
             >
               <div className="flex items-center gap-2">
-                <Avatar className="h-6 w-6 border-2 border-primary-foreground">
+                <Avatar className="h-5 w-5 border border-primary-foreground">
                   <AvatarImage src="/placeholder.svg" />
                   <AvatarFallback>CS</AvatarFallback>
                 </Avatar>
-                <h3 className="font-medium text-sm">Customer Support</h3>
+                <h3 className="font-medium text-xs">Customer Support</h3>
               </div>
               <div className="flex items-center">
                 {isMinimized ? (
-                  <ArrowUp className="h-4 w-4" />
+                  <ChevronUp className="h-4 w-4" />
                 ) : (
                   <>
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="h-6 w-6 text-primary-foreground hover:bg-primary-foreground/20"
+                      className="h-5 w-5 text-primary-foreground hover:bg-primary-foreground/20"
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleMinimize();
                       }}
                     >
-                      <ArrowDown className="h-4 w-4" />
+                      <ChevronDown className="h-3 w-3" />
                     </Button>
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="h-6 w-6 text-primary-foreground hover:bg-primary-foreground/20"
+                      className="h-5 w-5 text-primary-foreground hover:bg-primary-foreground/20"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleClose();
                       }}
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3 w-3" />
                     </Button>
                   </>
                 )}
@@ -269,34 +282,34 @@ export const LiveChatSupport: React.FC = () => {
             
             {!isMinimized && (
               <>
-                <div className="flex-1 overflow-auto p-4 space-y-4 bg-muted/30">
+                <div className="flex-1 overflow-auto p-3 space-y-3 bg-muted/30">
                   {messages.map((message) => (
                     <div 
                       key={message.id}
                       className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       {message.sender === 'agent' && (
-                        <Avatar className="h-6 w-6 mr-2 mt-1">
+                        <Avatar className="h-5 w-5 mr-1 mt-1">
                           <AvatarImage src="/placeholder.svg" />
                           <AvatarFallback>
-                            <Bot className="h-4 w-4" />
+                            <Bot className="h-3 w-3" />
                           </AvatarFallback>
                         </Avatar>
                       )}
-                      <div className={`max-w-[80%] rounded-lg p-3 ${
+                      <div className={`max-w-[80%] rounded-lg p-2 ${
                         message.sender === 'user' 
                           ? 'bg-primary text-primary-foreground' 
                           : 'bg-muted'
                       }`}>
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-xs">{message.content}</p>
                         <p className="text-xs opacity-70 mt-1 text-right">
                           {formatTime(message.timestamp)}
                         </p>
                       </div>
                       {message.sender === 'user' && (
-                        <Avatar className="h-6 w-6 ml-2 mt-1">
+                        <Avatar className="h-5 w-5 ml-1 mt-1">
                           <AvatarFallback>
-                            <User className="h-4 w-4" />
+                            <User className="h-3 w-3" />
                           </AvatarFallback>
                         </Avatar>
                       )}
@@ -304,17 +317,17 @@ export const LiveChatSupport: React.FC = () => {
                   ))}
                   {isTyping && (
                     <div className="flex justify-start">
-                      <Avatar className="h-6 w-6 mr-2 mt-1">
+                      <Avatar className="h-5 w-5 mr-1 mt-1">
                         <AvatarImage src="/placeholder.svg" />
                         <AvatarFallback>
-                          <Bot className="h-4 w-4" />
+                          <Bot className="h-3 w-3" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="max-w-[80%] rounded-lg p-3 bg-muted">
+                      <div className="max-w-[80%] rounded-lg p-2 bg-muted">
                         <div className="flex space-x-1">
-                          <div className="h-2 w-2 rounded-full bg-foreground/70 animate-bounce"></div>
-                          <div className="h-2 w-2 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                          <div className="h-2 w-2 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                          <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce"></div>
+                          <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                          <div className="h-1.5 w-1.5 rounded-full bg-foreground/70 animate-bounce" style={{ animationDelay: "0.4s" }}></div>
                         </div>
                       </div>
                     </div>
@@ -322,17 +335,17 @@ export const LiveChatSupport: React.FC = () => {
                   <div ref={messagesEndRef} />
                 </div>
                 
-                <div className="p-3 border-t">
+                <div className="p-2 border-t">
                   <div className="flex gap-2">
                     <Input
                       value={userMessage}
                       onChange={(e) => setUserMessage(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Type your message..."
-                      className="flex-1 text-sm"
+                      className="flex-1 text-xs h-7"
                     />
-                    <Button size="sm" onClick={handleSend} disabled={!userMessage.trim()}>
-                      <Send className="h-4 w-4" />
+                    <Button size="sm" onClick={handleSend} disabled={!userMessage.trim()} className="h-7 px-2">
+                      <Send className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
