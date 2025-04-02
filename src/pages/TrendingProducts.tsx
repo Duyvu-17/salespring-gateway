@@ -1,7 +1,9 @@
-import { ProductCard } from "@/components/products/ProductCard";
+
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getFeaturedProducts } from "@/data/products";
+import { LazyProductGrid } from "@/components/products/LazyProductGrid";
+
 const TrendingProducts = () => {
   const featuredProducts = getFeaturedProducts();
 
@@ -23,11 +25,7 @@ const TrendingProducts = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {featuredProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      <LazyProductGrid products={featuredProducts} initialCount={3} loadMoreCount={3} />
     </section>
   );
 };

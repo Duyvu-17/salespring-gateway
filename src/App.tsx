@@ -6,6 +6,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Toaster } from "@/components/ui/toaster";
+import ScrollToTop from "./components/utils/ScrollToTop";
 import Index from "./pages/Index";
 import Cart from "./pages/Cart";
 import Login from "./pages/Login";
@@ -57,6 +58,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <CartNotificationProvider>
+            <ScrollToTop />
             <Routes>
               <Route element={<MainLayout />}>
                 <Route path="/" element={<Index />} />

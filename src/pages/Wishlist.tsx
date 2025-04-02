@@ -1,20 +1,19 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Heart, ArrowRight } from 'lucide-react';
+import { Heart, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist, WishlistProduct } from '@/utils/wishlist';
-import { getFeaturedProducts, getDiscountedProducts, Product } from '@/data/products';
-import { useCartNotificationContext } from '../App';
+import { getFeaturedProducts, getDiscountedProducts } from '@/data/products';
+import { WishlistProductGrid } from '@/components/products/WishlistProductGrid';
 
 const Wishlist = () => {
   const [likedProducts, setLikedProducts] = useState<WishlistProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { getWishlistProducts, removeFromWishlist } = useWishlist();
-  const { showCartNotification } = useCartNotificationContext();
   
   // Get recommended products to show in empty state
   const recommendedProducts = [...getFeaturedProducts(), ...getDiscountedProducts()]
@@ -58,20 +57,6 @@ const Wishlist = () => {
     setLikedProducts(likedProducts.filter(p => p.id !== product.id));
   };
 
-  const handleAddToCart = (product: WishlistProduct) => {
-    // Convert WishlistProduct to a partial Product for notification
-    // This adds the missing required fields for Product type
-    const enhancedProduct: Product = {
-      ...product,
-      rating: 0,
-      reviews: 0,
-      inStock: true
-    };
-    
-    // Show notification with enhanced product that satisfies Product type
-    showCartNotification(enhancedProduct);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8 animate-fadeIn">
       <div className="flex justify-between items-center mb-8">
@@ -109,11 +94,12 @@ const Wishlist = () => {
                       src={product.image} 
                       alt={product.name} 
                       className="w-full h-48 object-cover"
+                      loading="lazy"
                     />
-                    <CardContent className="pt-4">
+                    <div className="p-4">
                       <h3 className="font-medium">{product.name}</h3>
                       <p className="text-primary font-semibold mt-1">${product.price.toFixed(2)}</p>
-                    </CardContent>
+                    </div>
                   </Link>
                 </Card>
               ))}
@@ -121,47 +107,10 @@ const Wishlist = () => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {likedProducts.map((product) => (
-            <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300">
-              <Link to={`/product/${product.id}`} className="block">
-                <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <CardHeader className="pb-0">
-                  <CardTitle className="line-clamp-1">{product.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="font-bold text-lg">${product.price.toFixed(2)}</p>
-                  <p className="text-muted-foreground text-sm line-clamp-2 mt-1">{product.description}</p>
-                </CardContent>
-              </Link>
-              <CardFooter className="flex justify-between gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex-1"
-                  onClick={() => handleRemoveFromWishlist(product)}
-                >
-                  <Heart className="h-4 w-4 mr-1 fill-red-500 text-red-500" />
-                  Remove
-                </Button>
-                <Button 
-                  size="sm" 
-                  className="flex-1"
-                  onClick={() => handleAddToCart(product)}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-1" />
-                  Add to Cart
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <WishlistProductGrid 
+          products={likedProducts} 
+          onRemove={handleRemoveFromWishlist} 
+        />
       )}
     </div>
   );
