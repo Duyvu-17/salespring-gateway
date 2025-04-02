@@ -69,7 +69,7 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 
-                {/* Protected routes */}
+                {/* Protected routes - require authentication */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
