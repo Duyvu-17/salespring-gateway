@@ -25,11 +25,11 @@ export const WishlistButton = ({
   showText = true
 }: WishlistButtonProps) => {
   const { toggleWishlist } = useWishlist();
-  const [inWishlist, setInWishlist] = useState(isInWishlist(product.id));
+  const [inWishlist, setInWishlist] = useState<boolean>(isInWishlist(product.id));
   
   useEffect(() => {
     // Update state if wishlist changes elsewhere
-    const handleWishlistUpdate = () => {
+    const handleWishlistUpdate = (): void => {
       setInWishlist(isInWishlist(product.id));
     };
     
@@ -39,7 +39,7 @@ export const WishlistButton = ({
     };
   }, [product.id]);
   
-  const handleToggleWishlist = (e: React.MouseEvent) => {
+  const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault();
     e.stopPropagation();
     

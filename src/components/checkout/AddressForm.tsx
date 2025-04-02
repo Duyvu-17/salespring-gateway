@@ -1,26 +1,20 @@
+
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Address } from "./AddressSelection";
 
-interface Address {
-  name: string;
-  street: string;
-  district: string;
-  city: string;
-  country: string;
-  postalCode: string;
-  phone: string;
-}
+type AddressFormData = Omit<Address, 'id'>;
 
 interface AddressFormProps {
-  initialAddress?: Address;
-  onSave: (address: Address & { type: 'home' | 'office' }) => void;
+  initialAddress?: Partial<AddressFormData>;
+  onSave: (address: AddressFormData) => void;
 }
 
-export const AddressForm = ({ 
+export const AddressForm: React.FC<AddressFormProps> = ({ 
   initialAddress = {
     name: "",
     street: "",
@@ -29,12 +23,22 @@ export const AddressForm = ({
     country: "Việt Nam",
     postalCode: "",
     phone: "",
+    type: "home"
   },
   onSave 
-}: AddressFormProps) => {
-  const [newAddress, setNewAddress] = useState<Address>(initialAddress);
+}) => {
+  const [newAddress, setNewAddress] = useState<AddressFormData>({
+    name: initialAddress.name || "",
+    street: initialAddress.street || "",
+    district: initialAddress.district || "",
+    city: initialAddress.city || "",
+    country: initialAddress.country || "Việt Nam",
+    postalCode: initialAddress.postalCode || "",
+    phone: initialAddress.phone || "",
+    type: initialAddress.type || "home"
+  });
 
-  const handleSave = () => {
+  const handleSave = (): void => {
     // Validate form
     if (!newAddress.name || !newAddress.street || !newAddress.city || !newAddress.phone) {
       toast("Thiếu thông tin", {
@@ -43,7 +47,7 @@ export const AddressForm = ({
       return;
     }
 
-    onSave({ ...newAddress, type: "home" });
+    onSave(newAddress);
   };
 
   return (

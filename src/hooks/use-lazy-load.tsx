@@ -5,11 +5,16 @@ export function useLazyLoad<T>(
   items: T[], 
   initialCount: number = 6, 
   loadMoreCount: number = 3
-) {
+): {
+  visibleItems: T[];
+  loadingRef: React.RefObject<HTMLDivElement>;
+  hasMore: boolean;
+  isLoading: boolean;
+} {
   const [visibleItems, setVisibleItems] = useState<T[]>(items.slice(0, initialCount));
-  const [hasMore, setHasMore] = useState(items.length > initialCount);
+  const [hasMore, setHasMore] = useState<boolean>(items.length > initialCount);
   const loadingRef = useRef<HTMLDivElement | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   
   useEffect(() => {
     // Reset when items change
@@ -18,7 +23,7 @@ export function useLazyLoad<T>(
   }, [items, initialCount]);
   
   useEffect(() => {
-    const options = {
+    const options: IntersectionObserverInit = {
       root: null,
       rootMargin: '0px',
       threshold: 0.1,

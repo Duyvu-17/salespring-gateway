@@ -142,7 +142,7 @@ export const getWishlistProducts = (): WishlistProduct[] => {
 export const useWishlist = () => {
   const { toast } = useToast();
   
-  const addProductToWishlist = (product: WishlistProduct) => {
+  const addProductToWishlist = (product: WishlistProduct): boolean => {
     const success = addToWishlist(product);
     
     if (success) {
@@ -160,7 +160,7 @@ export const useWishlist = () => {
     return success;
   };
   
-  const removeProductFromWishlist = (product: WishlistProduct | { id: number, name: string }) => {
+  const removeProductFromWishlist = (product: WishlistProduct | { id: number, name: string }): boolean => {
     const success = removeFromWishlist(product.id);
     
     if (success) {
@@ -173,7 +173,7 @@ export const useWishlist = () => {
     return success;
   };
   
-  const toggleProductInWishlist = (product: WishlistProduct) => {
+  const toggleProductInWishlist = (product: WishlistProduct): boolean => {
     const isAdded = toggleWishlist(product);
     
     if (isAdded) {

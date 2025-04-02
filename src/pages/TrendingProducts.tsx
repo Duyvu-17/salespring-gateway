@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { getFeaturedProducts } from "@/data/products";
 import { LazyProductGrid } from "@/components/products/LazyProductGrid";
 
-const TrendingProducts = () => {
+const TrendingProducts: React.FC = () => {
   const featuredProducts = getFeaturedProducts();
 
   return (

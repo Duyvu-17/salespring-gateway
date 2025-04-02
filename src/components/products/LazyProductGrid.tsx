@@ -15,7 +15,7 @@ export const LazyProductGrid = ({
   initialCount = 6,
   loadMoreCount = 3
 }: LazyProductGridProps) => {
-  const { visibleItems, loadingRef, hasMore, isLoading } = useLazyLoad(
+  const { visibleItems, loadingRef, hasMore, isLoading } = useLazyLoad<Product>(
     products,
     initialCount,
     loadMoreCount

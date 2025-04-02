@@ -22,14 +22,14 @@ export const WishlistProductGrid = ({
   initialCount = 8,
   loadMoreCount = 4
 }: WishlistProductGridProps) => {
-  const { visibleItems, loadingRef, hasMore, isLoading } = useLazyLoad(
+  const { visibleItems, loadingRef, hasMore, isLoading } = useLazyLoad<WishlistProduct>(
     products,
     initialCount,
     loadMoreCount
   );
   const { showCartNotification } = useCartNotificationContext();
 
-  const handleAddToCart = (product: WishlistProduct) => {
+  const handleAddToCart = (product: WishlistProduct): void => {
     // Convert WishlistProduct to a partial Product for notification
     const enhancedProduct: Product = {
       ...product,

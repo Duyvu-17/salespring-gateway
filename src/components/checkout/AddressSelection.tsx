@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { AddressTypeIcon } from "./AddressTypeIcon";
 import { AddressForm } from "./AddressForm";
 
-interface Address {
+export interface Address {
   id: string;
   name: string;
   street: string;
@@ -25,15 +26,15 @@ interface AddressSelectionProps {
   onNewAddressSave: (address: Address) => void;
 }
 
-export const AddressSelection = ({ 
+export const AddressSelection: React.FC<AddressSelectionProps> = ({ 
   savedAddresses, 
   selectedAddress, 
   onAddressChange,
   onNewAddressSave 
-}: AddressSelectionProps) => {
-  const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
+}) => {
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState<boolean>(false);
 
-  const handleNewAddressSave = (newAddress: Address & { type: 'home' | 'office' }) => {
+  const handleNewAddressSave = (newAddress: Omit<Address, 'id'>): void => {
     const addressId = `address_${Date.now()}`;
     onNewAddressSave({ ...newAddress, id: addressId });
     onAddressChange(addressId);
