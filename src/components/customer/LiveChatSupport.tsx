@@ -23,7 +23,7 @@ interface Message {
   sender: 'user' | 'agent';
   timestamp: Date;
 }
-const LiveChatSupport: React.FC = () => {
+export const LiveChatSupport: React.FC = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -358,4 +358,4 @@ const LiveChatSupport: React.FC = () => {
     </>
   );
 };
-export default LiveChatSupport;
+ 
