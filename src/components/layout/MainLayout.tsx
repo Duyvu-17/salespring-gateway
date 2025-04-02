@@ -5,6 +5,7 @@ import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
 import { useTheme } from '@/context/ThemeContext';
+import { RealTimeInfo } from '@/components/notifications/RealTimeInfo';
 
 export const MainLayout = () => {
   const { theme } = useTheme();
@@ -40,6 +41,9 @@ export const MainLayout = () => {
   return (
     <div className={`min-h-screen flex flex-col ${getThemeStyles()} font-sans`}>
       <Header />
+      <div className="container mt-4">
+        <RealTimeInfo variant="shipping" />
+      </div>
       <main className="flex-1">
         <Outlet />
       </main>

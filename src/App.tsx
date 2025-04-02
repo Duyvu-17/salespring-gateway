@@ -24,7 +24,9 @@ import Checkout from "./pages/Checkout";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
+import CustomerService from "./pages/CustomerService";
 import { useCartNotification } from "./hooks/use-cart-notification";
+import { LiveChatSupport } from "./components/customer/LiveChatSupport";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +72,7 @@ const App = () => (
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/customer-service" element={<CustomerService />} />
                 
                 {/* Protected routes - require authentication */}
                 <Route element={<ProtectedRoute />}>
@@ -86,6 +89,7 @@ const App = () => (
               </Route>
             </Routes>
             <Toaster />
+            <LiveChatSupport />
           </CartNotificationProvider>
         </AuthProvider>
       </BrowserRouter>
