@@ -24,10 +24,48 @@ export const MainLayout = () => {
     const viewportMeta = document.querySelector('meta[name="viewport"]');
     if (viewportMeta) {
       viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    } else {
+      const newViewportMeta = document.createElement('meta');
+      newViewportMeta.name = 'viewport';
+      newViewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+      document.head.appendChild(newViewportMeta);
     }
+
+    // Add touch-action for better mobile interaction
+    const style = document.createElement('style');
+    style.innerHTML = `
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+      .xs\\:inline {
+        @media (min-width: 480px) {
+          display: inline;
+        }
+      }
+      .xs\\:hidden {
+        @media (min-width: 480px) {
+          display: none;
+        }
+      }
+      .order-timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background-color: #e5e7eb;
+        z-index: 0;
+      }
+      .order-timeline-item:last-child::before {
+        height: 50%;
+      }
+    `;
+    document.head.appendChild(style);
 
     return () => {
       document.head.removeChild(linkElement);
+      document.head.removeChild(style);
       // We don't remove the viewport meta as it's important for the whole application
     };
   }, []);
