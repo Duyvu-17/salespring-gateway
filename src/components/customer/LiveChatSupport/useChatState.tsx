@@ -107,7 +107,7 @@ export const useChatState = () => {
     // Xác định phản hồi dựa trên tin nhắn của người dùng
     let response: string;
     let responseType: "text" | "link" | "image" | "product" = "text";
-    let responseMetadata: any = {};
+    let responseMetadata = {};
 
     const lowerCaseMsg =
       activeInput === "text"
