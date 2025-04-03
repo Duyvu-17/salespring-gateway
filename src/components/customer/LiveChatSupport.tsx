@@ -358,4 +358,3 @@ export const LiveChatSupport: React.FC = () => {
     </>
   );
 };
- 
