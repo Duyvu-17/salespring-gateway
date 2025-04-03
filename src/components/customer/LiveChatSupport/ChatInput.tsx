@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Send, Smile, Image, X } from 'lucide-react';
+import { Send, Smile, Link, Image, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,10 +14,15 @@ const commonEmojis = [
 ];
 
 interface ChatInputProps {
-  activeInput: 'text' | 'image';
-  setActiveInput: (type: 'text' | 'image') => void;
+  activeInput: 'text' | 'link' | 'image';
+  setActiveInput: (type: 'text' | 'link' | 'image') => void;
   userMessage: string;
-  setUserMessage: (message: string | ((prev: string) => string)) => void;
+  // Thay đổi kiểu của setUserMessage để chấp nhận cả chuỗi và hàm callback
+  setUserMessage: React.Dispatch<React.SetStateAction<string>>;
+  linkUrl: string;
+  setLinkUrl: (url: string) => void;
+  linkText: string;
+  setLinkText: (text: string) => void;
   imageUrl: string;
   setImageUrl: (url: string) => void;
   handleSend: () => void;
@@ -30,6 +35,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   setActiveInput,
   userMessage,
   setUserMessage,
+  linkUrl,
+  setLinkUrl,
+  linkText,
+  setLinkText,
   imageUrl,
   setImageUrl,
   handleSend,
@@ -39,6 +48,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const insertEmoji = (emoji: string) => {
+    // Bây giờ setUserMessage sẽ chấp nhận hàm callback
     setUserMessage(prev => prev + emoji);
   };
   
@@ -51,16 +61,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     
     if (file && file.type.startsWith('image/')) {
       setActiveInput('image');
-      // For this demo, we'll just use a placeholder image URL
-      const randomIndex = Math.floor(Math.random() * 5);
-      const demoImages = [
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80",
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&q=80",
-        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80",
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&q=80",
-        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=200&q=80"
-      ];
-      setImageUrl(demoImages[randomIndex]);
+      
+      // Sử dụng FileReader để đọc file ảnh từ máy người dùng
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setImageUrl(event.target.result.toString());
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
   
@@ -94,6 +103,23 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               </div>
             </PopoverContent>
           </Popover>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant={isDesktop ? "ghost" : "outline"}
+                  size="icon" 
+                  className={`h-${isDesktop ? '6' : '8'} w-${isDesktop ? '6' : '8'}`}
+                  onClick={() => setActiveInput('link')}
+                >
+                  <Link className={`h-${isDesktop ? '3' : '4'} w-${isDesktop ? '3' : '4'}`} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p>Add a link</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -135,6 +161,43 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             className={`${isDesktop ? 'h-7 px-2' : 'h-8 px-3'}`}
           >
             <Send className={`h-${isDesktop ? '3' : '3'} w-${isDesktop ? '3' : '3'}`} />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeInput === 'link') {
+    return (
+      <div className={`space-y-${isDesktop ? '1.5' : '2'}`}>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className={`px-2 h-${isDesktop ? '6' : '7'} ${isDesktop ? 'text-xs' : ''}`}
+          onClick={() => setActiveInput('text')}
+        >
+          ← Back{isDesktop ? '' : ' to chat'}
+        </Button>
+        <div className={`space-y-${isDesktop ? '1.5' : '2'}`}>
+          <Input
+            placeholder="Link URL (e.g. example.com)"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            className={`text-${isDesktop ? 'xs' : 'sm'} h-${isDesktop ? '7' : '8'}`}
+          />
+          <Input
+            placeholder={`Link Text${isDesktop ? '' : ' (e.g. Check this product)'}`}
+            value={linkText}
+            onChange={(e) => setLinkText(e.target.value)}
+            className={`text-${isDesktop ? 'xs' : 'sm'} h-${isDesktop ? '7' : '8'}`}
+          />
+          <Button 
+            size="sm" 
+            onClick={handleSend} 
+            disabled={!linkUrl.trim() || !linkText.trim()} 
+            className={`w-full ${isDesktop ? 'h-7 text-xs' : ''}`}
+          >
+            Send Link
           </Button>
         </div>
       </div>

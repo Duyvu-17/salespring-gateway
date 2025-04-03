@@ -1,147 +1,177 @@
-
-import { useState } from 'react';
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { MessageType } from './ChatMessage';
+import { MessageType } from "./ChatMessage";
 
 export const useChatState = () => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
-  const [userMessage, setUserMessage] = useState('');
+  const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState<MessageType[]>([
     {
       id: 1,
-      content: "Hi there! How can we help you today?",
-      sender: 'agent',
-      timestamp: new Date()
-    }
+      content: "Xin chào! Chúng tôi có thể giúp gì cho bạn hôm nay?",
+      sender: "agent",
+      timestamp: new Date(),
+    },
   ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [activeInput, setActiveInput] = useState<'text' | 'link' | 'image'>('text');
-  const [linkUrl, setLinkUrl] = useState('');
-  const [linkText, setLinkText] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  
+  const [activeInput, setActiveInput] = useState<"text" | "link" | "image">(
+    "text"
+  );
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkText, setLinkText] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+
   const formatTime = (date: Date): string => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
-  
+
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
     if (isMinimized) {
       setIsOpen(true);
     }
   };
-  
+
   const handleClose = () => {
     setIsOpen(false);
     setIsMinimized(true);
     toast({
-      title: "Chat Ended",
-      description: "Your chat session has ended. A transcript has been sent to your email.",
+      title: "Kết thúc trò chuyện",
+      description:
+        "Phiên trò chuyện của bạn đã kết thúc. Một bản ghi đã được gửi đến email của bạn.",
     });
   };
-  
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
-  
+
   const handleSend = () => {
-    if (activeInput === 'text' && !userMessage.trim()) return;
-    if (activeInput === 'link' && (!linkUrl.trim() || !linkText.trim())) return;
-    if (activeInput === 'image' && !imageUrl.trim()) return;
-    
+    if (activeInput === "text" && !userMessage.trim()) return;
+    if (activeInput === "link" && (!linkUrl.trim() || !linkText.trim())) return;
+    if (activeInput === "image" && !imageUrl.trim()) return;
+
     let newUserMessage: MessageType;
-    
-    // Create message based on the active input type
-    if (activeInput === 'link') {
+
+    // Tạo tin nhắn dựa trên loại đầu vào hiện tại
+    if (activeInput === "link") {
       newUserMessage = {
         id: messages.length + 1,
         content: linkText,
-        sender: 'user',
+        sender: "user",
         timestamp: new Date(),
-        type: 'link',
+        type: "link",
         metadata: {
-          url: linkUrl.startsWith('http') ? linkUrl : `https://${linkUrl}`
-        }
+          url: linkUrl.startsWith("http") ? linkUrl : `https://${linkUrl}`,
+        },
       };
-      setLinkUrl('');
-      setLinkText('');
-    } else if (activeInput === 'image') {
+      setLinkUrl("");
+      setLinkText("");
+    } else if (activeInput === "image") {
       newUserMessage = {
         id: messages.length + 1,
-        content: 'Sent an image',
-        sender: 'user',
+        content: "Đã gửi một hình ảnh",
+        sender: "user",
         timestamp: new Date(),
-        type: 'image',
+        type: "image",
         metadata: {
-          imageUrl: imageUrl
-        }
+          imageUrl: imageUrl,
+        },
       };
-      setImageUrl('');
+      setImageUrl("");
     } else {
-      // Regular text message
+      // Tin nhắn văn bản thông thường
       newUserMessage = {
         id: messages.length + 1,
         content: userMessage,
-        sender: 'user',
+        sender: "user",
         timestamp: new Date(),
-        type: 'text'
+        type: "text",
       };
-      setUserMessage('');
+      setUserMessage("");
     }
-    
-    setMessages(prev => [...prev, newUserMessage]);
-    setActiveInput('text'); // Reset to text input after sending
-    
-    // Simulate agent typing
+
+    setMessages((prev) => [...prev, newUserMessage]);
+    setActiveInput("text"); // Đặt lại đầu vào về chế độ văn bản sau khi gửi
+
+    // Mô phỏng nhân viên hỗ trợ đang nhập tin nhắn
     setIsTyping(true);
-    
-    // Determine response based on user message
+
+    // Xác định phản hồi dựa trên tin nhắn của người dùng
     let response: string;
-    let responseType: 'text' | 'link' | 'image' | 'product' = 'text';
+    let responseType: "text" | "link" | "image" | "product" = "text";
     let responseMetadata: any = {};
-    
-    const lowerCaseMsg = activeInput === 'text' ? userMessage.toLowerCase() : 
-                         activeInput === 'link' ? linkText.toLowerCase() : 'image';
-    
-    if (lowerCaseMsg.includes('return') || lowerCaseMsg.includes('refund')) {
-      response = "For returns and refunds, please visit our Returns & Exchanges section. Would you like me to guide you there?";
-    } else if (lowerCaseMsg.includes('product') || lowerCaseMsg.includes('item')) {
-      response = "Here's our most popular headphone product:";
-      responseType = 'product';
+
+    const lowerCaseMsg =
+      activeInput === "text"
+        ? userMessage.toLowerCase()
+        : activeInput === "link"
+        ? linkText.toLowerCase()
+        : "image";
+
+    if (
+      lowerCaseMsg.includes("đổi hàng") ||
+      lowerCaseMsg.includes("hoàn tiền")
+    ) {
+      response =
+        "Để đổi hàng hoặc hoàn tiền, vui lòng truy cập mục Chính sách đổi trả của chúng tôi. Bạn có muốn tôi hướng dẫn bạn đến đó không?";
+    } else if (
+      lowerCaseMsg.includes("sản phẩm") ||
+      lowerCaseMsg.includes("mặt hàng")
+    ) {
+      response = "Dưới đây là sản phẩm tai nghe bán chạy nhất của chúng tôi:";
+      responseType = "product";
       responseMetadata = {
         productId: 1,
-        productName: "Premium Noise-Cancelling Headphones",
-        productImageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80"
+        productName: "Tai nghe chống ồn cao cấp",
+        productImageUrl:
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80",
       };
-    } else if (lowerCaseMsg.includes('shipping') || lowerCaseMsg.includes('delivery')) {
-      response = "Most orders ship within 1-2 business days. Standard shipping takes 3-5 business days, while express shipping is 1-2 business days.";
-    } else if (lowerCaseMsg.includes('size') || lowerCaseMsg.includes('sizing')) {
-      response = "Our sizing guide is available on each product page. Would you like me to help you find the right size for a specific item?";
-    } else if (lowerCaseMsg.includes('payment') || lowerCaseMsg.includes('pay')) {
-      response = "We accept all major credit cards, PayPal, and Apple Pay. Is there a specific payment method you have questions about?";
-    } else if (activeInput === 'image') {
-      response = "Thanks for sharing this image. Our team will take a look and get back to you shortly.";
+    } else if (
+      lowerCaseMsg.includes("vận chuyển") ||
+      lowerCaseMsg.includes("giao hàng")
+    ) {
+      response =
+        "Đơn hàng của bạn thường sẽ được xử lý trong 1-2 ngày làm việc. Giao hàng tiêu chuẩn mất từ 3-5 ngày, còn giao hàng nhanh từ 1-2 ngày.";
+    } else if (
+      lowerCaseMsg.includes("kích thước") ||
+      lowerCaseMsg.includes("size")
+    ) {
+      response =
+        "Bảng hướng dẫn chọn size có sẵn trên từng trang sản phẩm. Bạn có muốn tôi giúp bạn chọn size phù hợp cho một sản phẩm cụ thể không?";
+    } else if (
+      lowerCaseMsg.includes("thanh toán") ||
+      lowerCaseMsg.includes("trả tiền")
+    ) {
+      response =
+        "Chúng tôi hỗ trợ thanh toán bằng thẻ tín dụng, PayPal và Ví điện tử. Bạn đang quan tâm đến phương thức thanh toán nào?";
+    } else if (activeInput === "image") {
+      response =
+        "Cảm ơn bạn đã chia sẻ hình ảnh. Nhóm hỗ trợ của chúng tôi sẽ xem xét và phản hồi trong thời gian sớm nhất.";
     } else {
-      response = "Thanks for your message. One of our customer support agents will respond shortly. Is there anything else I can help you with?";
+      response =
+        "Cảm ơn bạn đã nhắn tin. Nhân viên chăm sóc khách hàng sẽ trả lời bạn trong ít phút. Bạn có cần hỗ trợ thêm gì không?";
     }
-    
-    // Send agent response after a delay
+
+    // Gửi phản hồi từ nhân viên hỗ trợ sau một khoảng thời gian ngắn
     setTimeout(() => {
       setIsTyping(false);
       const newAgentMessage: MessageType = {
         id: messages.length + 2,
         content: response,
-        sender: 'agent',
+        sender: "agent",
         timestamp: new Date(),
         type: responseType,
-        metadata: responseMetadata
+        metadata: responseMetadata,
       };
-      setMessages(prev => [...prev, newAgentMessage]);
+      setMessages((prev) => [...prev, newAgentMessage]);
     }, 1500);
   };
 
@@ -160,12 +190,12 @@ export const useChatState = () => {
     setLinkUrl,
     linkText,
     setLinkText,
-    imageUrl, 
+    imageUrl,
     setImageUrl,
     formatTime,
     toggleMinimize,
     handleClose,
     handleKeyDown,
-    handleSend
+    handleSend,
   };
 };
