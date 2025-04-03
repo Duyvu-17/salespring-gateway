@@ -31,7 +31,8 @@ export const LiveChatSupport: React.FC = () => {
     toggleMinimize,
     handleClose,
     handleKeyDown,
-    handleSend
+    handleSend,
+    isOnline
   } = useChatState();
 
   return (
@@ -66,6 +67,7 @@ export const LiveChatSupport: React.FC = () => {
                 handleSend={handleSend}
                 handleKeyDown={handleKeyDown}
                 handleClose={handleClose}
+                isOnline={isOnline}
               />
             </SheetContent>
           </Sheet>
@@ -107,6 +109,7 @@ export const LiveChatSupport: React.FC = () => {
               handleClose={handleClose}
               handleSend={handleSend}
               handleKeyDown={handleKeyDown}
+              isOnline={isOnline}
             />
           )}
         </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,7 @@ interface MobileChatViewProps {
   handleSend: () => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleClose: () => void;
+  isOnline: boolean; 
 }
 
 export const MobileChatView: React.FC<MobileChatViewProps> = ({
@@ -42,7 +42,8 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
   setImageUrl,
   handleSend,
   handleKeyDown,
-  handleClose
+  handleClose,
+  isOnline 
 }) => {
   return (
     <div className="flex flex-col h-full">
@@ -54,7 +55,13 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
           </Avatar>
           <div>
             <h3 className="font-medium text-sm">Customer Support</h3>
-            <p className="text-xs opacity-90">Online</p>
+            <div className="flex items-center gap-1 text-xs opacity-90">
+              {/* Biểu tượng trạng thái online */}
+              <span
+                className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+              ></span>
+              <p>{isOnline ? 'Online' : 'Offline'}</p>
+            </div>
           </div>
         </div>
         <Button 

@@ -5,6 +5,7 @@ import { MessageType } from "./ChatMessage";
 export const useChatState = () => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const [isMinimized, setIsMinimized] = useState(true);
   const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState<MessageType[]>([
@@ -197,5 +198,6 @@ export const useChatState = () => {
     handleClose,
     handleKeyDown,
     handleSend,
+    isOnline,
   };
 };

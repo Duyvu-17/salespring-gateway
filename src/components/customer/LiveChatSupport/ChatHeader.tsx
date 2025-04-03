@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -8,12 +7,14 @@ interface ChatHeaderProps {
   isMinimized: boolean;
   toggleMinimize: () => void;
   handleClose: () => void;
+  isOnline: boolean; 
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
   isMinimized,
   toggleMinimize,
-  handleClose
+  handleClose,
+  isOnline 
 }) => {
   return (
     <div 
@@ -25,7 +26,13 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           <AvatarImage src="/placeholder.svg" />
           <AvatarFallback>CS</AvatarFallback>
         </Avatar>
-        <h3 className="font-medium text-xs">Customer Support</h3>
+        <div className="flex items-center gap-1">
+          <h3 className="font-medium text-xs">Customer Support</h3>
+          <span
+            className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+          ></span>
+          <p className="text-xs">{isOnline ? 'Online' : 'Offline'}</p>
+        </div>
       </div>
       <div className="flex items-center">
         {isMinimized ? (
