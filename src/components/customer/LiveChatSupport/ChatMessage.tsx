@@ -81,32 +81,35 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, formatTime })
 
   return (
     <div 
-      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-    >
-      {message.sender === 'agent' && (
-        <Avatar className="h-5 w-5 mr-1 mt-1">
-          <AvatarFallback>
-            <Bot className="h-3 w-3" />
-          </AvatarFallback>
-        </Avatar>
-      )}
-      <div className={`max-w-[80%] rounded-lg p-2 ${
+    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+  >
+    {message.sender === 'agent' && (
+      <Avatar className="h-5 w-5 mr-1 mt-1">
+        <AvatarFallback>
+          <Bot className="h-3 w-3" />
+        </AvatarFallback>
+      </Avatar>
+    )}
+    <div 
+      className={`max-w-[80%] rounded-lg p-2 overflow-hidden ${
         message.sender === 'user' 
           ? 'bg-primary text-primary-foreground' 
           : 'bg-muted'
-      }`}>
-        {renderMessageContent()}
-        <p className="text-xs opacity-70 mt-1 text-right">
-          {formatTime(message.timestamp)}
-        </p>
-      </div>
-      {message.sender === 'user' && (
-        <Avatar className="h-5 w-5 ml-1 mt-1">
-          <AvatarFallback>
-            <User className="h-3 w-3" />
-          </AvatarFallback>
-        </Avatar>
-      )}
+      }`}
+    >
+      {renderMessageContent()}
+      <p className="text-xs opacity-70 mt-1 text-right">
+        {formatTime(message.timestamp)}
+      </p>
     </div>
+    {message.sender === 'user' && (
+      <Avatar className="h-5 w-5 ml-1 mt-1">
+        <AvatarFallback>
+          <User className="h-3 w-3" />
+        </AvatarFallback>
+      </Avatar>
+    )}
+  </div>
+  
   );
 };
