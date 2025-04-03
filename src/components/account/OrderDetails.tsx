@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -9,7 +10,11 @@ import {
   ClockIcon,
   CircleDollarSignIcon,
   HomeIcon,
-  RefreshCwIcon
+  RefreshCwIcon,
+  ShoppingCartIcon,
+  CheckCircleIcon,
+  AlertTriangleIcon,
+  InfoIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +31,8 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 
 // Sample order for demonstration
 const mockOrders = {
@@ -162,18 +169,84 @@ const OrderDetails = () => {
   
   useEffect(() => {
     // In a real app, this would be an API call
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       if (orderId && mockOrders[orderId]) {
         setOrder(mockOrders[orderId]);
       }
       setLoading(false);
-    }, 500);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, [orderId]);
   
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center">
-        <div className="w-10 h-10 border-t-2 border-primary border-solid rounded-full animate-spin"></div>
+      <div className="space-y-6">
+        <Breadcrumb className="my-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <Skeleton className="h-4 w-20" />
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <Skeleton className="h-4 w-16" />
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <Skeleton className="h-4 w-24" />
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-8 w-64 mb-2" />
+                <Skeleton className="h-4 w-40" />
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <Skeleton className="h-16 w-16 rounded" />
+                      <div className="space-y-2 flex-1">
+                        <Skeleton className="h-4 w-full max-w-[200px]" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                      <Skeleton className="h-4 w-12" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-12" />
+                  </div>
+                </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <Skeleton className="h-5 w-12" />
+                  <Skeleton className="h-5 w-20" />
+                </div>
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -182,11 +255,23 @@ const OrderDetails = () => {
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Order Not Found</CardTitle>
+          <CardTitle className="flex items-center">
+            <AlertTriangleIcon className="h-5 w-5 mr-2 text-orange-500" />
+            Order Not Found
+          </CardTitle>
           <CardDescription>
             We couldn't find an order with the ID: {orderId}
           </CardDescription>
         </CardHeader>
+        <CardContent className="flex justify-center py-8">
+          <div className="text-center max-w-md">
+            <InfoIcon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">No order information available</h3>
+            <p className="text-muted-foreground mb-6">
+              The order ID you're looking for doesn't exist or may have been removed.
+            </p>
+          </div>
+        </CardContent>
         <CardFooter>
           <Link to="/account?tab=order-details">
             <Button>
@@ -216,13 +301,26 @@ const OrderDetails = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "delivered":
-        return <PackageIcon className="h-4 w-4 mr-1" />;
+        return <CheckCircleIcon className="h-4 w-4 mr-1" />;
       case "processing":
         return <ClockIcon className="h-4 w-4 mr-1" />;
       case "shipped":
         return <TruckIcon className="h-4 w-4 mr-1" />;
       default:
         return null;
+    }
+  };
+
+  const getOrderProgressValue = (status: string) => {
+    switch (status) {
+      case "delivered":
+        return 100;
+      case "shipped":
+        return 66;
+      case "processing":
+        return 33;
+      default:
+        return 0;
     }
   };
   
@@ -263,6 +361,24 @@ const OrderDetails = () => {
   const handleProductClick = (productId: number) => {
     navigate(`/product/${productId}`);
   };
+
+  const handleReturnItem = () => {
+    toast({
+      title: "Return Request",
+      description: "We'll guide you through the return process for this order."
+    });
+  };
+
+  const handleReportIssue = () => {
+    toast({
+      title: "Report Issue",
+      description: "Your issue has been reported. Our support team will contact you shortly."
+    });
+  };
+
+  const handleContactSupport = () => {
+    navigate("/customer-service");
+  };
   
   return (
     <div className="space-y-6">
@@ -285,6 +401,29 @@ const OrderDetails = () => {
         </BreadcrumbList>
       </Breadcrumb>
       
+      {/* Order Progress */}
+      <Card className="md:col-span-2">
+        <CardContent className="pt-6">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Order Placed</span>
+              <span>Shipped</span>
+              <span>Delivered</span>
+            </div>
+            <Progress value={getOrderProgressValue(order.status)} className="h-2" />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{formatDate(order.date)}</span>
+              {order.status === "shipped" && order.shipping.estimatedDelivery && (
+                <span>Est: {formatDate(order.shipping.estimatedDelivery)}</span>
+              )}
+              {order.status === "delivered" && order.shipping.actualDelivery && (
+                <span>{formatDate(order.shipping.actualDelivery)}</span>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
           <Card>
@@ -305,12 +444,12 @@ const OrderDetails = () => {
               <div className="flex space-x-2">
                 <Button variant="outline" size="sm" onClick={handleDownloadInvoice}>
                   <DownloadIcon className="h-4 w-4 mr-1" />
-                  Invoice
+                  <span className="hidden xs:inline">Invoice</span>
                 </Button>
                 {(order.status === "shipped" || order.status === "delivered") && (
                   <Button variant="outline" size="sm" onClick={handleTrackOrder}>
                     <TruckIcon className="h-4 w-4 mr-1" />
-                    Track
+                    <span className="hidden xs:inline">Track</span>
                   </Button>
                 )}
               </div>
@@ -318,37 +457,42 @@ const OrderDetails = () => {
             <CardContent className="space-y-6">
               <div>
                 <h3 className="font-medium mb-3">Items</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {order.items.map((item: any) => (
-                      <TableRow key={item.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleProductClick(item.id)}>
-                        <TableCell className="flex items-center space-x-3">
-                          <div className="w-16 h-16 rounded border overflow-hidden flex-shrink-0">
-                            <img 
-                              src={item.image} 
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-medium">{item.name}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>{formatCurrency(item.price)}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead className="hidden sm:table-cell">Price</TableHead>
+                        <TableHead className="hidden sm:table-cell">Quantity</TableHead>
+                        <TableHead className="text-right">Total</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {order.items.map((item: any) => (
+                        <TableRow key={item.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleProductClick(item.id)}>
+                          <TableCell className="flex items-center space-x-3">
+                            <div className="w-16 h-16 rounded border overflow-hidden flex-shrink-0">
+                              <img 
+                                src={item.image} 
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-medium">{item.name}</p>
+                              <p className="text-sm text-muted-foreground sm:hidden">
+                                {item.quantity} × {formatCurrency(item.price)}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">{formatCurrency(item.price)}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{item.quantity}</TableCell>
+                          <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -432,19 +576,19 @@ const OrderDetails = () => {
                 variant="default" 
                 onClick={handleBuyAgain}
               >
-                <RefreshCwIcon className="h-4 w-4 mr-2" /> Buy Again
+                <ShoppingCartIcon className="h-4 w-4 mr-2" /> Buy Again
               </Button>
               
               <div className="mt-6 space-y-2">
                 <h4 className="text-sm font-medium">Need Help?</h4>
                 <div className="flex flex-col space-y-2">
-                  <Button variant="outline" size="sm" className="justify-start">
+                  <Button variant="outline" size="sm" className="justify-start" onClick={handleReturnItem}>
                     Return Item
                   </Button>
-                  <Button variant="outline" size="sm" className="justify-start">
+                  <Button variant="outline" size="sm" className="justify-start" onClick={handleReportIssue}>
                     Report Issue
                   </Button>
-                  <Button variant="outline" size="sm" className="justify-start">
+                  <Button variant="outline" size="sm" className="justify-start" onClick={handleContactSupport}>
                     Contact Support
                   </Button>
                 </div>

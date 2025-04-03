@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, ShieldCheck, CreditCard, TruckIcon } from "lucide-react";
 
 interface OrderSummaryProps {
   subtotal: number;
@@ -34,8 +34,11 @@ const OrderSummary = ({
   return (
     <div className="space-y-4">
       <Card className="sticky top-24">
-        <CardHeader>
-          <CardTitle>Order Summary</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center">
+            <CreditCard className="h-5 w-5 mr-2 text-primary" />
+            Order Summary
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -89,6 +92,18 @@ const OrderSummary = ({
             <div className="flex justify-between font-semibold text-lg">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
+            </div>
+            
+            {/* Delivery Information */}
+            <div className="bg-muted/40 p-3 rounded-md text-xs space-y-1 mt-2">
+              <div className="flex items-center">
+                <TruckIcon className="h-3 w-3 mr-1.5" />
+                <span>Estimated delivery: 2-4 business days</span>
+              </div>
+              <div className="flex items-center">
+                <ShieldCheck className="h-3 w-3 mr-1.5" />
+                <span>Secure payment processed by our payment partners</span>
+              </div>
             </div>
             
             {/* Place Order Button */}

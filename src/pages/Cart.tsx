@@ -1,8 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, ArrowRight } from 'lucide-react';
+import { Trash2, ArrowRight, ShoppingCart, ChevronLeft, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CartItem {
   id: number;
@@ -15,6 +19,7 @@ interface CartItem {
 const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     // In a real app, we would fetch this from an API or local storage
@@ -35,13 +40,19 @@ const Cart = () => {
       }
     ];
 
+    // Simulate API call
     setTimeout(() => {
       setCartItems(mockCartItems);
       setIsLoading(false);
-    }, 500);
+    }, 800);
   }, []);
 
   const handleRemoveItem = (id: number) => {
+    toast({
+      title: "Item removed",
+      description: "The item has been removed from your cart",
+    });
+    
     setCartItems(cartItems.filter(item => item.id !== id));
   };
 
@@ -51,6 +62,11 @@ const Cart = () => {
     setCartItems(cartItems.map(item => 
       item.id === id ? { ...item, quantity: newQuantity } : item
     ));
+    
+    toast({
+      title: "Quantity updated",
+      description: "Your cart has been updated",
+    });
   };
 
   const calculateSubtotal = () => {
@@ -59,8 +75,56 @@ const Cart = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16 min-h-[60vh] flex items-center justify-center">
-        <p className="text-lg">Loading your cart...</p>
+      <div className="container mx-auto px-4 py-8 md:py-16">
+        <h1 className="text-2xl md:text-3xl font-bold mb-8 flex items-center">
+          <ShoppingCart className="mr-2 h-6 w-6 text-primary" />
+          Your Cart
+        </h1>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            {[1, 2].map((item) => (
+              <div key={item} className="flex flex-col md:flex-row gap-6 p-4 border rounded-lg">
+                <Skeleton className="w-full md:w-32 h-32 rounded-md" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/4" />
+                  <div className="mt-4 flex items-center">
+                    <Skeleton className="h-8 w-8 rounded" />
+                    <Skeleton className="mx-4 h-4 w-8" />
+                    <Skeleton className="h-8 w-8 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <Skeleton className="h-5 w-16" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -68,23 +132,32 @@ const Cart = () => {
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16 min-h-[60vh] flex flex-col items-center justify-center">
+        <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
         <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
-        <p className="text-lg mb-8">Looks like you haven't added any products to your cart yet.</p>
+        <p className="text-lg mb-8 text-center text-muted-foreground">
+          Looks like you haven't added any products to your cart yet.
+        </p>
         <Button asChild size="lg">
-          <Link to="/">Start Shopping</Link>
+          <Link to="/" className="flex items-center">
+            <ChevronLeft className="mr-2 h-4 w-4" />
+            Continue Shopping
+          </Link>
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold mb-8">Your Shopping Cart</h1>
+    <div className="container mx-auto px-4 py-8 md:py-16">
+      <h1 className="text-2xl md:text-3xl font-bold mb-8 flex items-center">
+        <ShoppingCart className="mr-2 h-6 w-6 text-primary" />
+        Your Shopping Cart
+      </h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {cartItems.map(item => (
-            <div key={item.id} className="flex flex-col md:flex-row gap-6 p-4 border rounded-lg">
+            <div key={item.id} className="flex flex-col md:flex-row gap-6 p-4 border rounded-lg shadow-sm hover:shadow transition-shadow duration-200">
               <img 
                 src={item.image} 
                 alt={item.name} 
@@ -99,14 +172,18 @@ const Cart = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                    className="h-8 w-8 p-0"
+                    aria-label="Decrease quantity"
                   >
                     -
                   </Button>
-                  <span className="mx-4">{item.quantity}</span>
+                  <span className="mx-4 font-medium">{item.quantity}</span>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                    className="h-8 w-8 p-0"
+                    aria-label="Increase quantity"
                   >
                     +
                   </Button>
@@ -116,46 +193,67 @@ const Cart = () => {
               <div className="flex items-center">
                 <Button 
                   variant="ghost" 
-                  size="icon" 
+                  size="sm" 
                   onClick={() => handleRemoveItem(item.id)}
-                  className="text-destructive"
+                  className="text-destructive h-8 w-8 p-0"
+                  aria-label="Remove item"
                 >
-                  <Trash2 className="h-5 w-5" />
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">Remove</span>
                 </Button>
               </div>
             </div>
           ))}
+          
+          <div className="flex justify-between items-center mt-6">
+            <Button variant="outline" asChild>
+              <Link to="/" className="flex items-center">
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                Continue Shopping
+              </Link>
+            </Button>
+          </div>
         </div>
         
         <div className="lg:col-span-1">
-          <div className="bg-muted/30 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>${calculateSubtotal().toFixed(2)}</span>
+          <Card className="sticky top-24">
+            <CardHeader className="pb-3">
+              <CardTitle>Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>${calculateSubtotal().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span>Free</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>Free</span>
-              </div>
-            </div>
-            
-            <div className="border-t pt-4 mb-6">
+              
+              <Separator />
+              
               <div className="flex justify-between font-bold">
                 <span>Total</span>
                 <span>${calculateSubtotal().toFixed(2)}</span>
               </div>
-            </div>
-            
-            <Button className="w-full" size="lg" asChild>
-              <Link to="/checkout" className="flex items-center justify-center">
-                Proceed to Checkout
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
+              
+              <Button className="w-full mt-4" size="lg" asChild>
+                <Link to="/checkout" className="flex items-center justify-center">
+                  Proceed to Checkout
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+
+              <div className="mt-4 bg-muted/40 p-3 rounded-md text-xs space-y-1">
+                <div className="flex items-center">
+                  <ShoppingCart className="h-3 w-3 mr-1.5" />
+                  <span>Secure checkout process</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

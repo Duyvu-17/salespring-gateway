@@ -1,5 +1,5 @@
 
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
@@ -11,6 +11,7 @@ import { LiveChatSupport } from '@/components/customer/LiveChatSupport';
 export const MainLayout = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Add Google Fonts
   useEffect(() => {
@@ -31,6 +32,13 @@ export const MainLayout = () => {
     };
   }, []);
 
+  // Determine whether to show RealTimeInfo based on current route
+  const shouldShowRealTimeInfo = () => {
+    // Don't show on checkout, order details or account pages
+    const excludedPaths = ['/checkout', '/order/', '/account'];
+    return !excludedPaths.some(path => location.pathname.includes(path));
+  };
+
   // Generate theme-specific background patterns or styles
   const getThemeStyles = () => {
     switch (theme) {
@@ -50,9 +58,11 @@ export const MainLayout = () => {
   return (
     <div className={`min-h-screen flex flex-col ${getThemeStyles()} font-sans`}>
       <Header />
-      <div className="container mt-4">
-        <RealTimeInfo variant="shipping" />
-      </div>
+      {shouldShowRealTimeInfo() && (
+        <div className="container mt-4">
+          <RealTimeInfo variant="shipping" />
+        </div>
+      )}
       <main className="flex-1 w-full pb-16 md:pb-8">
         <Outlet />
       </main>

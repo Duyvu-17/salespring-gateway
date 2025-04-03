@@ -3,26 +3,22 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { OrderDetails } from "@/components/account/OrderDetails";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  const [isMounted, setIsMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setIsMounted(true);
+    // Simulate API loading time
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 800);
+    
+    return () => clearTimeout(timer);
   }, []);
-
-  if (!isMounted) {
-    return (
-      <div className="container py-4 md:py-8">
-        <div className="flex justify-center">
-          <div className="w-10 h-10 border-t-2 border-primary border-solid rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
-  }
 
   const handleBack = () => {
     navigate(-1);
@@ -40,7 +36,20 @@ const OrderDetailsPage = () => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <h1 className="text-2xl md:text-3xl font-bold">Order Details</h1>
+        {loading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold flex items-center">
+              <ShoppingBag className="mr-2 h-6 w-6 text-primary" /> 
+              Order Details
+            </h1>
+            <p className="text-muted-foreground">View the details of your order</p>
+          </div>
+        )}
       </div>
       <OrderDetails />
     </div>
