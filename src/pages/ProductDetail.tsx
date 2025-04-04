@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,8 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
-  Zap
+  Zap,
+  ThumbsUp
 } from 'lucide-react';
 import { getProductById, getRelatedProducts, Product, UserReview, Reply, ProductModel, ProductColor } from '@/data/products';
 import { getProductImages } from '@/data/product-images';
@@ -39,8 +39,8 @@ import { useWishlist, isInWishlist } from '@/utils/wishlist';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/context/AuthContext';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
@@ -56,6 +56,14 @@ const ProductDetail = () => {
   const { toast } = useToast();
   const { toggleWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
+  
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    description: false,
+    features: false,
+    shipping: false
+  });
+  const [reviewPage, setReviewPage] = useState(1);
+  const reviewsPerPage = 3;
   
   // Find the product
   useEffect(() => {
@@ -303,6 +311,31 @@ const ProductDetail = () => {
 
   const stockLevel = isCurrentlyInStock() ? "In Stock" : "Out of Stock";
   const stockIndicator = isCurrentlyInStock() ? "bg-green-500" : "bg-red-500";
+  
+  // Generate random statistics for demo purposes
+  const totalPurchases = Math.floor(Math.random() * 500) + 50;
+  const totalLikes = Math.floor(Math.random() * 200) + 30;
+  const totalViews = Math.floor(Math.random() * 5000) + 500;
+  
+  // Calculate total review pages
+  const totalReviews = product.userReviews?.length || 0;
+  const totalReviewPages = Math.ceil(totalReviews / reviewsPerPage);
+  
+  // Get current page reviews
+  const getCurrentReviews = () => {
+    if (!product.userReviews) return [];
+    const startIndex = (reviewPage - 1) * reviewsPerPage;
+    return product.userReviews.slice(startIndex, startIndex + reviewsPerPage);
+  };
+  
+  const currentReviews = getCurrentReviews();
+  
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
@@ -428,6 +461,31 @@ const ProductDetail = () => {
                   - Usually ships in 1-2 business days
                 </span>
               )}
+            </div>
+          </div>
+          
+          {/* Product Statistics */}
+          <div className="grid grid-cols-3 gap-4 border-t border-b py-3">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex items-center text-primary">
+                <Package className="h-4 w-4 mr-1" />
+                <span className="font-semibold">{totalPurchases}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">Purchases</span>
+            </div>
+            <div className="flex flex-col items-center justify-center text-center border-x">
+              <div className="flex items-center text-primary">
+                <ThumbsUp className="h-4 w-4 mr-1" />
+                <span className="font-semibold">{totalLikes}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">Likes</span>
+            </div>
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex items-center text-primary">
+                <Eye className="h-4 w-4 mr-1" />
+                <span className="font-semibold">{totalViews}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">Views</span>
             </div>
           </div>
 
@@ -636,406 +694,144 @@ const ProductDetail = () => {
         </div>
       </div>
       
-      {/* Product Details Tabs */}
-      <div className="mt-12 border-t pt-12">
-        <Tabs defaultValue="description" className="w-full">
-          <TabsList className="grid grid-cols-4 mb-8">
-            <TabsTrigger value="description">Description</TabsTrigger>
-            <TabsTrigger value="features">Features & Specs</TabsTrigger>
-            <TabsTrigger value="shipping">Shipping & Returns</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
+      {/* Product Details Sections - Vertical Layout */}
+      <div className="mt-12 space-y-8 border-t pt-8">
+        {/* Description Section */}
+        <div className="border rounded-lg overflow-hidden">
+          <div className="p-4 bg-muted/30 border-b flex justify-between items-center">
+            <h2 className="text-xl font-bold flex items-center">
+              <Info className="h-5 w-5 mr-2" /> Product Description
+            </h2>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => toggleSection('description')}
+              aria-label={expandedSections.description ? "Collapse description" : "Expand description"}
+            >
+              {expandedSections.description ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
           
-          {/* Description Tab */}
-          <TabsContent value="description" className="space-y-4">
-            <div className="prose prose-sm max-w-none">
-              <h2 className="text-2xl font-bold mb-4">Product Description</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <p>{product.description}</p>
-                  <p>Experience the ultimate in technology and design with the {product.name}. Crafted with premium materials and packed with features, this {product.category.toLowerCase()} is designed to elevate your daily experience.</p>
+          <Collapsible open={expandedSections.description}>
+            <CollapsibleContent className="p-6">
+              <div className="prose prose-sm max-w-none">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <p>{product.description}</p>
+                    <p>Experience the ultimate in technology and design with the {product.name}. Crafted with premium materials and packed with features, this {product.category.toLowerCase()} is designed to elevate your daily experience.</p>
+                    
+                    <div className="bg-muted/30 p-4 rounded-lg flex items-center space-x-3 mt-4">
+                      <Award className="h-12 w-12 text-primary flex-shrink-0" />
+                      <div>
+                        <h3 className="font-semibold">Premium Quality Guarantee</h3>
+                        <p className="text-sm text-muted-foreground">This product is covered by our quality guarantee. If you're not satisfied, return within 30 days for a full refund.</p>
+                      </div>
+                    </div>
+                  </div>
                   
-                  <div className="bg-muted/30 p-4 rounded-lg flex items-center space-x-3 mt-4">
-                    <Award className="h-12 w-12 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold">Premium Quality Guarantee</h3>
-                      <p className="text-sm text-muted-foreground">This product is covered by our quality guarantee. If you're not satisfied, return within 30 days for a full refund.</p>
+                  <div>
+                    <div className="bg-muted/30 p-6 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-4">What's in the Box</h3>
+                      <ul className="space-y-2">
+                        <li className="flex items-center">
+                          <Check className="h-4 w-4 text-primary mr-3" />
+                          <span>{product.name}</span>
+                        </li>
+                        <li className="flex items-center">
+                          <Check className="h-4 w-4 text-primary mr-3" />
+                          <span>User Manual</span>
+                        </li>
+                        <li className="flex items-center">
+                          <Check className="h-4 w-4 text-primary mr-3" />
+                          <span>Warranty Card</span>
+                        </li>
+                        <li className="flex items-center">
+                          <Check className="h-4 w-4 text-primary mr-3" />
+                          <span>Charging Cable</span>
+                        </li>
+                        <li className="flex items-center">
+                          <Check className="h-4 w-4 text-primary mr-3" />
+                          <span>Power Adapter</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-6 p-4 bg-primary/10 rounded-lg">
+                      <div className="flex items-center">
+                        <Eye className="h-5 w-5 text-primary mr-2" />
+                        <span className="text-sm font-medium">{Math.floor(Math.random() * 20) + 10} people viewing this product</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="h-5 w-5 text-primary mr-2" />
+                        <span className="text-sm font-medium">Last purchased 2 hours ago</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-                
-                <div>
-                  <div className="bg-muted/30 p-6 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-4">What's in the Box</h3>
-                    <ul className="space-y-2">
-                      <li className="flex items-center">
-                        <Check className="h-4 w-4 text-primary mr-3" />
-                        <span>{product.name}</span>
-                      </li>
-                      <li className="flex items-center">
-                        <Check className="h-4 w-4 text-primary mr-3" />
-                        <span>User Manual</span>
-                      </li>
-                      <li className="flex items-center">
-                        <Check className="h-4 w-4 text-primary mr-3" />
-                        <span>Warranty Card</span>
-                      </li>
-                      <li className="flex items-center">
-                        <Check className="h-4 w-4 text-primary mr-3" />
-                        <span>Charging Cable</span>
-                      </li>
-                      <li className="flex items-center">
-                        <Check className="h-4 w-4 text-primary mr-3" />
-                        <span>Power Adapter</span>
-                      </li>
+              </div>
+            </CollapsibleContent>
+            
+            {!expandedSections.description && (
+              <div className="p-6 pt-2">
+                <p className="line-clamp-3 text-muted-foreground mb-4">{product.description} Experience the ultimate in technology and design with the {product.name}. Crafted with premium materials and packed with features, this {product.category.toLowerCase()} is designed to elevate your daily experience.</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => toggleSection('description')}
+                  className="flex items-center"
+                >
+                  Read More <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </Collapsible>
+        </div>
+        
+        {/* Features & Specs Section */}
+        <div className="border rounded-lg overflow-hidden">
+          <div className="p-4 bg-muted/30 border-b flex justify-between items-center">
+            <h2 className="text-xl font-bold flex items-center">
+              <Check className="h-5 w-5 mr-2" /> Features & Specifications
+            </h2>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => toggleSection('features')}
+              aria-label={expandedSections.features ? "Collapse features" : "Expand features"}
+            >
+              {expandedSections.features ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
+          
+          <Collapsible open={expandedSections.features}>
+            <CollapsibleContent className="p-6">
+              <div className="prose prose-sm max-w-none">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4">Key Features</h3>
+                    <ul className="space-y-3">
+                      {product.features?.map((feature, index) => (
+                        <li key={index} className="flex items-start">
+                          <Check className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                   
-                  <div className="flex items-center justify-between mt-6 p-4 bg-primary/10 rounded-lg">
-                    <div className="flex items-center">
-                      <Eye className="h-5 w-5 text-primary mr-2" />
-                      <span className="text-sm font-medium">{Math.floor(Math.random() * 20) + 10} people viewing this product</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="h-5 w-5 text-primary mr-2" />
-                      <span className="text-sm font-medium">Last purchased 2 hours ago</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          {/* Features Tab */}
-          <TabsContent value="features" className="space-y-4">
-            <div className="prose prose-sm max-w-none">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <Check className="h-5 w-5 mr-2" />
-                Features & Specifications
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">Key Features</h3>
-                  <ul className="space-y-3">
-                    {product.features?.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <Check className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="bg-muted/30 p-6 rounded-lg">
-                  <h3 className="text-lg font-semibold mb-4">Technical Specifications</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between border-b border-border/50 pb-2">
-                      <span className="text-muted-foreground">Brand</span>
-                      <span className="font-medium">StoreX</span>
-                    </div>
-                    <div className="flex justify-between border-b border-border/50 pb-2">
-                      <span className="text-muted-foreground">Model</span>
-                      <span className="font-medium">SX-{product.id}00</span>
-                    </div>
-                    <div className="flex justify-between border-b border-border/50 pb-2">
-                      <span className="text-muted-foreground">Dimensions</span>
-                      <span className="font-medium">10 x 5 x 3 inches</span>
-                    </div>
-                    <div className="flex justify-between border-b border-border/50 pb-2">
-                      <span className="text-muted-foreground">Weight</span>
-                      <span className="font-medium">2.5 lbs</span>
-                    </div>
-                    <div className="flex justify-between border-b border-border/50 pb-2">
-                      <span className="text-muted-foreground">Warranty</span>
-                      <span className="font-medium">2 years</span>
-                    </div>
-                    <div className="flex justify-between border-b border-border/50 pb-2">
-                      <span className="text-muted-foreground">Country of Origin</span>
-                      <span className="font-medium">USA</span>
-                    </div>
-                    <div className="flex justify-between pb-2">
-                      <span className="text-muted-foreground">Release Date</span>
-                      <span className="font-medium">January 2023</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-8">
-                <h3 className="text-xl font-semibold mb-4">Compatible With</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-muted/20 rounded-lg text-center">
-                    <div className="text-primary text-lg mb-1">iOS</div>
-                    <span className="text-sm">iPhone, iPad</span>
-                  </div>
-                  <div className="p-4 bg-muted/20 rounded-lg text-center">
-                    <div className="text-primary text-lg mb-1">Android</div>
-                    <span className="text-sm">All devices</span>
-                  </div>
-                  <div className="p-4 bg-muted/20 rounded-lg text-center">
-                    <div className="text-primary text-lg mb-1">Windows</div>
-                    <span className="text-sm">Windows 10+</span>
-                  </div>
-                  <div className="p-4 bg-muted/20 rounded-lg text-center">
-                    <div className="text-primary text-lg mb-1">macOS</div>
-                    <span className="text-sm">Big Sur+</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          {/* Shipping Tab */}
-          <TabsContent value="shipping" className="space-y-4">
-            <div className="prose prose-sm max-w-none">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <Package className="h-5 w-5 mr-2" />
-                Shipping & Returns
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Shipping Information</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <Truck className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">Free Standard Shipping</p>
-                        <p className="text-sm text-muted-foreground">On orders over $50 (3-5 business days)</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-3">
-                      <Truck className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">Express Shipping</p>
-                        <p className="text-sm text-muted-foreground">$9.99 (1-2 business days)</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-3">
-                      <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">International Shipping</p>
-                        <p className="text-sm text-muted-foreground">Available for select countries</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Return Policy</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <RefreshCw className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">30-Day Return Policy</p>
-                        <p className="text-sm text-muted-foreground">
-                          If you're not satisfied with your purchase, you can return it within 30 days for a full refund.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-3">
-                      <ShieldCheck className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">Quality Guarantee</p>
-                        <p className="text-sm text-muted-foreground">
-                          All products are backed by our quality guarantee. If there's a defect, we'll replace it.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-8 p-6 bg-muted/30 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Shipping FAQs</h3>
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger>How long will shipping take?</AccordionTrigger>
-                    <AccordionContent>
-                      Standard shipping typically takes 3-5 business days. Express shipping takes 1-2 business days. International shipping varies by location.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger>How do I track my order?</AccordionTrigger>
-                    <AccordionContent>
-                      Once your order ships, you'll receive a confirmation email with tracking information. You can also track your order in your account.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-3">
-                    <AccordionTrigger>Can I change my shipping address?</AccordionTrigger>
-                    <AccordionContent>
-                      You can change your shipping address before your order ships. Please contact customer service as soon as possible.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-4">
-                    <AccordionTrigger>Do you ship internationally?</AccordionTrigger>
-                    <AccordionContent>
-                      Yes, we ship to select countries internationally. Shipping costs and delivery times vary by location.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-5">
-                    <AccordionTrigger>What if my package is damaged?</AccordionTrigger>
-                    <AccordionContent>
-                      If your package arrives damaged, please contact our customer service within 48 hours with photos of the damaged package and product.
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-            </div>
-          </TabsContent>
-          
-          {/* Reviews Tab */}
-          <TabsContent value="reviews" id="reviews-section">
-            <div className="prose prose-sm max-w-none">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <MessageSquare className="h-5 w-5 mr-2" />
-                Customer Reviews
-              </h2>
-              
-              <div className="flex flex-col md:flex-row gap-8">
-                <div className="md:w-1/3">
-                  <div className="bg-muted/30 p-6 rounded-lg text-center">
-                    <div className="text-4xl font-bold text-primary mb-2">{product.rating.toFixed(1)}</div>
-                    <div className="flex justify-center mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-5 w-5 ${
-                            i < Math.floor(product.rating)
-                              ? "text-yellow-400 fill-yellow-400"
-                              : i < product.rating
-                              ? "text-yellow-400 fill-yellow-400 opacity-50"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">Based on {product.reviews} reviews</p>
-                    
+                  <div className="bg-muted/30 p-6 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4">Technical Specifications</h3>
                     <div className="space-y-2">
-                      <div className="flex items-center">
-                        <span className="text-sm w-12">5 stars</span>
-                        <div className="h-2 bg-muted flex-1 rounded-full mx-2 overflow-hidden">
-                          <div className="h-full bg-yellow-400 rounded-full" style={{ width: '70%' }}></div>
-                        </div>
-                        <span className="text-sm w-8">70%</span>
+                      <div className="flex justify-between border-b border-border/50 pb-2">
+                        <span className="text-muted-foreground">Brand</span>
+                        <span className="font-medium">StoreX</span>
                       </div>
-                      <div className="flex items-center">
-                        <span className="text-sm w-12">4 stars</span>
-                        <div className="h-2 bg-muted flex-1 rounded-full mx-2 overflow-hidden">
-                          <div className="h-full bg-yellow-400 rounded-full" style={{ width: '20%' }}></div>
-                        </div>
-                        <span className="text-sm w-8">20%</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="text-sm w-12">3 stars</span>
-                        <div className="h-2 bg-muted flex-1 rounded-full mx-2 overflow-hidden">
-                          <div className="h-full bg-yellow-400 rounded-full" style={{ width: '5%' }}></div>
-                        </div>
-                        <span className="text-sm w-8">5%</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="text-sm w-12">2 stars</span>
-                        <div className="h-2 bg-muted flex-1 rounded-full mx-2 overflow-hidden">
-                          <div className="h-full bg-yellow-400 rounded-full" style={{ width: '3%' }}></div>
-                        </div>
-                        <span className="text-sm w-8">3%</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="text-sm w-12">1 star</span>
-                        <div className="h-2 bg-muted flex-1 rounded-full mx-2 overflow-hidden">
-                          <div className="h-full bg-yellow-400 rounded-full" style={{ width: '2%' }}></div>
-                        </div>
-                        <span className="text-sm w-8">2%</span>
-                      </div>
-                    </div>
-                    
-                    <Button className="mt-6 w-full" variant="outline">
-                      Write a Review
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="md:w-2/3">
-                  <ReviewSection 
-                    productId={product.id}
-                    reviews={product.userReviews || []}
-                    onAddReview={handleAddReview}
-                    onAddReply={handleAddReply}
-                  />
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-      
-      {/* You Might Also Like Section */}
-      <div className="mt-16 border-t pt-12 mb-16">
-        <h2 className="text-2xl font-bold mb-8">You Might Also Like</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {relatedProducts.map(relatedProduct => (
-            <Card 
-              key={relatedProduct.id} 
-              className="hover-scale overflow-hidden"
-              onClick={() => navigate(`/product/${relatedProduct.id}`)}
-            >
-              <div className="relative">
-                <img
-                  src={relatedProduct.image}
-                  alt={relatedProduct.name}
-                  className="w-full h-48 object-cover p-4"
-                />
-                {relatedProduct.discount && (
-                  <Badge className="absolute top-2 right-2 bg-red-500">
-                    {relatedProduct.discount}% OFF
-                  </Badge>
-                )}
-                {relatedProduct.new && (
-                  <Badge className="absolute top-2 left-2 bg-green-500">
-                    NEW
-                  </Badge>
-                )}
-              </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-1 truncate">{relatedProduct.name}</h3>
-                <p className="text-sm text-muted-foreground mb-2">{relatedProduct.category}</p>
-                <div className="flex justify-between items-center">
-                  <div>
-                    {relatedProduct.discount ? (
-                      <div className="flex items-center">
-                        <p className="text-lg font-medium text-primary mr-2">
-                          ${(relatedProduct.price * (1 - relatedProduct.discount / 100)).toFixed(2)}
-                        </p>
-                        <p className="text-sm line-through text-muted-foreground">
-                          ${relatedProduct.price.toFixed(2)}
-                        </p>
-                      </div>
-                    ) : (
-                      <p className="text-lg font-medium text-primary">
-                        ${relatedProduct.price.toFixed(2)}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center">
-                    <Star className="h-3 w-3 text-yellow-400 fill-yellow-400 mr-1" />
-                    <span className="text-xs text-muted-foreground">
-                      {relatedProduct.rating}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default ProductDetail;
+                      <div className="flex justify-between border-b border-border/50 pb-2">
