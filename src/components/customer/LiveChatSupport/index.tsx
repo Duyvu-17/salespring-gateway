@@ -12,6 +12,7 @@ export const LiveChatSupport: React.FC = () => {
     isOpen,
     setIsOpen,
     isMinimized,
+    setIsMinimized,
     messages,
     isTyping,
     userMessage,
@@ -43,7 +44,7 @@ export const LiveChatSupport: React.FC = () => {
         setIsMinimized(true);
       };
     }
-  }, [isMobile]);
+  }, [isMobile, setIsMinimized]);
 
   if (!isOpen) return null;
 

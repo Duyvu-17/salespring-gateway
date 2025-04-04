@@ -1,9 +1,11 @@
+
 import React from "react";
 import { cn } from "@/lib/utils";
 import { ChatHeader } from "./ChatHeader";
 import { ChatBody } from "./ChatBody";
 import { ChatInput } from "./ChatInput";
 import { MessageType } from "./ChatMessage";
+import { LinkPreviewData } from "./ChatInput";
 
 interface DesktopChatProps {
   isOpen: boolean;
@@ -20,6 +22,8 @@ interface DesktopChatProps {
   setLinkText: (text: string) => void;
   imageUrl: string;
   setImageUrl: (url: string) => void;
+  linkPreview: LinkPreviewData | null;
+  setLinkPreview: (data: LinkPreviewData | null) => void;
   formatTime: (date: Date) => string;
   toggleMinimize: () => void;
   handleClose: () => void;
@@ -45,6 +49,8 @@ export const DesktopChat: React.FC<DesktopChatProps> = ({
   setLinkText,
   imageUrl,
   setImageUrl,
+  linkPreview,
+  setLinkPreview,
   formatTime,
   toggleMinimize,
   handleClose,
@@ -80,12 +86,10 @@ export const DesktopChat: React.FC<DesktopChatProps> = ({
               setActiveInput={setActiveInput}
               userMessage={userMessage}
               setUserMessage={setUserMessage}
-              // linkUrl={linkUrl}
-              // setLinkUrl={setLinkUrl}
-              // linkText={linkText}
-              // setLinkText={setLinkText}
               imageUrl={imageUrl}
               setImageUrl={setImageUrl}
+              linkPreview={linkPreview}
+              setLinkPreview={setLinkPreview}
               handleSend={handleSend}
               handleKeyDown={handleKeyDown}
               isDesktop={true}
