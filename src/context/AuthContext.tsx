@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -8,6 +7,8 @@ type User = {
   id: string;
   name: string;
   email: string;
+  provider?: string;
+  avatar?: string;
 };
 
 type AuthContextType = {
@@ -19,6 +20,7 @@ type AuthContextType = {
   logout: () => void;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
 };
 
 // Create the context with default values
@@ -31,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   forgotPassword: async () => {},
   resetPassword: async () => {},
+  loginWithGoogle: async () => {},
 });
 
 // Custom hook to use auth context
@@ -240,6 +243,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Google login function
+  const loginWithGoogle = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generate a random id for the user
+      const randomId = `google-user-${Date.now()}`;
+      
+      // Create a Google user
+      const googleUser = {
+        id: randomId,
+        name: "Google User", // In a real implementation, this would come from Google
+        email: `user-${randomId.substring(0, 5)}@gmail.com`, // Simulated email
+        provider: "google",
+        avatar: "https://lh3.googleusercontent.com/a/default-user=s120", // Default Google avatar
+      };
+      
+      // Store user in localStorage
+      localStorage.setItem('user', JSON.stringify(googleUser));
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      // Update state
+      setUser(googleUser);
+      
+      toast({
+        title: "Success",
+        description: "You have been logged in with Google successfully",
+      });
+      
+      navigate('/account');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to login with Google. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -251,6 +297,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         forgotPassword,
         resetPassword,
+        loginWithGoogle,
       }}
     >
       {children}
