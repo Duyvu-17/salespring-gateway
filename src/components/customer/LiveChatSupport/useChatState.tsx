@@ -1,6 +1,8 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageType } from "./ChatMessage";
+import { LinkPreviewData } from "./ChatInput";
 
 export const useChatState = () => {
   const { toast } = useToast();
@@ -23,6 +25,7 @@ export const useChatState = () => {
   const [linkUrl, setLinkUrl] = useState("");
   const [linkText, setLinkText] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [linkPreview, setLinkPreview] = useState<LinkPreviewData | null>(null);
 
   const formatTime = (date: Date): string => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -56,29 +59,31 @@ export const useChatState = () => {
 
   const handleSend = () => {
     if (activeInput === "text" && !userMessage.trim()) return;
-    if (activeInput === "link" && (!linkUrl.trim() || !linkText.trim())) return;
+    if (activeInput === "link" && !linkPreview) return;
     if (activeInput === "image" && !imageUrl.trim()) return;
 
     let newUserMessage: MessageType;
 
-    // Tạo tin nhắn dựa trên loại đầu vào hiện tại
+    // Create message based on current input type
     if (activeInput === "link") {
       newUserMessage = {
         id: messages.length + 1,
-        content: linkText,
+        content: userMessage || "Shared a link",
         sender: "user",
         timestamp: new Date(),
         type: "link",
         metadata: {
-          url: linkUrl.startsWith("http") ? linkUrl : `https://${linkUrl}`,
+          url: linkPreview?.url,
+          linkPreview: linkPreview || undefined,
         },
       };
       setLinkUrl("");
-      setLinkText("");
+      setUserMessage("");
+      setLinkPreview(null);
     } else if (activeInput === "image") {
       newUserMessage = {
         id: messages.length + 1,
-        content: "Đã gửi một hình ảnh",
+        content: "Sent an image",
         sender: "user",
         timestamp: new Date(),
         type: "image",
@@ -88,80 +93,118 @@ export const useChatState = () => {
       };
       setImageUrl("");
     } else {
-      // Tin nhắn văn bản thông thường
-      newUserMessage = {
+      // Regular text message
+      const message = {
         id: messages.length + 1,
         content: userMessage,
         sender: "user",
         timestamp: new Date(),
         type: "text",
-      };
+      } as MessageType;
+
+      // If there's a link preview available, convert to a link message
+      if (linkPreview) {
+        message.type = "link";
+        message.metadata = {
+          url: linkPreview.url,
+          linkPreview: linkPreview,
+        };
+        setLinkPreview(null);
+      }
+
+      newUserMessage = message;
       setUserMessage("");
     }
 
     setMessages((prev) => [...prev, newUserMessage]);
-    setActiveInput("text"); // Đặt lại đầu vào về chế độ văn bản sau khi gửi
+    setActiveInput("text"); // Reset input mode to text after sending
 
-    // Mô phỏng nhân viên hỗ trợ đang nhập tin nhắn
+    // Simulate support agent typing
     setIsTyping(true);
 
-    // Xác định phản hồi dựa trên tin nhắn của người dùng
+    // Determine response based on user's message
     let response: string;
     let responseType: "text" | "link" | "image" | "product" = "text";
     let responseMetadata = {};
 
-    const lowerCaseMsg =
-      activeInput === "text"
-        ? userMessage.toLowerCase()
-        : activeInput === "link"
-        ? linkText.toLowerCase()
-        : "image";
+    const lowerCaseMsg = newUserMessage.content.toLowerCase();
 
     if (
       lowerCaseMsg.includes("đổi hàng") ||
-      lowerCaseMsg.includes("hoàn tiền")
+      lowerCaseMsg.includes("hoàn tiền") ||
+      lowerCaseMsg.includes("return") ||
+      lowerCaseMsg.includes("refund")
     ) {
       response =
-        "Để đổi hàng hoặc hoàn tiền, vui lòng truy cập mục Chính sách đổi trả của chúng tôi. Bạn có muốn tôi hướng dẫn bạn đến đó không?";
+        "To exchange an item or get a refund, please visit our Return Policy section. Would you like me to direct you there?";
+      // Add link preview for the return policy
+      responseType = "link";
+      responseMetadata = {
+        url: "/returns-policy",
+        linkPreview: {
+          title: "Returns & Exchanges Policy",
+          description: "Information about our return process, eligibility, and timeframes",
+          image: "https://images.unsplash.com/photo-1556742049-0a8ea8550b8d?w=200&q=80",
+          url: "/returns-policy"
+        }
+      };
     } else if (
       lowerCaseMsg.includes("sản phẩm") ||
-      lowerCaseMsg.includes("mặt hàng")
+      lowerCaseMsg.includes("mặt hàng") ||
+      lowerCaseMsg.includes("product")
     ) {
-      response = "Dưới đây là sản phẩm tai nghe bán chạy nhất của chúng tôi:";
+      response = "Here's our best-selling headphone product:";
       responseType = "product";
       responseMetadata = {
         productId: 1,
-        productName: "Tai nghe chống ồn cao cấp",
+        productName: "Premium Noise-Cancelling Headphones",
         productImageUrl:
           "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80",
       };
     } else if (
       lowerCaseMsg.includes("vận chuyển") ||
-      lowerCaseMsg.includes("giao hàng")
+      lowerCaseMsg.includes("giao hàng") ||
+      lowerCaseMsg.includes("shipping") ||
+      lowerCaseMsg.includes("delivery")
     ) {
       response =
-        "Đơn hàng của bạn thường sẽ được xử lý trong 1-2 ngày làm việc. Giao hàng tiêu chuẩn mất từ 3-5 ngày, còn giao hàng nhanh từ 1-2 ngày.";
+        "Your order will typically be processed within 1-2 business days. Standard shipping takes 3-5 days, while express shipping takes 1-2 days.";
     } else if (
       lowerCaseMsg.includes("kích thước") ||
       lowerCaseMsg.includes("size")
     ) {
       response =
-        "Bảng hướng dẫn chọn size có sẵn trên từng trang sản phẩm. Bạn có muốn tôi giúp bạn chọn size phù hợp cho một sản phẩm cụ thể không?";
+        "Size guides are available on each product page. Would you like me to help you find the right size for a specific product?";
     } else if (
       lowerCaseMsg.includes("thanh toán") ||
-      lowerCaseMsg.includes("trả tiền")
+      lowerCaseMsg.includes("trả tiền") ||
+      lowerCaseMsg.includes("payment")
     ) {
       response =
-        "Chúng tôi hỗ trợ thanh toán bằng thẻ tín dụng, PayPal và Ví điện tử. Bạn đang quan tâm đến phương thức thanh toán nào?";
-    } else if (activeInput === "image") {
+        "We accept credit cards, PayPal, and digital wallets. Which payment method are you interested in?";
+      // Add link preview for payment methods
+      responseType = "link";
+      responseMetadata = {
+        url: "/payment-methods",
+        linkPreview: {
+          title: "Payment Methods",
+          description: "All the ways you can pay for your order",
+          image: "https://images.unsplash.com/photo-1556742031-c6961e8560b0?w=200&q=80",
+          url: "/payment-methods"
+        }
+      };
+    } else if (newUserMessage.type === "image") {
       response =
-        "Cảm ơn bạn đã chia sẻ hình ảnh. Nhóm hỗ trợ của chúng tôi sẽ xem xét và phản hồi trong thời gian sớm nhất.";
+        "Thank you for sharing this image. Our support team will review it and respond shortly.";
+    } else if (newUserMessage.type === "link") {
+      response = 
+        "Thank you for sharing this link. I'll check it out and get back to you with more information.";
     } else {
       response =
-        "Cảm ơn bạn đã nhắn tin. Nhân viên chăm sóc khách hàng sẽ trả lời bạn trong ít phút. Bạn có cần hỗ trợ thêm gì không?";
+        "Thank you for your message. Our customer service representative will respond shortly. Is there anything else you need help with?";
     }
 
-    // Gửi phản hồi từ nhân viên hỗ trợ sau một khoảng thời gian ngắn
+    // Send response from support agent after a short delay
     setTimeout(() => {
       setIsTyping(false);
       const newAgentMessage: MessageType = {
@@ -193,6 +236,8 @@ export const useChatState = () => {
     setLinkText,
     imageUrl,
     setImageUrl,
+    linkPreview,
+    setLinkPreview,
     formatTime,
     toggleMinimize,
     handleClose,

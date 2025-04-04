@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChatBody } from './ChatBody';
 import { ChatInput } from './ChatInput';
 import { MessageType } from './ChatMessage';
+import { LinkPreviewData } from './ChatInput';
 
 interface MobileChatViewProps {
   messages: MessageType[];
@@ -20,6 +22,8 @@ interface MobileChatViewProps {
   setLinkText: (text: string) => void;
   imageUrl: string;
   setImageUrl: (url: string) => void;
+  linkPreview: LinkPreviewData | null;
+  setLinkPreview: (data: LinkPreviewData | null) => void;
   handleSend: () => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleClose: () => void;
@@ -40,6 +44,8 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
   setLinkText,
   imageUrl,
   setImageUrl,
+  linkPreview,
+  setLinkPreview,
   handleSend,
   handleKeyDown,
   handleClose,
@@ -56,7 +62,7 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
           <div>
             <h3 className="font-medium text-sm">Customer Support</h3>
             <div className="flex items-center gap-1 text-xs opacity-90">
-              {/* Biểu tượng trạng thái online */}
+              {/* Status indicator */}
               <span
                 className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
               ></span>
@@ -86,12 +92,10 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
           setActiveInput={setActiveInput}
           userMessage={userMessage}
           setUserMessage={setUserMessage}
-          linkUrl={linkUrl}
-          setLinkUrl={setLinkUrl}
-          linkText={linkText}
-          setLinkText={setLinkText}
           imageUrl={imageUrl}
           setImageUrl={setImageUrl}
+          linkPreview={linkPreview}
+          setLinkPreview={setLinkPreview}
           handleSend={handleSend}
           handleKeyDown={handleKeyDown}
         />

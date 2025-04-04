@@ -1,5 +1,6 @@
+
 import React, { useRef, useState, useEffect } from 'react';
-import { Send, Smile, Image, Link, X } from 'lucide-react';
+import { Send, Smile, Image, Link, X, ExternalLink } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +15,7 @@ const commonEmojis = [
   '😳', '😱', '🤯', '😴', '🤓', '😇', '🤩', '🤑', '😡', '😭'
 ];
 
-interface LinkPreviewData {
+export interface LinkPreviewData {
   title: string;
   description?: string;
   image?: string;
@@ -28,8 +29,8 @@ interface ChatInputProps {
   setUserMessage: React.Dispatch<React.SetStateAction<string>>;
   imageUrl: string;
   setImageUrl: (url: string) => void;
-  linkPreview?: LinkPreviewData | null;
-  setLinkPreview?: (data: LinkPreviewData | null) => void;
+  linkPreview: LinkPreviewData | null;
+  setLinkPreview: (data: LinkPreviewData | null) => void;
   handleSend: () => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   isDesktop?: boolean;
@@ -42,8 +43,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   setUserMessage,
   imageUrl,
   setImageUrl,
-  linkPreview = null,
-  setLinkPreview = () => {},
+  linkPreview,
+  setLinkPreview,
   handleSend,
   handleKeyDown,
   isDesktop = false
@@ -66,7 +67,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     if (file && file.type.startsWith('image/')) {
       setActiveInput('image');
       
-      // Sử dụng FileReader để đọc file ảnh từ máy người dùng
+      // Use FileReader to read image file from user's machine
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
@@ -77,33 +78,33 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
-  // Giả lập việc lấy thông tin từ link
-  // Trong thực tế, bạn cần một API phía backend để fetch metadata của link
+  // Function to fetch link preview
+  // In a real app, you would need a backend API to fetch metadata from the link
   const fetchLinkPreview = async (url: string) => {
     if (!url.trim() || !isValidUrl(url)) return;
     
     setIsLoadingPreview(true);
     
     try {
-      // Trong thực tế, đây sẽ là một API call:
+      // In reality, this would be an API call:
       // const response = await fetch(`/api/link-preview?url=${encodeURIComponent(url)}`);
       // const data = await response.json();
       
-      // Giả lập kết quả từ API
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Giả lập độ trễ network
+      // Simulating network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Tạo một mẫu preview đơn giản
-      // Trong thực tế, dữ liệu này sẽ đến từ API
+      // Create a simple preview mock
+      // In reality, this data would come from the API
       const mockData: LinkPreviewData = {
-        title: `Sản phẩm từ ${new URL(url).hostname}`,
-        description: "Thông tin chi tiết về sản phẩm này...",
-        image: "/api/placeholder/200/200", // Placeholder image
+        title: `Product from ${new URL(url).hostname}`,
+        description: "Detailed information about this product...",
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80", // Placeholder image
         url: url
       };
       
       setLinkPreview(mockData);
     } catch (error) {
-      console.error("Lỗi khi lấy thông tin link:", error);
+      console.error("Error fetching link info:", error);
     } finally {
       setIsLoadingPreview(false);
     }
@@ -118,29 +119,29 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
-  // Thông thường hệ thống sẽ tự động trích xuất URL từ tin nhắn
+  // Automatically extract URLs from messages
   useEffect(() => {
-    // Kiểm tra nếu tin nhắn chứa URL
+    // Check if message contains a URL
     if (activeInput === 'text') {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       const match = userMessage.match(urlRegex);
       
       if (match && match[0]) {
-        // Chỉ tự động lấy preview khi người dùng dừng nhập
+        // Only automatically fetch preview when user stops typing
         const timeoutId = setTimeout(() => {
           setLinkUrl(match[0]);
           fetchLinkPreview(match[0]);
-        }, 1000); // Đợi 1 giây sau khi người dùng dừng nhập
+        }, 1000); // Wait 1 second after user stops typing
         
         return () => clearTimeout(timeoutId);
       } else if (linkPreview) {
-        // Xóa preview khi không còn URL trong tin nhắn
+        // Clear preview when no URL in message
         setLinkPreview(null);
       }
     }
   }, [userMessage, activeInput]);
 
-  // Render UI cho chế độ text input
+  // Render UI for text input mode
   if (activeInput === 'text') {
     return (
       <div className={`space-y-${isDesktop ? '1.5' : '2'}`}>
@@ -214,7 +215,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </TooltipProvider>
         </div>
 
-        {/* Link Preview (nếu có) */}
+        {/* Link Preview (if available) */}
         {linkPreview && (
           <Card className="p-2 mb-2 relative">
             <div className="flex">
@@ -264,7 +265,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     );
   }
 
-  // Render UI cho chế độ image input
+  // Render UI for image input mode
   if (activeInput === 'image') {
     return (
       <div className={`space-y-${isDesktop ? '1.5' : '2'}`}>
@@ -324,7 +325,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     );
   }
 
-  // Render UI cho chế độ link input
+  // Render UI for link input mode
   return (
     <div className={`space-y-${isDesktop ? '1.5' : '2'}`}>
       <Button 
@@ -353,7 +354,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </Button>
         </div>
 
-        {/* Link Preview (nếu có) */}
+        {/* Link Preview (if available) */}
         {linkPreview && (
           <Card className="p-3 mb-2">
             <div className="flex">
