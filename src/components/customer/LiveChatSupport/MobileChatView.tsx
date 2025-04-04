@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { X } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChatBody } from './ChatBody';
 import { ChatInput } from './ChatInput';
 import { MessageType } from './ChatMessage';
@@ -11,11 +10,10 @@ import { LinkPreviewData } from './ChatInput';
 interface MobileChatViewProps {
   messages: MessageType[];
   isTyping: boolean;
-  formatTime: (date: Date) => string;
   activeInput: 'text' | 'link' | 'image';
   setActiveInput: (type: 'text' | 'link' | 'image') => void;
   userMessage: string;
-  setUserMessage: (message: string) => void;
+  setUserMessage: React.Dispatch<React.SetStateAction<string>>;
   linkUrl: string;
   setLinkUrl: (url: string) => void;
   linkText: string;
@@ -24,10 +22,11 @@ interface MobileChatViewProps {
   setImageUrl: (url: string) => void;
   linkPreview: LinkPreviewData | null;
   setLinkPreview: (data: LinkPreviewData | null) => void;
+  formatTime: (date: Date) => string;
   handleSend: () => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleClose: () => void;
-  isOnline: boolean; 
+  isOnline: boolean;
 }
 
 export const MobileChatView: React.FC<MobileChatViewProps> = ({
@@ -49,44 +48,37 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
   handleSend,
   handleKeyDown,
   handleClose,
-  isOnline 
+  isOnline,
 }) => {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between bg-primary p-3 text-primary-foreground">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6 border border-primary-foreground">
-            <AvatarImage src="/placeholder.svg" />
-            <AvatarFallback>CS</AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="font-medium text-sm">Customer Support</h3>
-            <div className="flex items-center gap-1 text-xs opacity-90">
-              {/* Status indicator */}
-              <span
-                className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
-              ></span>
-              <p>{isOnline ? 'Online' : 'Offline'}</p>
-            </div>
-          </div>
+      <div className="bg-primary p-4 text-primary-foreground flex items-center justify-between shadow-md">
+        <div className="flex items-center">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleClose} 
+            className="mr-2 text-primary-foreground hover:bg-primary-foreground/20"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <h2 className="font-semibold">Customer Support</h2>
+          <span
+            className={`ml-2 h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+          ></span>
+          <span className="ml-1 text-xs">{isOnline ? 'Online' : 'Offline'}</span>
         </div>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="text-primary-foreground hover:bg-primary-foreground/20 h-7 w-7"
-          onClick={handleClose}
-        >
-          <X className="h-4 w-4" />
-        </Button>
       </div>
       
-      <ChatBody
-        messages={messages}
-        isTyping={isTyping}
-        formatTime={formatTime}
-      />
+      <div className="flex-1 overflow-hidden">
+        <ChatBody 
+          messages={messages} 
+          isTyping={isTyping}
+          formatTime={formatTime} 
+        />
+      </div>
       
-      <div className="p-3 border-t bg-card">
+      <div className="p-4 border-t bg-background">
         <ChatInput
           activeInput={activeInput}
           setActiveInput={setActiveInput}
@@ -98,6 +90,7 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
           setLinkPreview={setLinkPreview}
           handleSend={handleSend}
           handleKeyDown={handleKeyDown}
+          isDesktop={false}
         />
       </div>
     </div>

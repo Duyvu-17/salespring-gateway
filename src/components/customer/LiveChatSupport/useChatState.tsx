@@ -6,9 +6,9 @@ import { LinkPreviewData } from "./ChatInput";
 
 export const useChatState = () => {
   const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true); // Changed from false to true to ensure the chat is visible by default
   const [isOnline, setIsOnline] = useState(true);
-  const [isMinimized, setIsMinimized] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(false); // Changed from true to false to ensure chat is expanded by default
   const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState<MessageType[]>([
     {

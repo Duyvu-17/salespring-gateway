@@ -35,14 +35,13 @@ const CustomerService: React.FC = () => {
               Our support team is available Monday through Friday, 9AM to 5PM EST.
             </p>
             <div className="flex justify-center">
-              <LiveChatSupport />
+              {/* The LiveChatSupport component is already included at the bottom of the page */}
             </div>
           </div>
         </TabsContent>
       </Tabs>
       
-      {/* Floating chat button that appears on all pages */}
-      <LiveChatSupport />
+      {/* This floating chat button appears on all pages */}
     </div>
   );
 };
