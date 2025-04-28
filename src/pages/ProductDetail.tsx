@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -835,4 +836,219 @@ const ProductDetail = () => {
                         <span className="text-muted-foreground">Brand</span>
                         <span className="font-medium">StoreX</span>
                       </div>
-                      <div className="flex justify-
+                      <div className="flex justify-between border-b border-border/50 pb-2">
+                        <span className="text-muted-foreground">Model</span>
+                        <span className="font-medium">{product.name}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-border/50 pb-2">
+                        <span className="text-muted-foreground">Category</span>
+                        <span className="font-medium">{product.category}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-border/50 pb-2">
+                        <span className="text-muted-foreground">Warranty</span>
+                        <span className="font-medium">2 Years</span>
+                      </div>
+                      <div className="flex justify-between pb-2">
+                        <span className="text-muted-foreground">Availability</span>
+                        <span className={`font-medium ${isCurrentlyInStock() ? "text-green-500" : "text-red-500"}`}>
+                          {isCurrentlyInStock() ? "In Stock" : "Out of Stock"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleContent>
+            
+            {!expandedSections.features && (
+              <div className="p-6 pt-2">
+                <p className="line-clamp-2 text-muted-foreground mb-4">
+                  Explore the complete set of features and technical specifications for the {product.name}.
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => toggleSection('features')}
+                  className="flex items-center"
+                >
+                  View Details <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </Collapsible>
+        </div>
+        
+        {/* Shipping & Returns */}
+        <div className="border rounded-lg overflow-hidden">
+          <div className="p-4 bg-muted/30 border-b flex justify-between items-center">
+            <h2 className="text-xl font-bold flex items-center">
+              <Truck className="h-5 w-5 mr-2" /> Shipping & Returns
+            </h2>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => toggleSection('shipping')}
+              aria-label={expandedSections.shipping ? "Collapse shipping" : "Expand shipping"}
+            >
+              {expandedSections.shipping ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
+          
+          <Collapsible open={expandedSections.shipping}>
+            <CollapsibleContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Shipping Information</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start">
+                      <Truck className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">Free Standard Shipping</p>
+                        <p className="text-sm text-muted-foreground">Delivered within 3-5 business days</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Zap className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">Express Shipping</p>
+                        <p className="text-sm text-muted-foreground">Delivered within 1-2 business days ($9.99)</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <MapPin className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">International Shipping</p>
+                        <p className="text-sm text-muted-foreground">Available for most countries ($19.99)</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Returns Policy</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start">
+                      <RefreshCw className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">30-Day Returns</p>
+                        <p className="text-sm text-muted-foreground">Return or exchange within 30 days of delivery</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <ShieldCheck className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">Warranty Coverage</p>
+                        <p className="text-sm text-muted-foreground">2-year warranty on manufacturing defects</p>
+                      </div>
+                    </div>
+                    <div className="bg-muted/30 p-4 rounded-lg">
+                      <p className="text-sm">
+                        To qualify for a return, items must be in original condition with tags attached and original packaging. 
+                        Please contact customer support to initiate a return.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleContent>
+            
+            {!expandedSections.shipping && (
+              <div className="p-6 pt-2">
+                <p className="line-clamp-2 text-muted-foreground mb-4">
+                  Free shipping on all orders over $50. Easy returns within 30 days of delivery.
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => toggleSection('shipping')}
+                  className="flex items-center"
+                >
+                  View Details <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </Collapsible>
+        </div>
+        
+        {/* Reviews Section */}
+        <div id="reviews-section" className="border rounded-lg overflow-hidden">
+          <div className="p-4 bg-muted/30 border-b">
+            <h2 className="text-xl font-bold flex items-center">
+              <MessageSquare className="h-5 w-5 mr-2" /> Customer Reviews
+            </h2>
+            <div className="flex items-center mt-2">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-4 w-4 ${
+                      i < Math.floor(product.rating)
+                        ? "text-yellow-400 fill-yellow-400"
+                        : i < product.rating
+                        ? "text-yellow-400 fill-yellow-400 opacity-50"
+                        : "text-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="ml-2 font-medium">
+                {product.rating} out of 5
+              </span>
+              <span className="ml-2 text-sm text-muted-foreground">
+                Based on {product.reviews} reviews
+              </span>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            <ReviewSection
+              productId={product.id}
+              reviews={currentReviews}
+              onAddReview={handleAddReview}
+              onAddReply={handleAddReply}
+            />
+            
+            {/* Pagination */}
+            {totalReviewPages > 1 && (
+              <div className="flex justify-center mt-8">
+                <div className="flex space-x-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReviewPage(prev => Math.max(prev - 1, 1))}
+                    disabled={reviewPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  {[...Array(totalReviewPages)].map((_, i) => (
+                    <Button
+                      key={i}
+                      variant={reviewPage === i + 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setReviewPage(i + 1)}
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReviewPage(prev => Math.min(prev + 1, totalReviewPages))}
+                    disabled={reviewPage === totalReviewPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetail;
