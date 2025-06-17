@@ -5,23 +5,16 @@ import { Button } from "@/components/ui/button";
 import { ChatBody } from './ChatBody';
 import { ChatInput } from './ChatInput';
 import { MessageType } from './ChatMessage';
-import { LinkPreviewData } from './ChatInput';
 
 interface MobileChatViewProps {
   messages: MessageType[];
   isTyping: boolean;
-  activeInput: 'text' | 'link' | 'image';
-  setActiveInput: (type: 'text' | 'link' | 'image') => void;
+  activeInput: 'text' | 'image';
+  setActiveInput: (type: 'text' | 'image') => void;
   userMessage: string;
   setUserMessage: React.Dispatch<React.SetStateAction<string>>;
-  linkUrl: string;
-  setLinkUrl: (url: string) => void;
-  linkText: string;
-  setLinkText: (text: string) => void;
   imageUrl: string;
   setImageUrl: (url: string) => void;
-  linkPreview: LinkPreviewData | null;
-  setLinkPreview: (data: LinkPreviewData | null) => void;
   formatTime: (date: Date) => string;
   handleSend: () => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -37,14 +30,8 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
   setActiveInput,
   userMessage,
   setUserMessage,
-  linkUrl,
-  setLinkUrl,
-  linkText,
-  setLinkText,
   imageUrl,
   setImageUrl,
-  linkPreview,
-  setLinkPreview,
   handleSend,
   handleKeyDown,
   handleClose,
@@ -86,8 +73,6 @@ export const MobileChatView: React.FC<MobileChatViewProps> = ({
           setUserMessage={setUserMessage}
           imageUrl={imageUrl}
           setImageUrl={setImageUrl}
-          linkPreview={linkPreview}
-          setLinkPreview={setLinkPreview}
           handleSend={handleSend}
           handleKeyDown={handleKeyDown}
           isDesktop={false}
