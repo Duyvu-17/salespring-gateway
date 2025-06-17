@@ -29,6 +29,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Returns from "./pages/Returns";
 import FAQ from "./pages/FAQ";
+import TrendingProducts from "./pages/TrendingProducts";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/returns" element={<Returns />} />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/trending-products" element={<TrendingProducts />} />
                 
                 {/* Protected routes - require authentication */}
                 <Route element={<ProtectedRoute />}>

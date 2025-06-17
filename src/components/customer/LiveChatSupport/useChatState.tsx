@@ -2,13 +2,12 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageType } from "./ChatMessage";
-import { LinkPreviewData } from "./ChatInput";
 
 export const useChatState = () => {
   const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(true); // Changed from false to true to ensure the chat is visible by default
+  const [isOpen, setIsOpen] = useState(true);
   const [isOnline, setIsOnline] = useState(true);
-  const [isMinimized, setIsMinimized] = useState(false); // Changed from true to false to ensure chat is expanded by default
+  const [isMinimized, setIsMinimized] = useState(false);
   const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState<MessageType[]>([
     {
@@ -19,13 +18,8 @@ export const useChatState = () => {
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [activeInput, setActiveInput] = useState<"text" | "link" | "image">(
-    "text"
-  );
-  const [linkUrl, setLinkUrl] = useState("");
-  const [linkText, setLinkText] = useState("");
+  const [activeInput, setActiveInput] = useState<"text" | "image">("text");
   const [imageUrl, setImageUrl] = useState("");
-  const [linkPreview, setLinkPreview] = useState<LinkPreviewData | null>(null);
 
   const formatTime = (date: Date): string => {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -59,28 +53,11 @@ export const useChatState = () => {
 
   const handleSend = () => {
     if (activeInput === "text" && !userMessage.trim()) return;
-    if (activeInput === "link" && !linkPreview) return;
     if (activeInput === "image" && !imageUrl.trim()) return;
 
     let newUserMessage: MessageType;
 
-    // Create message based on current input type
-    if (activeInput === "link") {
-      newUserMessage = {
-        id: messages.length + 1,
-        content: userMessage || "Shared a link",
-        sender: "user",
-        timestamp: new Date(),
-        type: "link",
-        metadata: {
-          url: linkPreview?.url,
-          linkPreview: linkPreview || undefined,
-        },
-      };
-      setLinkUrl("");
-      setUserMessage("");
-      setLinkPreview(null);
-    } else if (activeInput === "image") {
+    if (activeInput === "image") {
       newUserMessage = {
         id: messages.length + 1,
         content: "Sent an image",
@@ -93,39 +70,24 @@ export const useChatState = () => {
       };
       setImageUrl("");
     } else {
-      // Regular text message
-      const message = {
+      newUserMessage = {
         id: messages.length + 1,
         content: userMessage,
         sender: "user",
         timestamp: new Date(),
         type: "text",
       } as MessageType;
-
-      // If there's a link preview available, convert to a link message
-      if (linkPreview) {
-        message.type = "link";
-        message.metadata = {
-          url: linkPreview.url,
-          linkPreview: linkPreview,
-        };
-        setLinkPreview(null);
-      }
-
-      newUserMessage = message;
       setUserMessage("");
     }
 
     setMessages((prev) => [...prev, newUserMessage]);
-    setActiveInput("text"); // Reset input mode to text after sending
+    setActiveInput("text");
 
     // Simulate support agent typing
     setIsTyping(true);
 
     // Determine response based on user's message
     let response: string;
-    let responseType: "text" | "link" | "image" | "product" = "text";
-    let responseMetadata = {};
 
     const lowerCaseMsg = newUserMessage.content.toLowerCase();
 
@@ -136,31 +98,13 @@ export const useChatState = () => {
       lowerCaseMsg.includes("refund")
     ) {
       response =
-        "To exchange an item or get a refund, please visit our Return Policy section. Would you like me to direct you there?";
-      // Add link preview for the return policy
-      responseType = "link";
-      responseMetadata = {
-        url: "/returns-policy",
-        linkPreview: {
-          title: "Returns & Exchanges Policy",
-          description: "Information about our return process, eligibility, and timeframes",
-          image: "https://images.unsplash.com/photo-1556742049-0a8ea8550b8d?w=200&q=80",
-          url: "/returns-policy"
-        }
-      };
+        "Để đổi hàng hoặc hoàn tiền, vui lòng truy cập phần Chính sách đổi trả của chúng tôi. Bạn có muốn tôi hướng dẫn bạn đến đó không?";
     } else if (
       lowerCaseMsg.includes("sản phẩm") ||
       lowerCaseMsg.includes("mặt hàng") ||
       lowerCaseMsg.includes("product")
     ) {
-      response = "Here's our best-selling headphone product:";
-      responseType = "product";
-      responseMetadata = {
-        productId: 1,
-        productName: "Premium Noise-Cancelling Headphones",
-        productImageUrl:
-          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80",
-      };
+      response = "Đây là sản phẩm tai nghe bán chạy nhất của chúng tôi. Bạn có cần thêm thông tin gì không?";
     } else if (
       lowerCaseMsg.includes("vận chuyển") ||
       lowerCaseMsg.includes("giao hàng") ||
@@ -168,40 +112,26 @@ export const useChatState = () => {
       lowerCaseMsg.includes("delivery")
     ) {
       response =
-        "Your order will typically be processed within 1-2 business days. Standard shipping takes 3-5 days, while express shipping takes 1-2 days.";
+        "Đơn hàng của bạn thường được xử lý trong vòng 1-2 ngày làm việc. Vận chuyển tiêu chuẩn mất 3-5 ngày, trong khi vận chuyển nhanh mất 1-2 ngày.";
     } else if (
       lowerCaseMsg.includes("kích thước") ||
       lowerCaseMsg.includes("size")
     ) {
       response =
-        "Size guides are available on each product page. Would you like me to help you find the right size for a specific product?";
+        "Hướng dẫn về kích thước có sẵn trên trang của từng sản phẩm. Bạn có muốn tôi giúp bạn tìm kích thước phù hợp cho một sản phẩm cụ thể không?";
     } else if (
       lowerCaseMsg.includes("thanh toán") ||
       lowerCaseMsg.includes("trả tiền") ||
       lowerCaseMsg.includes("payment")
     ) {
       response =
-        "We accept credit cards, PayPal, and digital wallets. Which payment method are you interested in?";
-      // Add link preview for payment methods
-      responseType = "link";
-      responseMetadata = {
-        url: "/payment-methods",
-        linkPreview: {
-          title: "Payment Methods",
-          description: "All the ways you can pay for your order",
-          image: "https://images.unsplash.com/photo-1556742031-c6961e8560b0?w=200&q=80",
-          url: "/payment-methods"
-        }
-      };
+        "Chúng tôi chấp nhận thẻ tín dụng, PayPal và ví điện tử. Bạn quan tâm đến phương thức thanh toán nào?";
     } else if (newUserMessage.type === "image") {
       response =
-        "Thank you for sharing this image. Our support team will review it and respond shortly.";
-    } else if (newUserMessage.type === "link") {
-      response = 
-        "Thank you for sharing this link. I'll check it out and get back to you with more information.";
+        "Cảm ơn bạn đã chia sẻ hình ảnh này. Đội ngũ hỗ trợ của chúng tôi sẽ xem xét và phản hồi sớm.";
     } else {
       response =
-        "Thank you for your message. Our customer service representative will respond shortly. Is there anything else you need help with?";
+        "Cảm ơn tin nhắn của bạn. Đại diện dịch vụ khách hàng của chúng tôi sẽ phản hồi sớm. Còn gì khác tôi có thể giúp bạn không?";
     }
 
     // Send response from support agent after a short delay
@@ -212,8 +142,7 @@ export const useChatState = () => {
         content: response,
         sender: "agent",
         timestamp: new Date(),
-        type: responseType,
-        metadata: responseMetadata,
+        type: "text",
       };
       setMessages((prev) => [...prev, newAgentMessage]);
     }, 1500);
@@ -230,14 +159,8 @@ export const useChatState = () => {
     isTyping,
     activeInput,
     setActiveInput,
-    linkUrl,
-    setLinkUrl,
-    linkText,
-    setLinkText,
     imageUrl,
     setImageUrl,
-    linkPreview,
-    setLinkPreview,
     formatTime,
     toggleMinimize,
     handleClose,
