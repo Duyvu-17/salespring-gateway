@@ -17,6 +17,7 @@ import {
 import { useTheme } from '@/context/ThemeContext';
 import { Badge } from '@/components/ui/badge';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
+import { MainNavigationMenu } from './NavigationMenu';
 
 export const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -118,9 +119,13 @@ export const Header = () => {
       <header className={`sticky top-0 z-50 w-full ${isScrolled ? 'bg-background/95 backdrop-blur-md shadow-sm' : 'bg-background'} transition-all duration-300`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="text-2xl font-bold text-primary flex items-center">
-              <span className="text-3xl mr-1">S</span>toreX
-            </Link>
+            <div className="flex items-center space-x-8">
+              <Link to="/" className="text-2xl font-bold text-primary flex items-center">
+                <span className="text-3xl mr-1">S</span>toreX
+              </Link>
+              
+              <MainNavigationMenu />
+            </div>
 
             <div className="flex items-center space-x-2">
               {isSearchOpen ? (
@@ -247,6 +252,20 @@ export const Header = () => {
                 >
                   Change Theme
                 </button>
+                <Link 
+                  to="/faq" 
+                  className="px-4 py-2 hover:bg-muted rounded-md"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  FAQ
+                </Link>
+                <Link 
+                  to="/returns" 
+                  className="px-4 py-2 hover:bg-muted rounded-md"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Returns
+                </Link>
               </nav>
             </div>
           )}

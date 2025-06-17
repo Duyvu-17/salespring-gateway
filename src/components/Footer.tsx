@@ -72,32 +72,29 @@ export const Footer = () => {
                 <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact Us</Link>
               </li>
               <li>
-                <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors">Blog</Link>
+                <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">FAQ</Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {/* Customer Service */}
           <div>
-            <h3 className="text-lg font-bold mb-4">Contact Us</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <MapPin size={18} className="mt-0.5 mr-2 text-muted-foreground" />
-                <span className="text-muted-foreground">
-                  123 Commerce St, New York, NY 10001, USA
-                </span>
+            <h3 className="text-lg font-bold mb-4">Customer Service</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/customer-service" className="text-muted-foreground hover:text-primary transition-colors">Help Center</Link>
               </li>
-              <li className="flex items-center">
-                <Phone size={18} className="mr-2 text-muted-foreground" />
-                <span className="text-muted-foreground">
-                  +1 234 567 890
-                </span>
+              <li>
+                <Link to="/returns" className="text-muted-foreground hover:text-primary transition-colors">Returns & Exchanges</Link>
               </li>
-              <li className="flex items-center">
-                <Mail size={18} className="mr-2 text-muted-foreground" />
-                <span className="text-muted-foreground">
-                  support@storex.com
-                </span>
+              <li>
+                <Link to="/shipping" className="text-muted-foreground hover:text-primary transition-colors">Shipping Info</Link>
+              </li>
+              <li>
+                <Link to="/account" className="text-muted-foreground hover:text-primary transition-colors">My Account</Link>
+              </li>
+              <li>
+                <Link to="/wishlist" className="text-muted-foreground hover:text-primary transition-colors">Wishlist</Link>
               </li>
             </ul>
           </div>
@@ -129,7 +126,7 @@ export const Footer = () => {
           <p className="text-sm text-muted-foreground">
             &copy; {currentYear} StoreX. All rights reserved.
           </p>
-          <div className="flex space-x-4 text-sm">
+          <div className="flex flex-wrap justify-center gap-4 text-sm">
             <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
               Privacy Policy
             </Link>
@@ -141,6 +138,9 @@ export const Footer = () => {
             </Link>
             <Link to="/returns" className="text-muted-foreground hover:text-primary transition-colors">
               Returns
+            </Link>
+            <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">
+              FAQ
             </Link>
           </div>
         </div>
