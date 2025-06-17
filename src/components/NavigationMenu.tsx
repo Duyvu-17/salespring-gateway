@@ -22,9 +22,18 @@ import {
   TrendingUp,
   Percent
 } from "lucide-react";
-import { categories } from "@/data/products";
 
 export const MainNavigationMenu = () => {
+  // Define categories as strings to match the icon mapping
+  const categoryList = [
+    "Electronics",
+    "Fashion", 
+    "Home & Garden",
+    "Sports",
+    "Automotive",
+    "Beauty"
+  ];
+
   const categoryIcons = {
     "Electronics": Laptop,
     "Fashion": Shirt,
@@ -53,7 +62,7 @@ export const MainNavigationMenu = () => {
                 <div>
                   <h4 className="text-sm font-medium mb-4 text-muted-foreground">Shop by Category</h4>
                   <div className="space-y-2">
-                    {categories.slice(0, 6).map((category) => {
+                    {categoryList.map((category) => {
                       const IconComponent = categoryIcons[category as keyof typeof categoryIcons];
                       return (
                         <NavigationMenuLink key={category} asChild>
