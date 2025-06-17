@@ -83,7 +83,7 @@ const Wishlist = () => {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold">Recommended For You</h2>
               <Link to="/search" className="text-primary flex items-center">
-                View all <ArrowRight className="ml-1 h-4 w-4" />
+              VIEW ALL <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

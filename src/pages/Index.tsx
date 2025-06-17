@@ -124,7 +124,7 @@ const Index = () => {
             to="/search"
             className="text-primary hover:underline flex items-center group"
           >
-            View all{" "}
+            VIEW ALL{" "}
             <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -162,7 +162,7 @@ const Index = () => {
               to="/search?new=true"
               className="text-primary hover:underline flex items-center group"
             >
-              View all{" "}
+              VIEW ALL{" "}
               <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -210,7 +210,7 @@ const Index = () => {
               to="/search?discount=true"
               className="text-primary hover:underline flex items-center group"
             >
-              View all{" "}
+              VIEW ALL{" "}
               <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

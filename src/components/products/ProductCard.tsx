@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +22,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const [inWishlist, setInWishlist] = useState(isInWishlist(product.id));
 
   const secondImage = getSecondImage(product.id);
+
+  // Hàm cắt ngắn tên sản phẩm
+  const truncateProductName = (name: string, maxLength: number = 20) => {
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength).trim() + "...";
+  };
 
   const handleAddToWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -143,13 +148,18 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         <div className="p-6 flex flex-col flex-1">
           <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-xl font-semibold mb-1">{product.name}</h3>
+            <div className="flex-1 mr-4">
+              <h3 
+                className="text-xl font-semibold mb-1 leading-tight"
+                title={product.name} // Tooltip hiển thị tên đầy đủ khi hover
+              >
+                {truncateProductName(product.name)}
+              </h3>
               <p className="text-sm text-muted-foreground mb-2">
                 {product.category}
               </p>
             </div>
-            <div className="text-right">
+            <div className="text-right flex-shrink-0">
               {product.discount ? (
                 <>
                   <p className="text-lg font-medium text-primary">
