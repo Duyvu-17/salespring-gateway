@@ -47,13 +47,14 @@ class AuthService {
     });
     localStorage.setItem('token', data.token);
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('user', JSON.stringify(data.user)); 
     return data.user;
   }
 
-  async register(name: string, email: string, password: string): Promise<User> {
+  async register(username: string, email: string, password: string): Promise<User> {
     const data = await this.request<RegisterResponse>(API_ENDPOINTS.AUTH.REGISTER, {
       method: 'POST',
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ username, email, password }),
     });
     localStorage.setItem('token', data.token);
     localStorage.setItem('isLoggedIn', 'true');

@@ -111,6 +111,7 @@ const Login = () => {
               id="email"
               type="email"
               placeholder="your@email.com"
+              autoComplete="off"
               value={email}
               onChange={handleEmailChange}
               className={errors.email ? "border-destructive" : ""}

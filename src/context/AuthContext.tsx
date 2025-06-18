@@ -89,10 +89,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (username: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      const userData = await authService.register(name, email, password);
+      const userData = await authService.register(username, email, password);
       setUser(userData);
       toast({
         title: "Đăng ký thành công",

@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Separator } from "@/components/ui/separator";
 
 const Register = () => {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -82,7 +82,7 @@ const Register = () => {
 
     if (!emailError && !passwordError) {
       try {
-        await register(name, email, password);
+        await register(username, email, password);
       } catch (error) {
         console.error("Lỗi đăng ký:", error);
       }
@@ -116,9 +116,10 @@ const Register = () => {
             <Input
               id="name"
               type="text"
+              autoComplete="off"
               placeholder="Nguyễn Văn A"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
@@ -132,6 +133,7 @@ const Register = () => {
               id="email"
               type="email"
               placeholder="your@email.com"
+              autoComplete="off"
               value={email}
               onChange={handleEmailChange}
               className={errors.email ? "border-destructive" : ""}
