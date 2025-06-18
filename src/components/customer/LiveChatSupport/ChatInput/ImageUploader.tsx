@@ -39,8 +39,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         <TooltipTrigger asChild>
           <Button 
             variant={isDesktop ? "ghost" : "outline"}
-            size="icon" 
-            className={`h-${isDesktop ? '8' : '9'} w-${isDesktop ? '8' : '9'}`}
+            size="sm"
+            className={`h-${isDesktop ? '8' : '9'} w-${isDesktop ? '10' : '12'} px-2`}
             onClick={triggerFileInput}
           >
             <Image className={`h-${isDesktop ? '4' : '4'} w-${isDesktop ? '4' : '4'}`} />
