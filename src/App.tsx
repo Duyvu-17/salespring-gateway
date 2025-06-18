@@ -36,19 +36,27 @@ const queryClient = new QueryClient();
 // Create a context provider for cart notifications
 import { createContext, useContext } from "react";
 
-export const CartNotifiCationContext = createContext<ReturnType<typeof useCartNotification> | null>(null);
+export const CartNotifiCationContext = createContext<ReturnType<
+  typeof useCartNotification
+> | null>(null);
 
 export const useCartNotificationContext = () => {
   const context = useContext(CartNotifiCationContext);
   if (!context) {
-    throw new Error("useCartNotificationContext must be used within a CartNotificationProvider");
+    throw new Error(
+      "useCartNotificationContext must be used within a CartNotificationProvider"
+    );
   }
   return context;
 };
 
-const CartNotificationProvider = ({ children }: { children: React.ReactNode }) => {
+const CartNotificationProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const cartNotification = useCartNotification();
-  
+
   return (
     <CartNotifiCationContext.Provider value={cartNotification}>
       {children}
@@ -80,8 +88,11 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/returns" element={<Returns />} />
                 <Route path="/faq" element={<FAQ />} />
-                <Route path="/trending-products" element={<TrendingProducts />} />
-                
+                <Route
+                  path="/trending-products"
+                  element={<TrendingProducts />}
+                />
+
                 {/* Protected routes - require authentication */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/cart" element={<Cart />} />
@@ -90,9 +101,12 @@ const App = () => (
                   <Route path="/shipping" element={<Shipping />} />
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/notifications" element={<Notifications />} />
-                  <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+                  <Route
+                    path="/order/:orderId"
+                    element={<OrderDetailsPage />}
+                  />
                 </Route>
-                
+
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>

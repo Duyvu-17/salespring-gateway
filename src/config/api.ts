@@ -8,4 +8,17 @@ export const API_ENDPOINTS = {
     GOOGLE: 'users/google-login',
     ME: 'users/me',
   },
+  CART: {
+    GET: 'cart',
+    ADD_ITEM: 'cart/items',
+    UPDATE_ITEM: 'cart/items',
+    REMOVE_ITEM: 'cart/items',
+    CLEAR: 'cart/clear',
+  },
+  WISHLIST: {
+    GET: 'wishlist',
+    ADD_ITEM: 'wishlist/items',
+    REMOVE_ITEM: 'wishlist/items',
+    CLEAR: 'wishlist/clear',
+  },
 } as const; 
