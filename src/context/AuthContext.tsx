@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (error) {
         console.error("Lỗi khi khởi tạo xác thực:", error);
+        // Không cần clear auth data ở đây vì authService đã xử lý
       } finally {
         setIsLoading(false);
       }
@@ -89,7 +90,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (username: string, email: string, password: string) => {
+  const register = async (
+    username: string,
+    email: string,
+    password: string
+  ) => {
     setIsLoading(true);
     try {
       const userData = await authService.register(username, email, password);

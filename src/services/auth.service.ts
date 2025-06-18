@@ -24,8 +24,9 @@ class AuthService {
         if (response.status === 401) {
           // Token hết hạn hoặc không hợp lệ
           this.clearAuthData();
+          throw new Error(`401: ${error.message || 'Unauthorized'}`);
         }
-        throw new Error(error.message || 'Có lỗi xảy ra');
+        throw new Error(`${response.status}: ${error.message || 'Có lỗi xảy ra'}`);
       }
 
       return response.json();
@@ -38,33 +39,66 @@ class AuthService {
   private clearAuthData() {
     localStorage.removeItem('token');
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
   }
 
   async login(email: string, password: string): Promise<User> {
-    const data = await this.request<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('user', JSON.stringify(data.user)); 
-    return data.user;
+    try {
+      const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('user', JSON.stringify(data.user)); 
+      
+      return data.user;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   }
 
   async register(username: string, email: string, password: string): Promise<User> {
-    const data = await this.request<RegisterResponse>(API_ENDPOINTS.AUTH.REGISTER, {
-      method: 'POST',
-      body: JSON.stringify({ username, email, password }),
-    });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('isLoggedIn', 'true');
-    return data.user;
+    try {
+      const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.REGISTER}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      return data.user;
+    } catch (error) {
+      console.error('Register error:', error);
+      throw error;
+    }
   }
 
   async logout(): Promise<void> {
     try {
-      console.log(this.request);
-      
       await this.request(API_ENDPOINTS.AUTH.LOGOUT, {
         method: 'POST',
       });
@@ -91,11 +125,43 @@ class AuthService {
         return null;
       }
 
-      const data = await this.request<{ user: User }>(API_ENDPOINTS.AUTH.ME);
-      return data.user;
+      const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.ME}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        if (response.status === 401) {
+          this.clearAuthData();
+          throw new Error(`401: Unauthorized`);
+        }
+        throw new Error(`${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      // Kiểm tra format của response - có thể là { user: User } hoặc User trực tiếp
+      let userData = null;
+      if (data && data.user) {
+        // Format: { user: User }
+        userData = data.user;
+      } else if (data && data.id && data.email) {
+        // Format: User trực tiếp
+        userData = data;
+      } else {
+        return null;
+      }
+
+      return userData;
     } catch (error) {
       console.error('Error getting current user:', error);
-      this.clearAuthData();
+      // Chỉ clear auth data nếu lỗi là 401 (unauthorized)
+      if (error instanceof Error && error.message.includes('401')) {
+        this.clearAuthData();
+      }
       return null;
     }
   }

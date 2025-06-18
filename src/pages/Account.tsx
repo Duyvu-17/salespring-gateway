@@ -25,12 +25,11 @@ import Order from "@/components/account/Order";
 import { OrderDetailsTab } from "@/components/account/OrderDetailsTab";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+
 const Account = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("profile");
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [profile, setProfile] = useState(user);
 
   const [paymentMethods, setPaymentMethods] = useState([
@@ -51,15 +50,17 @@ const Account = () => {
   ]);
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-    setIsLoggedIn(loggedIn);
-
-    if (!loggedIn) {
-      navigate("/login");
-    } else {
-      setIsLoading(false);
+    if (user) {
+      setProfile(user);
     }
-  }, [navigate]);
+  }, [user]);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isLoading, isAuthenticated, navigate]);
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16 min-h-[60vh] flex items-center justify-center">
@@ -70,6 +71,18 @@ const Account = () => {
       </div>
     );
   }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-16 min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-lg">Loading user data...</p>
+        </div>
+      </div>
+    );
+  }
+
   const tabs = [
     {
       id: "profile",
@@ -146,7 +159,7 @@ const Account = () => {
               <UserCog className="mr-2 h-4 w-4" />
               Account Settings
             </Button>
-            {isLoggedIn && <LogoutConfirmDialog />}
+            {isAuthenticated && <LogoutConfirmDialog />}
           </div>
         </div>
 
