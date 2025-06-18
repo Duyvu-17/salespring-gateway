@@ -69,12 +69,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const userData = await authService.login(email, password);
-      setUser(userData);
-      toast({
-        title: "Đăng nhập thành công",
-        description: "Chào mừng bạn quay trở lại!",
-      });
-      navigate("/");
+      // Kiểm tra phản hồi từ authService trước khi setUser và toast
+      if (userData && userData.id) {
+        setUser(userData);
+        toast({
+          title: "Đăng nhập thành công",
+          description: "Chào mừng bạn quay trở lại!",
+        });
+        navigate("/");
+      } else {
+        throw new Error("Email hoặc mật khẩu không chính xác");
+      }
     } catch (error) {
       console.error("Lỗi đăng nhập:", error);
       toast({

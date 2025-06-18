@@ -12,20 +12,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "(555) 123-4567",
-    address: "123 Main St, Anytown, USA",
-    bio: "I am a tech enthusiast and love exploring new gadgets and applications.",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  });
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const [profile, setProfile] = useState(user);
 
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
 
@@ -136,7 +129,7 @@ export const Profile = () => {
                   <Input
                     id="name"
                     type="text"
-                    value={profile.name}
+                    value={profile.full_name}
                     onChange={(e) =>
                       setProfile({ ...profile, name: e.target.value })
                     }
