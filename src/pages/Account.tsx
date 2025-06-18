@@ -24,20 +24,14 @@ import Appearance from "@/components/account/Appearance";
 import Order from "@/components/account/Order";
 import { OrderDetailsTab } from "@/components/account/OrderDetailsTab";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/context/AuthContext";
 const Account = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("profile");
   const navigate = useNavigate();
-  const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "(555) 123-4567",
-    address: "123 Main St, Anytown, USA",
-    bio: "I am a tech enthusiast and love exploring new gadgets and applications.",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  });
+  const { user } = useAuth();
+  const [profile, setProfile] = useState(user);
 
   const [paymentMethods, setPaymentMethods] = useState([
     {
@@ -127,10 +121,7 @@ const Account = () => {
             <Avatar className="w-20 h-20 border-4 border-primary/20">
               <AvatarImage src={profile.avatar} alt={profile.name} />
               <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                {profile.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+                {profile.name}
               </AvatarFallback>
             </Avatar>
             <div>
