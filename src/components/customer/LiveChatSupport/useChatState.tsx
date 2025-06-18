@@ -15,6 +15,7 @@ export const useChatState = () => {
     setIsMinimized,
     toggleMinimize,
     handleClose,
+    openChat,
   } = useChatUI();
 
   const {
@@ -56,6 +57,7 @@ export const useChatState = () => {
     formatTime,
     toggleMinimize,
     handleClose,
+    openChat,
     handleKeyDown: handleKeyDownWithSend,
     handleSend,
     isOnline,

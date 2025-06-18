@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export const useChatUI = () => {
   const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); // Changed from true to false
   const [isOnline, setIsOnline] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
 
@@ -24,6 +24,11 @@ export const useChatUI = () => {
     });
   };
 
+  const openChat = () => {
+    setIsOpen(true);
+    setIsMinimized(false);
+  };
+
   return {
     isOpen,
     setIsOpen,
@@ -33,5 +38,6 @@ export const useChatUI = () => {
     setIsMinimized,
     toggleMinimize,
     handleClose,
+    openChat,
   };
 };

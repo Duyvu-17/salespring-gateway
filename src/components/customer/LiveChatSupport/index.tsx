@@ -1,5 +1,7 @@
 
 import React, { useEffect } from 'react';
+import { MessageCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useChatState } from './useChatState';
 import { MobileChatView } from './MobileChatView';
 import { ChatHeader } from './ChatHeader';
@@ -27,6 +29,7 @@ export const LiveChatSupport: React.FC = () => {
     handleSend,
     handleKeyDown,
     isOnline,
+    openChat,
   } = useChatState();
 
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -40,7 +43,20 @@ export const LiveChatSupport: React.FC = () => {
     }
   }, [isMobile, setIsMinimized]);
 
-  if (!isOpen) return null;
+  // Show floating chat button when chat is closed
+  if (!isOpen) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={openChat}
+          size="lg"
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary hover:bg-primary/90 animate-pulse"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </Button>
+      </div>
+    );
+  }
 
   // Render full-screen chat on mobile
   if (isMobile) {
@@ -65,12 +81,15 @@ export const LiveChatSupport: React.FC = () => {
     );
   }
 
-  // Desktop view with minimized/expanded states
+  // Desktop view with improved design
   return (
     <div
-      className={`fixed bottom-4 right-4 z-50 bg-card rounded-lg shadow-lg border transition-all duration-200 ease-in-out flex flex-col ${
-        isMinimized ? 'w-72 h-12' : 'w-80 h-96'
+      className={`fixed bottom-6 right-6 z-50 bg-card rounded-2xl shadow-2xl border-0 transition-all duration-300 ease-in-out flex flex-col overflow-hidden ${
+        isMinimized ? 'w-80 h-14' : 'w-96 h-[500px]'
       }`}
+      style={{
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+      }}
     >
       <ChatHeader
         isMinimized={isMinimized}
@@ -86,7 +105,7 @@ export const LiveChatSupport: React.FC = () => {
             isTyping={isTyping} 
             formatTime={formatTime} 
           />
-          <div className="p-3 border-t">
+          <div className="p-4 border-t bg-background/50 backdrop-blur-sm">
             <ChatInput
               activeInput={activeInput}
               setActiveInput={setActiveInput}
