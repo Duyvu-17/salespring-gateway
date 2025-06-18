@@ -35,13 +35,11 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProductGallery } from '@/components/products/ProductGallery';
 import ReviewSection from '@/components/products/ReviewSection';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useWishlist, isInWishlist } from '@/utils/wishlist';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/context/AuthContext';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
@@ -49,7 +47,6 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
   const [product, setProduct] = useState<Product | undefined>(undefined);
   const [isInWishlistState, setIsInWishlistState] = useState(false);
-  const [activeSection, setActiveSection] = useState<string>('description');
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const { id } = useParams();
@@ -58,11 +55,6 @@ const ProductDetail = () => {
   const { toggleWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
   
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    description: false,
-    features: false,
-    shipping: false
-  });
   const [reviewPage, setReviewPage] = useState(1);
   const reviewsPerPage = 3;
   
@@ -98,13 +90,13 @@ const ProductDetail = () => {
           category: foundProduct.category
         },
         ...filteredViewed
-      ].slice(0, 4); // Keep only the most recent 4 items
+      ].slice(0, 4);
       
       localStorage.setItem('recentlyViewed', JSON.stringify(newViewed));
       
       // Get recently viewed products
       const recentProducts = newViewed
-        .slice(1) // Skip the current product
+        .slice(1)
         .map((item: any) => getProductById(item.id))
         .filter(Boolean);
       
@@ -329,15 +321,7 @@ const ProductDetail = () => {
     return product.userReviews.slice(startIndex, startIndex + reviewsPerPage);
   };
   
-  // This is where the error is happening - we need to fix the currentReviews variable
   const currentReviews = getCurrentReviews();
-  
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
@@ -354,7 +338,8 @@ const ProductDetail = () => {
         <span className="text-foreground font-medium truncate">{product.name}</span>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      {/* Main Product Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
         {/* Product Gallery - Left Column */}
         <div>
           <ProductGallery 
@@ -364,36 +349,6 @@ const ProductDetail = () => {
             discount={product.discount}
             isNew={product.new}
           />
-          
-          {/* Recently viewed products - Mobile only */}
-          <div className="mt-8 lg:hidden">
-            <h2 className="text-xl font-bold mb-4">Recently Viewed</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {recentlyViewed.length > 0 ? (
-                recentlyViewed.map(item => (
-                  <Card 
-                    key={item.id}
-                    className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => navigate(`/product/${item.id}`)}
-                  >
-                    <div className="aspect-square overflow-hidden bg-muted/20">
-                      <img 
-                        src={item.image} 
-                        alt={item.name} 
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div className="p-3">
-                      <h3 className="font-medium text-sm truncate">{item.name}</h3>
-                      <p className="text-sm text-primary">${item.price.toFixed(2)}</p>
-                    </div>
-                  </Card>
-                ))
-              ) : (
-                <p className="col-span-2 text-muted-foreground text-sm">No recently viewed products</p>
-              )}
-            </div>
-          </div>
         </div>
         
         {/* Product Info - Right Column */}
@@ -425,12 +380,6 @@ const ProductDetail = () => {
               <span className="ml-2 text-sm text-muted-foreground">
                 {product.rating} ({product.reviews} reviews)
               </span>
-              <button 
-                onClick={() => document.getElementById('reviews-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="ml-2 text-sm text-primary hover:underline"
-              >
-                See all reviews
-              </button>
             </div>
           </div>
           
@@ -491,25 +440,6 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Short Description */}
-          <p className="text-muted-foreground">{product.description}</p>
-          
-          {/* Quick info cards */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg">
-              <Truck className="h-5 w-5 text-primary mb-1" />
-              <span className="text-xs text-center">Free Shipping</span>
-            </div>
-            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg">
-              <RefreshCw className="h-5 w-5 text-primary mb-1" />
-              <span className="text-xs text-center">30-Day Returns</span>
-            </div>
-            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg">
-              <ShieldCheck className="h-5 w-5 text-primary mb-1" />
-              <span className="text-xs text-center">2-Year Warranty</span>
-            </div>
-          </div>
-
           {/* Model Selection */}
           {product.models && product.models.length > 0 && (
             <div className="space-y-3">
@@ -536,9 +466,7 @@ const ProductDetail = () => {
                           : "border-border hover:border-primary/50"
                       }`}
                     >
-                      {model.name} {model.price !== undefined && model.price !== product.price && 
-                        `(+$${(model.price - product.price).toFixed(2)})`
-                      }
+                      {model.name}
                     </Label>
                   </div>
                 ))}
@@ -678,309 +606,117 @@ const ProductDetail = () => {
               {isCurrentlyInStock() ? "Buy Now" : "Out of Stock"}
             </Button>
           </div>
-          
-          {/* Product highlights */}
-          <div className="bg-muted/30 p-4 rounded-lg border border-border/50">
-            <h3 className="font-medium mb-2 flex items-center">
-              <Zap className="h-4 w-4 mr-1 text-primary" /> Product Highlights
-            </h3>
-            <ul className="space-y-2 text-sm">
-              {product.features?.slice(0, 3).map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <Check className="h-4 w-4 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
       
-      {/* Product Details Sections - Vertical Layout */}
-      <div className="mt-12 space-y-8 border-t pt-8">
-        {/* Description Section */}
-        <div className="border rounded-lg overflow-hidden">
-          <div className="p-4 bg-muted/30 border-b flex justify-between items-center">
-            <h2 className="text-xl font-bold flex items-center">
-              <Info className="h-5 w-5 mr-2" /> Product Description
-            </h2>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => toggleSection('description')}
-              aria-label={expandedSections.description ? "Collapse description" : "Expand description"}
-            >
-              {expandedSections.description ? (
-                <ChevronUp className="h-5 w-5" />
-              ) : (
-                <ChevronDown className="h-5 w-5" />
-              )}
-            </Button>
+      {/* Product Information Cards Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        {/* Description Card */}
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <div className="flex items-center mb-4">
+            <Info className="h-5 w-5 text-primary mr-2" />
+            <h3 className="text-lg font-semibold">Product Description</h3>
           </div>
-          
-          <Collapsible open={expandedSections.description}>
-            <CollapsibleContent className="p-6">
-              <div className="prose prose-sm max-w-none">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <p>{product.description}</p>
-                    <p>Experience the ultimate in technology and design with the {product.name}. Crafted with premium materials and packed with features, this {product.category.toLowerCase()} is designed to elevate your daily experience.</p>
-                    
-                    <div className="bg-muted/30 p-4 rounded-lg flex items-center space-x-3 mt-4">
-                      <Award className="h-12 w-12 text-primary flex-shrink-0" />
-                      <div>
-                        <h3 className="font-semibold">Premium Quality Guarantee</h3>
-                        <p className="text-sm text-muted-foreground">This product is covered by our quality guarantee. If you're not satisfied, return within 30 days for a full refund.</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="bg-muted/30 p-6 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-4">What's in the Box</h3>
-                      <ul className="space-y-2">
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-primary mr-3" />
-                          <span>{product.name}</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-primary mr-3" />
-                          <span>User Manual</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-primary mr-3" />
-                          <span>Warranty Card</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-primary mr-3" />
-                          <span>Charging Cable</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-primary mr-3" />
-                          <span>Power Adapter</span>
-                        </li>
-                      </ul>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mt-6 p-4 bg-primary/10 rounded-lg">
-                      <div className="flex items-center">
-                        <Eye className="h-5 w-5 text-primary mr-2" />
-                        <span className="text-sm font-medium">{Math.floor(Math.random() * 20) + 10} people viewing this product</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-5 w-5 text-primary mr-2" />
-                        <span className="text-sm font-medium">Last purchased 2 hours ago</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CollapsibleContent>
-            
-            {!expandedSections.description && (
-              <div className="p-6 pt-2">
-                <p className="line-clamp-3 text-muted-foreground mb-4">{product.description} Experience the ultimate in technology and design with the {product.name}. Crafted with premium materials and packed with features, this {product.category.toLowerCase()} is designed to elevate your daily experience.</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => toggleSection('description')}
-                  className="flex items-center"
-                >
-                  Read More <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </Collapsible>
-        </div>
-        
-        {/* Features & Specs Section */}
-        <div className="border rounded-lg overflow-hidden">
-          <div className="p-4 bg-muted/30 border-b flex justify-between items-center">
-            <h2 className="text-xl font-bold flex items-center">
-              <Check className="h-5 w-5 mr-2" /> Features & Specifications
-            </h2>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => toggleSection('features')}
-              aria-label={expandedSections.features ? "Collapse features" : "Expand features"}
-            >
-              {expandedSections.features ? (
-                <ChevronUp className="h-5 w-5" />
-              ) : (
-                <ChevronDown className="h-5 w-5" />
-              )}
-            </Button>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+            {product.description}
+          </p>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Brand</span>
+              <span className="font-medium">StoreX</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Category</span>
+              <span className="font-medium">{product.category}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Warranty</span>
+              <span className="font-medium">2 Years</span>
+            </div>
           </div>
-          
-          <Collapsible open={expandedSections.features}>
-            <CollapsibleContent className="p-6">
-              <div className="prose prose-sm max-w-none">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="text-xl font-semibold mb-4">Key Features</h3>
-                    <ul className="space-y-3">
-                      {product.features?.map((feature, index) => (
-                        <li key={index} className="flex items-start">
-                          <Check className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-muted/30 p-6 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-4">Technical Specifications</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-muted-foreground">Brand</span>
-                        <span className="font-medium">StoreX</span>
-                      </div>
-                      <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-muted-foreground">Model</span>
-                        <span className="font-medium">{product.name}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-muted-foreground">Category</span>
-                        <span className="font-medium">{product.category}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-muted-foreground">Warranty</span>
-                        <span className="font-medium">2 Years</span>
-                      </div>
-                      <div className="flex justify-between pb-2">
-                        <span className="text-muted-foreground">Availability</span>
-                        <span className={`font-medium ${isCurrentlyInStock() ? "text-green-500" : "text-red-500"}`}>
-                          {isCurrentlyInStock() ? "In Stock" : "Out of Stock"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CollapsibleContent>
-            
-            {!expandedSections.features && (
-              <div className="p-6 pt-2">
-                <p className="line-clamp-2 text-muted-foreground mb-4">
-                  Explore the complete set of features and technical specifications for the {product.name}.
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => toggleSection('features')}
-                  className="flex items-center"
-                >
-                  View Details <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </Collapsible>
-        </div>
-        
-        {/* Shipping & Returns */}
-        <div className="border rounded-lg overflow-hidden">
-          <div className="p-4 bg-muted/30 border-b flex justify-between items-center">
-            <h2 className="text-xl font-bold flex items-center">
-              <Truck className="h-5 w-5 mr-2" /> Shipping & Returns
-            </h2>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => toggleSection('shipping')}
-              aria-label={expandedSections.shipping ? "Collapse shipping" : "Expand shipping"}
-            >
-              {expandedSections.shipping ? (
-                <ChevronUp className="h-5 w-5" />
-              ) : (
-                <ChevronDown className="h-5 w-5" />
-              )}
-            </Button>
+        </Card>
+
+        {/* Features Card */}
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <div className="flex items-center mb-4">
+            <Zap className="h-5 w-5 text-primary mr-2" />
+            <h3 className="text-lg font-semibold">Key Features</h3>
           </div>
-          
-          <Collapsible open={expandedSections.shipping}>
-            <CollapsibleContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Shipping Information</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <Truck className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">Free Standard Shipping</p>
-                        <p className="text-sm text-muted-foreground">Delivered within 3-5 business days</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <Zap className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">Express Shipping</p>
-                        <p className="text-sm text-muted-foreground">Delivered within 1-2 business days ($9.99)</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <MapPin className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">International Shipping</p>
-                        <p className="text-sm text-muted-foreground">Available for most countries ($19.99)</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Returns Policy</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <RefreshCw className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">30-Day Returns</p>
-                        <p className="text-sm text-muted-foreground">Return or exchange within 30 days of delivery</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <ShieldCheck className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">Warranty Coverage</p>
-                        <p className="text-sm text-muted-foreground">2-year warranty on manufacturing defects</p>
-                      </div>
-                    </div>
-                    <div className="bg-muted/30 p-4 rounded-lg">
-                      <p className="text-sm">
-                        To qualify for a return, items must be in original condition with tags attached and original packaging. 
-                        Please contact customer support to initiate a return.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CollapsibleContent>
-            
-            {!expandedSections.shipping && (
-              <div className="p-6 pt-2">
-                <p className="line-clamp-2 text-muted-foreground mb-4">
-                  Free shipping on all orders over $50. Easy returns within 30 days of delivery.
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => toggleSection('shipping')}
-                  className="flex items-center"
-                >
-                  View Details <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </Collapsible>
+          <ul className="space-y-2">
+            {product.features?.slice(0, 4).map((feature, index) => (
+              <li key={index} className="flex items-start text-sm">
+                <Check className="h-4 w-4 text-primary mr-2 mt-0.5 flex-shrink-0" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+          {product.features && product.features.length > 4 && (
+            <p className="text-xs text-muted-foreground mt-3">
+              +{product.features.length - 4} more features
+            </p>
+          )}
+        </Card>
+
+        {/* Shipping & Service Card */}
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <div className="flex items-center mb-4">
+            <Truck className="h-5 w-5 text-primary mr-2" />
+            <h3 className="text-lg font-semibold">Shipping & Service</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center text-sm">
+              <Truck className="h-4 w-4 text-primary mr-2" />
+              <span>Free shipping on orders over $50</span>
+            </div>
+            <div className="flex items-center text-sm">
+              <RefreshCw className="h-4 w-4 text-primary mr-2" />
+              <span>30-day return policy</span>
+            </div>
+            <div className="flex items-center text-sm">
+              <ShieldCheck className="h-4 w-4 text-primary mr-2" />
+              <span>2-year warranty included</span>
+            </div>
+            <div className="flex items-center text-sm">
+              <Award className="h-4 w-4 text-primary mr-2" />
+              <span>Quality guarantee</span>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* What's in the Box Section */}
+      <Card className="p-8 mb-16">
+        <div className="text-center mb-8">
+          <Package className="h-8 w-8 text-primary mx-auto mb-3" />
+          <h2 className="text-2xl font-bold">What's in the Box</h2>
+          <p className="text-muted-foreground mt-2">Everything you need to get started</p>
         </div>
-        
-        {/* Reviews Section */}
-        <div id="reviews-section" className="border rounded-lg overflow-hidden">
-          <div className="p-4 bg-muted/30 border-b">
-            <h2 className="text-xl font-bold flex items-center">
-              <MessageSquare className="h-5 w-5 mr-2" /> Customer Reviews
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {[
+            { item: product.name, icon: Package },
+            { item: "User Manual", icon: Info },
+            { item: "Warranty Card", icon: ShieldCheck },
+            { item: "Charging Cable", icon: Zap },
+            { item: "Power Adapter", icon: Zap }
+          ].map((boxItem, index) => (
+            <div key={index} className="flex flex-col items-center text-center p-4 bg-muted/30 rounded-lg">
+              <boxItem.icon className="h-6 w-6 text-primary mb-2" />
+              <span className="text-sm font-medium">{boxItem.item}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Reviews Section */}
+      <Card className="p-8 mb-16">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center">
+              <MessageSquare className="h-6 w-6 mr-3" />
+              Customer Reviews
             </h2>
             <div className="flex items-center mt-2">
-              <div className="flex items-center">
+              <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
@@ -998,55 +734,85 @@ const ProductDetail = () => {
                 {product.rating} out of 5
               </span>
               <span className="ml-2 text-sm text-muted-foreground">
-                Based on {product.reviews} reviews
+                ({product.reviews} reviews)
               </span>
             </div>
           </div>
-          
-          <div className="p-6">
-            <ReviewSection
-              productId={product.id}
-              reviews={currentReviews}
-              onAddReview={handleAddReview}
-              onAddReply={handleAddReply}
-            />
-            
-            {/* Pagination */}
-            {totalReviewPages > 1 && (
-              <div className="flex justify-center mt-8">
-                <div className="flex space-x-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setReviewPage(prev => Math.max(prev - 1, 1))}
-                    disabled={reviewPage === 1}
-                  >
-                    Previous
-                  </Button>
-                  {[...Array(totalReviewPages)].map((_, i) => (
-                    <Button
-                      key={i}
-                      variant={reviewPage === i + 1 ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setReviewPage(i + 1)}
-                    >
-                      {i + 1}
-                    </Button>
-                  ))}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setReviewPage(prev => Math.min(prev + 1, totalReviewPages))}
-                    disabled={reviewPage === totalReviewPages}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
-      </div>
+        
+        <ReviewSection
+          productId={product.id}
+          reviews={currentReviews}
+          onAddReview={handleAddReview}
+          onAddReply={handleAddReply}
+        />
+        
+        {/* Pagination */}
+        {totalReviewPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <div className="flex space-x-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setReviewPage(prev => Math.max(prev - 1, 1))}
+                disabled={reviewPage === 1}
+              >
+                Previous
+              </Button>
+              {[...Array(totalReviewPages)].map((_, i) => (
+                <Button
+                  key={i}
+                  variant={reviewPage === i + 1 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setReviewPage(i + 1)}
+                >
+                  {i + 1}
+                </Button>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setReviewPage(prev => Math.min(prev + 1, totalReviewPages))}
+                disabled={reviewPage === totalReviewPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Recently Viewed Products - Desktop */}
+      {recentlyViewed.length > 0 && (
+        <Card className="p-8">
+          <h2 className="text-2xl font-bold mb-6 flex items-center">
+            <Clock className="h-6 w-6 mr-3" />
+            Recently Viewed
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {recentlyViewed.map(item => (
+              <Card 
+                key={item.id}
+                className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                onClick={() => navigate(`/product/${item.id}`)}
+              >
+                <div className="aspect-square overflow-hidden bg-muted/20">
+                  <img 
+                    src={item.image} 
+                    alt={item.name} 
+                    className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-medium text-sm truncate mb-2">{item.name}</h3>
+                  <p className="text-lg font-bold text-primary">${item.price.toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground">{item.category}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
