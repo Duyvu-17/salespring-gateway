@@ -5,7 +5,7 @@ export const API_ENDPOINTS = {
     LOGIN: 'users/login',
     REGISTER: 'users/register',
     LOGOUT: 'users/logout',
-    GOOGLE: 'users/login/google',
+    GOOGLE: 'users/google-login',
     ME: 'users/me',
   },
 } as const; 
