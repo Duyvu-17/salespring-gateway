@@ -66,35 +66,17 @@ export const MainLayout = () => {
     return () => {
       document.head.removeChild(linkElement);
       document.head.removeChild(style);
-      // We don't remove the viewport meta as it's important for the whole application
     };
   }, []);
 
   // Determine whether to show RealTimeInfo based on current route
   const shouldShowRealTimeInfo = () => {
-    // Don't show on checkout, order details or account pages
     const excludedPaths = ['/checkout', '/order/', '/account'];
     return !excludedPaths.some(path => location.pathname.includes(path));
   };
 
-  // Generate theme-specific background patterns or styles
-  const getThemeStyles = () => {
-    switch (theme) {
-      case 'dark':
-        return 'bg-background text-foreground';
-      case 'light':
-        return 'bg-dotted-pattern bg-dotted bg-background text-foreground';
-      case 'purple':
-        return 'bg-gradient-to-br from-purple-50 to-background text-foreground';
-      case 'ocean':
-        return 'bg-gradient-to-br from-blue-50 to-background text-foreground';
-      default:
-        return 'bg-background text-foreground';
-    }
-  };
-
   return (
-    <div className={`min-h-screen flex flex-col ${getThemeStyles()} font-sans`}>
+    <div className={`min-h-screen flex flex-col font-sans transition-all duration-300`}>
       <Header />
       {shouldShowRealTimeInfo() && (
         <div className="container mt-4">
