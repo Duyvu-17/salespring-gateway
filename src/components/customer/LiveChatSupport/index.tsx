@@ -19,14 +19,8 @@ export const LiveChatSupport: React.FC = () => {
     setUserMessage,
     activeInput,
     setActiveInput,
-    linkUrl,
-    setLinkUrl,
-    linkText,
-    setLinkText,
     imageUrl,
     setImageUrl,
-    linkPreview,
-    setLinkPreview,
     formatTime,
     toggleMinimize,
     handleClose,
@@ -60,14 +54,8 @@ export const LiveChatSupport: React.FC = () => {
           setActiveInput={setActiveInput}
           userMessage={userMessage}
           setUserMessage={setUserMessage}
-          linkUrl={linkUrl}
-          setLinkUrl={setLinkUrl}
-          linkText={linkText}
-          setLinkText={setLinkText}
           imageUrl={imageUrl}
           setImageUrl={setImageUrl}
-          linkPreview={linkPreview}
-          setLinkPreview={setLinkPreview}
           handleSend={handleSend}
           handleKeyDown={handleKeyDown}
           handleClose={handleClose}
@@ -106,8 +94,6 @@ export const LiveChatSupport: React.FC = () => {
               setUserMessage={setUserMessage}
               imageUrl={imageUrl}
               setImageUrl={setImageUrl}
-              linkPreview={linkPreview}
-              setLinkPreview={setLinkPreview}
               handleSend={handleSend}
               handleKeyDown={handleKeyDown}
               isDesktop

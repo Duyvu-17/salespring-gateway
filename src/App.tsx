@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./components/layout/MainLayout";
@@ -26,6 +25,11 @@ import ResetPassword from "./pages/ResetPassword";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
 import CustomerService from "./pages/CustomerService";
 import { useCartNotification } from "./hooks/use-cart-notification";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Returns from "./pages/Returns";
+import FAQ from "./pages/FAQ";
+import TrendingProducts from "./pages/TrendingProducts";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +76,11 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/customer-service" element={<CustomerService />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/returns" element={<Returns />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/trending-products" element={<TrendingProducts />} />
                 
                 {/* Protected routes - require authentication */}
                 <Route element={<ProtectedRoute />}>
