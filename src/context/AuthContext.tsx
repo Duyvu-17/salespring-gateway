@@ -96,13 +96,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const register = async (
-    username: string,
+    full_name: string,
     email: string,
     password: string
   ) => {
     setIsLoading(true);
     try {
-      const userData = await authService.register(username, email, password);
+      const userData = await authService.register(full_name, email, password);
       setUser(userData);
       toast({
         title: "Đăng ký thành công",

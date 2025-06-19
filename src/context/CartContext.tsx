@@ -8,7 +8,7 @@ import React, {
 import { useToast } from "@/hooks/use-toast";
 import { cartService } from "@/services/cart.service";
 import { useAuth } from "@/context/AuthContext";
-import type { Cart, CartItem } from "@/types/cart";
+import type { Cart, Cart_items } from "@/types/cart";
 
 // Define types for our cart context
 type CartContextType = {
@@ -18,7 +18,7 @@ type CartContextType = {
   updateCartItem: (itemId: string, quantity: number) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  getCartItem: (productId: string) => CartItem | undefined;
+  getCartItem: (productId: string) => Cart_items | undefined;
   isInCart: (productId: string) => boolean;
   refreshCart: () => Promise<void>;
 };
@@ -178,14 +178,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const getCartItem = (productId: string): CartItem | undefined => {
+  const getCartItem = (productId: string): Cart_items | undefined => {
     if (!cart) return undefined;
-    return cart.items.find((item) => item.productId === productId);
+    return cart.cart_items.find((item) => item.productId === productId);
   };
 
   const isInCart = (productId: string): boolean => {
     if (!cart) return false;
-    return cart.items.some((item) => item.productId === productId);
+    return cart.cart_items.some((item) => item.productId === productId);
   };
 
   const refreshCart = async () => {

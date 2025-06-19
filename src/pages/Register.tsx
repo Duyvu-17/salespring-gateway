@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Separator } from "@/components/ui/separator";
 
 const Register = () => {
-  const [username, setUsername] = useState("");
+  const [full_name, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -82,7 +82,7 @@ const Register = () => {
 
     if (!emailError && !passwordError) {
       try {
-        await register(username, email, password);
+        await register(full_name, email, password);
       } catch (error) {
         console.error("Lỗi đăng ký:", error);
       }
@@ -109,17 +109,17 @@ const Register = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="name" className="flex items-center gap-2">
+            <Label htmlFor="full_name" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Họ và tên
             </Label>
             <Input
-              id="name"
+              id="full_name"
               type="text"
               autoComplete="off"
               placeholder="Nguyễn Văn A"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={full_name}
+              onChange={(e) => setFullName(e.target.value)}
               required
             />
           </div>
@@ -159,7 +159,9 @@ const Register = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={handlePasswordChange}
-                className={`pr-10 ${errors.password ? "border-destructive" : ""}`}
+                className={`pr-10 ${
+                  errors.password ? "border-destructive" : ""
+                }`}
                 required
               />
               <Button

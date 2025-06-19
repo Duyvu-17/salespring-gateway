@@ -1,4 +1,4 @@
-export interface CartItem {
+export interface Cart_items {
   id: string;
   productId: string;
   productName: string;
@@ -14,7 +14,7 @@ export interface CartItem {
 export interface Cart {
   id: string;
   userId: string;
-  items: CartItem[];
+  cart_items: Cart_items[];
   totalItems: number;
   subtotal: number;
   total: number;

@@ -8,11 +8,11 @@ import React, {
 import { useToast } from "@/hooks/use-toast";
 import { wishlistService } from "@/services/wishlist.service";
 import { useAuth } from "@/context/AuthContext";
-import type { Wishlist, WishlistItem } from "@/types/wishlist";
+import type { WishlistItem } from "@/types/wishlist";
 
 // Define types for our wishlist context
 type WishlistContextType = {
-  wishlist: Wishlist | null;
+  wishlist: WishlistItem[] | null;
   isLoading: boolean;
   addToWishlist: (productId: string) => Promise<void>;
   removeFromWishlist: (itemId: string) => Promise<void>;
@@ -38,7 +38,7 @@ const WishlistContext = createContext<WishlistContextType>({
 export const useWishlist = () => useContext(WishlistContext);
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  const [wishlist, setWishlist] = useState<Wishlist | null>(null);
+  const [wishlist, setWishlist] = useState<WishlistItem[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
@@ -52,7 +52,10 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const wishlistData = await wishlistService.getWishlist();
-      setWishlist(wishlistData);
+
+      setWishlist(
+        Array.isArray(wishlistData.wishlist) ? wishlistData.wishlist : []
+      );
     } catch (error) {
       console.error("Lỗi khi tải danh sách yêu thích:", error);
       setWishlist(null);
@@ -79,7 +82,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const updatedWishlist = await wishlistService.addToWishlist(productId);
-      setWishlist(updatedWishlist);
+      setWishlist(
+        Array.isArray(updatedWishlist.wishlist) ? updatedWishlist.wishlist : []
+      );
       toast({
         title: "Thêm vào danh sách yêu thích thành công",
         description: "Sản phẩm đã được thêm vào danh sách yêu thích của bạn",
@@ -105,7 +110,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const updatedWishlist = await wishlistService.removeFromWishlist(itemId);
-      setWishlist(updatedWishlist);
+      setWishlist(
+        Array.isArray(updatedWishlist.wishlist) ? updatedWishlist.wishlist : []
+      );
       toast({
         title: "Xóa sản phẩm thành công",
         description: "Sản phẩm đã được xóa khỏi danh sách yêu thích",
@@ -131,7 +138,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       await wishlistService.clearWishlist();
-      setWishlist(null);
+      setWishlist([]);
       toast({
         title: "Xóa danh sách yêu thích thành công",
         description: "Tất cả sản phẩm đã được xóa khỏi danh sách yêu thích",
@@ -153,12 +160,16 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   const getWishlistItem = (productId: string): WishlistItem | undefined => {
     if (!wishlist) return undefined;
-    return wishlist.items.find((item) => item.productId === productId);
+    return wishlist.find(
+      (item) => String(item.product_id) === String(productId)
+    );
   };
 
   const isInWishlist = (productId: string): boolean => {
     if (!wishlist) return false;
-    return wishlist.items.some((item) => item.productId === productId);
+    return wishlist.some(
+      (item) => String(item.product_id) === String(productId)
+    );
   };
 
   const refreshWishlist = async () => {

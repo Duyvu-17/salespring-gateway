@@ -30,6 +30,8 @@ import Terms from "./pages/Terms";
 import Returns from "./pages/Returns";
 import FAQ from "./pages/FAQ";
 import TrendingProducts from "./pages/TrendingProducts";
+import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
 
 const queryClient = new QueryClient();
 
@@ -70,48 +72,61 @@ const App = () => (
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
-          <CartNotificationProvider>
-            <ScrollToTop />
-            <Routes>
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/customer-service" element={<CustomerService />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/returns" element={<Returns />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route
-                  path="/trending-products"
-                  element={<TrendingProducts />}
-                />
+          <CartProvider>
+            <WishlistProvider>
+              <CartNotificationProvider>
+                <ScrollToTop />
+                <Routes>
+                  <Route element={<MainLayout />}>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route
+                      path="/forgot-password"
+                      element={<ForgotPassword />}
+                    />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route
+                      path="/customer-service"
+                      element={<CustomerService />}
+                    />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/returns" element={<Returns />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route
+                      path="/trending-products"
+                      element={<TrendingProducts />}
+                    />
 
-                {/* Protected routes - require authentication */}
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/shipping" element={<Shipping />} />
-                  <Route path="/wishlist" element={<Wishlist />} />
-                  <Route path="/notifications" element={<Notifications />} />
-                  <Route
-                    path="/order/:orderId"
-                    element={<OrderDetailsPage />}
-                  />
-                </Route>
+                    {/* Protected routes - require authentication */}
+                    <Route element={<ProtectedRoute />}>
+                      <Route path="/cart" element={<Cart />} />
+                      <Route path="/checkout" element={<Checkout />} />
+                      <Route path="/account" element={<Account />} />
+                      <Route path="/shipping" element={<Shipping />} />
+                      <Route path="/wishlist" element={<Wishlist />} />
+                      <Route
+                        path="/notifications"
+                        element={<Notifications />}
+                      />
+                      <Route
+                        path="/order/:orderId"
+                        element={<OrderDetailsPage />}
+                      />
+                    </Route>
 
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-            <Toaster />
-          </CartNotificationProvider>
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+                </Routes>
+                <Toaster />
+              </CartNotificationProvider>
+            </WishlistProvider>
+          </CartProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

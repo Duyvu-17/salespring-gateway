@@ -70,14 +70,14 @@ class AuthService {
     }
   }
 
-  async register(username: string, email: string, password: string): Promise<User> {
+  async register(full_name: string, email: string, password: string): Promise<User> {
     try {
       const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.REGISTER}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ full_name, email, password }),
       });
 
       if (!response.ok) {

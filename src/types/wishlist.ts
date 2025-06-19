@@ -1,13 +1,12 @@
+import { Product } from "./product";
+
 export interface WishlistItem {
-  id: string;
-  productId: string;
-  productName: string;
-  productImage: string;
-  price: number;
-  originalPrice?: number;
-  inStock: boolean;
+  id: number;
+  user_id: number;
+  product_id: number;
   createdAt: string;
   updatedAt: string;
+  Product: Product;
 }
 
 export interface Wishlist {
@@ -24,6 +23,6 @@ export interface AddToWishlistRequest {
 }
 
 export interface WishlistResponse {
-  wishlist: Wishlist;
+  wishlist: WishlistItem[];
   message?: string;
-} 
+}

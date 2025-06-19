@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   NavigationMenu,
@@ -11,36 +10,47 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Shirt, 
-  Laptop, 
-  Home, 
-  Gamepad2, 
-  Car, 
+import {
+  Shirt,
+  Laptop,
+  Home,
+  Gamepad2,
+  Car,
   Gift,
   Tag,
   TrendingUp,
-  Percent
+  Percent,
 } from "lucide-react";
+import { categoryService } from "@/services/category.service";
+import { Category } from "@/types/category";
 
 export const MainNavigationMenu = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    categoryService
+      .getAll()
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
+
   // Define categories as strings to match the icon mapping
   const categoryList = [
     "Electronics",
-    "Fashion", 
+    "Fashion",
     "Home & Garden",
     "Sports",
     "Automotive",
-    "Beauty"
+    "Beauty",
   ];
 
   const categoryIcons = {
-    "Electronics": Laptop,
-    "Fashion": Shirt,
+    Electronics: Laptop,
+    Fashion: Shirt,
     "Home & Garden": Home,
-    "Sports": Gamepad2,
-    "Automotive": Car,
-    "Beauty": Gift,
+    Sports: Gamepad2,
+    Automotive: Car,
+    Beauty: Gift,
   };
 
   const quickLinks = [
@@ -60,18 +70,29 @@ export const MainNavigationMenu = () => {
             <NavigationMenuContent>
               <div className="grid w-[600px] grid-cols-2 gap-4 p-6">
                 <div>
-                  <h4 className="text-sm font-medium mb-4 text-muted-foreground">Shop by Category</h4>
+                  <h4 className="text-sm font-medium mb-4 text-muted-foreground">
+                    Shop by Category
+                  </h4>
                   <div className="space-y-2">
-                    {categoryList.map((category) => {
-                      const IconComponent = categoryIcons[category as keyof typeof categoryIcons];
+                    {categories.map((category) => {
+                      const IconComponent =
+                        categoryIcons[
+                          category.name as keyof typeof categoryIcons
+                        ];
                       return (
-                        <NavigationMenuLink key={category} asChild>
+                        <NavigationMenuLink key={category.id} asChild>
                           <Link
-                            to={`/search?category=${encodeURIComponent(category)}`}
+                            to={`/search?category=${encodeURIComponent(
+                              category.slug
+                            )}`}
                             className="flex items-center space-x-3 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           >
-                            {IconComponent && <IconComponent className="h-4 w-4 text-primary" />}
-                            <span className="text-sm font-medium">{category}</span>
+                            {IconComponent && (
+                              <IconComponent className="h-4 w-4 text-primary" />
+                            )}
+                            <span className="text-sm font-medium">
+                              {category.name}
+                            </span>
                           </Link>
                         </NavigationMenuLink>
                       );
@@ -79,7 +100,9 @@ export const MainNavigationMenu = () => {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium mb-4 text-muted-foreground">Quick Links</h4>
+                  <h4 className="text-sm font-medium mb-4 text-muted-foreground">
+                    Quick Links
+                  </h4>
                   <div className="space-y-2">
                     {quickLinks.map((link) => (
                       <NavigationMenuLink key={link.name} asChild>
@@ -88,7 +111,9 @@ export const MainNavigationMenu = () => {
                           className="flex items-center space-x-3 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                         >
                           <link.icon className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-medium">{link.name}</span>
+                          <span className="text-sm font-medium">
+                            {link.name}
+                          </span>
                         </Link>
                       </NavigationMenuLink>
                     ))}
@@ -110,7 +135,9 @@ export const MainNavigationMenu = () => {
                       to="/faq"
                       className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                     >
-                      <div className="text-sm font-medium leading-none">FAQ</div>
+                      <div className="text-sm font-medium leading-none">
+                        FAQ
+                      </div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                         Find answers to frequently asked questions
                       </p>
@@ -121,7 +148,9 @@ export const MainNavigationMenu = () => {
                       to="/returns"
                       className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                     >
-                      <div className="text-sm font-medium leading-none">Returns & Exchanges</div>
+                      <div className="text-sm font-medium leading-none">
+                        Returns & Exchanges
+                      </div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                         30-day return policy with free exchanges
                       </p>
@@ -132,7 +161,9 @@ export const MainNavigationMenu = () => {
                       to="/customer-service"
                       className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                     >
-                      <div className="text-sm font-medium leading-none">Customer Service</div>
+                      <div className="text-sm font-medium leading-none">
+                        Customer Service
+                      </div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                         Get help from our support team
                       </p>
@@ -147,7 +178,9 @@ export const MainNavigationMenu = () => {
             <Link to="/trending-products">
               <Button variant="ghost" className="text-sm font-medium">
                 Trending
-                <Badge variant="secondary" className="ml-2">Hot</Badge>
+                <Badge variant="secondary" className="ml-2">
+                  Hot
+                </Badge>
               </Button>
             </Link>
           </NavigationMenuItem>

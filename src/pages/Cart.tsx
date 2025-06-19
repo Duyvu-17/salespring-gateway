@@ -1,259 +1,232 @@
+import { useCart } from "@/context/CartContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Trash2, ArrowRight, ShoppingCart, ChevronLeft, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-
-interface CartItem {
+// Định nghĩa type tạm cho Product từ BE
+interface BEProduct {
   id: number;
   name: string;
-  price: number;
-  image: string;
+  price: string;
+  image_url: string | null;
+  description: string;
+  status: string;
+  stock: number;
+}
+
+interface BECartItem {
+  id: number | string;
   quantity: number;
+  Product?: BEProduct;
 }
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const { cart, isLoading, removeFromCart, updateCartItem } = useCart();
 
-  useEffect(() => {
-    // In a real app, we would fetch this from an API or local storage
-    const mockCartItems: CartItem[] = [
-      {
-        id: 1,
-        name: "Premium Headphones",
-        price: 299.99,
-        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
-        quantity: 1
-      },
-      {
-        id: 3,
-        name: "Smart Watch",
-        price: 399.99,
-        image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&q=80",
-        quantity: 2
-      }
-    ];
-
-    // Simulate API call
-    setTimeout(() => {
-      setCartItems(mockCartItems);
-      setIsLoading(false);
-    }, 800);
-  }, []);
-
-  const handleRemoveItem = (id: number) => {
-    toast({
-      title: "Item removed",
-      description: "The item has been removed from your cart",
-    });
-    
-    setCartItems(cartItems.filter(item => item.id !== id));
+  const handleRemoveItem = (itemId: string) => {
+    removeFromCart(itemId);
   };
 
-  const handleUpdateQuantity = (id: number, newQuantity: number) => {
+  const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    
-    setCartItems(cartItems.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
-    
-    toast({
-      title: "Quantity updated",
-      description: "Your cart has been updated",
-    });
+    updateCartItem(itemId, newQuantity);
   };
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    if (!cart) return 0;
+    return cart.cart_items.reduce((total, item: BECartItem) => {
+      if (item.Product) {
+        return total + Number(item.Product.price) * item.quantity;
+      }
+      return total;
+    }, 0);
   };
+
+  const totalItems = cart?.cart_items.reduce((total, item: BECartItem) => total + item.quantity, 0) || 0;
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 md:py-16">
-        <h1 className="text-2xl md:text-3xl font-bold mb-8 flex items-center">
-          <ShoppingCart className="mr-2 h-6 w-6 text-primary" />
-          Your Cart
-        </h1>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
-            {[1, 2].map((item) => (
-              <div key={item} className="flex flex-col md:flex-row gap-6 p-4 border rounded-lg">
-                <Skeleton className="w-full md:w-32 h-32 rounded-md" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-1/4" />
-                  <div className="mt-4 flex items-center">
-                    <Skeleton className="h-8 w-8 rounded" />
-                    <Skeleton className="mx-4 h-4 w-8" />
-                    <Skeleton className="h-8 w-8 rounded" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                  <div className="flex justify-between">
-                    <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                </div>
-                <Separator />
-                <div className="flex justify-between">
-                  <Skeleton className="h-5 w-16" />
-                  <Skeleton className="h-5 w-16" />
-                </div>
-                <Skeleton className="h-10 w-full" />
-              </CardContent>
-            </Card>
-          </div>
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="text-muted-foreground">Đang tải giỏ hàng...</div>
         </div>
       </div>
     );
   }
 
-  if (cartItems.length === 0) {
+  if (!cart || cart.cart_items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16 min-h-[60vh] flex flex-col items-center justify-center">
-        <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
-        <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
-        <p className="text-lg mb-8 text-center text-muted-foreground">
-          Looks like you haven't added any products to your cart yet.
-        </p>
-        <Button asChild size="lg">
-          <Link to="/" className="flex items-center">
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Continue Shopping
-          </Link>
-        </Button>
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="text-center py-16 bg-gradient-to-br from-muted/20 to-muted/10 rounded-2xl border border-muted/20">
+          <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+          <h2 className="text-2xl font-semibold mb-2">Giỏ hàng trống</h2>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            Thêm sản phẩm vào giỏ hàng để bắt đầu mua sắm.
+          </p>
+          <Button className="px-8">Tiếp tục mua sắm</Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-16">
-      <h1 className="text-2xl md:text-3xl font-bold mb-8 flex items-center">
-        <ShoppingCart className="mr-2 h-6 w-6 text-primary" />
-        Your Shopping Cart
-      </h1>
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Giỏ hàng của bạn</h1>
+        <p className="text-muted-foreground">
+          {totalItems} sản phẩm trong giỏ hàng
+        </p>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-4">
-          {cartItems.map(item => (
-            <div key={item.id} className="flex flex-col md:flex-row gap-6 p-4 border rounded-lg shadow-sm hover:shadow transition-shadow duration-200">
-              <img 
-                src={item.image} 
-                alt={item.name} 
-                className="w-full md:w-32 h-32 object-cover rounded-md"
-              />
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold">{item.name}</h3>
-                <p className="text-primary font-medium">${item.price.toFixed(2)}</p>
-                
-                <div className="flex items-center mt-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                    className="h-8 w-8 p-0"
-                    aria-label="Decrease quantity"
+        {/* Cart Items - Scrollable on mobile */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-sm border border-muted/20 overflow-hidden">
+            <div className="max-h-[600px] overflow-y-auto">
+              <div className="divide-y divide-muted/20">
+                {cart.cart_items.map((item: BECartItem, index) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-4 p-6 hover:bg-muted/5 transition-colors"
                   >
-                    -
-                  </Button>
-                  <span className="mx-4 font-medium">{item.quantity}</span>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                    className="h-8 w-8 p-0"
-                    aria-label="Increase quantity"
-                  >
-                    +
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="flex items-center">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleRemoveItem(item.id)}
-                  className="text-destructive h-8 w-8 p-0"
-                  aria-label="Remove item"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="sr-only">Remove</span>
-                </Button>
+                    {/* Product Image */}
+                    <div className="flex-shrink-0">
+                      <img
+                        src={item.Product?.image_url || "/placeholder.svg"}
+                        alt={item.Product?.name || "Sản phẩm không xác định"}
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-muted/20"
+                      />
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-lg mb-1 truncate">
+                        {item.Product?.name || "Sản phẩm không xác định"}
+                      </h3>
+                      <p className="text-primary font-medium text-lg">
+                        {item.Product
+                          ? Number(item.Product.price).toLocaleString()
+                          : 0}₫
+                      </p>
+                      
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-3 mt-4">
+                        <div className="flex items-center border border-muted/30 rounded-lg overflow-hidden">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-muted/20"
+                            onClick={() =>
+                              handleUpdateQuantity(String(item.id), item.quantity - 1)
+                            }
+                            disabled={item.quantity <= 1}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <Input
+                            type="number"
+                            value={item.quantity}
+                            min={1}
+                            max={item.Product?.stock || 999}
+                            onChange={(e) =>
+                              handleUpdateQuantity(
+                                String(item.id),
+                                Math.max(1, Number(e.target.value))
+                              )
+                            }
+                            className="w-14 h-8 text-center border-0 focus-visible:ring-0 bg-transparent"
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-muted/20"
+                            onClick={() =>
+                              handleUpdateQuantity(String(item.id), item.quantity + 1)
+                            }
+                            disabled={item.quantity >= (item.Product?.stock || 999)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        
+                        <span className="text-sm text-muted-foreground">
+                          Tồn kho: {item.Product?.stock || 0}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Item Total & Remove */}
+                    <div className="flex flex-col items-end gap-3">
+                      <div className="text-lg font-semibold">
+                        {item.Product
+                          ? (Number(item.Product.price) * item.quantity).toLocaleString()
+                          : 0}₫
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
+                        onClick={() => handleRemoveItem(String(item.id))}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-          
-          <div className="flex justify-between items-center mt-6">
-            <Button variant="outline" asChild>
-              <Link to="/" className="flex items-center">
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                Continue Shopping
-              </Link>
-            </Button>
           </div>
         </div>
-        
-        <div className="lg:col-span-1">
-          <Card className="sticky top-24">
-            <CardHeader className="pb-3">
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span>${calculateSubtotal().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span>Free</span>
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>${calculateSubtotal().toFixed(2)}</span>
-              </div>
-              
-              <Button className="w-full mt-4" size="lg" asChild>
-                <Link to="/checkout" className="flex items-center justify-center">
-                  Proceed to Checkout
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
 
-              <div className="mt-4 bg-muted/40 p-3 rounded-md text-xs space-y-1">
-                <div className="flex items-center">
-                  <ShoppingCart className="h-3 w-3 mr-1.5" />
-                  <span>Secure checkout process</span>
+        {/* Order Summary - Sticky on desktop */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-xl shadow-sm border border-muted/20 p-6 sticky top-8">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <ShoppingBag className="h-5 w-5" />
+              Tóm tắt đơn hàng
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Số lượng sản phẩm</span>
+                <span className="font-medium">{totalItems}</span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Tạm tính</span>
+                <span className="font-medium">
+                  {calculateSubtotal().toLocaleString()}₫
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Phí vận chuyển</span>
+                <span className="font-medium text-green-600">Miễn phí</span>
+              </div>
+              
+              <div className="border-t border-muted/20 pt-4">
+                <div className="flex justify-between items-center text-lg font-bold">
+                  <span>Tổng cộng</span>
+                  <span className="text-primary">
+                    {calculateSubtotal().toLocaleString()}₫
+                  </span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            
+            <div className="mt-6 space-y-3">
+              <Button className="w-full h-12 text-base font-semibold">
+                Thanh toán ngay
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full h-12 text-base"
+              >
+                Tiếp tục mua sắm
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

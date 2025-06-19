@@ -1,5 +1,5 @@
 import { API_URL, API_ENDPOINTS } from '@/config/api';
-import type { Wishlist, WishlistItem, AddToWishlistRequest, WishlistResponse } from '@/types/wishlist';
+import type { WishlistItem, AddToWishlistRequest, WishlistResponse } from '@/types/wishlist';
 
 class WishlistService {
   private getAuthHeader(): HeadersInit {
@@ -33,23 +33,21 @@ class WishlistService {
     }
   }
 
-  async getWishlist(): Promise<Wishlist> {
-    return this.request<Wishlist>(API_ENDPOINTS.WISHLIST.GET);
+  async getWishlist(): Promise<WishlistResponse> {
+    return this.request<WishlistResponse>(API_ENDPOINTS.WISHLIST.GET);
   }
 
-  async addToWishlist(productId: string): Promise<Wishlist> {
-    const data = await this.request<WishlistResponse>(API_ENDPOINTS.WISHLIST.ADD_ITEM, {
+  async addToWishlist(productId: string): Promise<WishlistResponse> {
+    return this.request<WishlistResponse>(API_ENDPOINTS.WISHLIST.ADD_ITEM, {
       method: 'POST',
       body: JSON.stringify({ productId }),
     });
-    return data.wishlist;
   }
 
-  async removeFromWishlist(itemId: string): Promise<Wishlist> {
-    const data = await this.request<WishlistResponse>(`${API_ENDPOINTS.WISHLIST.REMOVE_ITEM}/${itemId}`, {
+  async removeFromWishlist(itemId: string): Promise<WishlistResponse> {
+    return this.request<WishlistResponse>(`${API_ENDPOINTS.WISHLIST.REMOVE_ITEM}/${itemId}`, {
       method: 'DELETE',
     });
-    return data.wishlist;
   }
 
   async clearWishlist(): Promise<void> {
@@ -59,13 +57,13 @@ class WishlistService {
   }
 
   // Helper method để kiểm tra sản phẩm có trong wishlist không
-  isInWishlist(wishlist: Wishlist, productId: string): boolean {
-    return wishlist.items.some(item => item.productId === productId);
+  isInWishlist(wishlist: WishlistResponse, productId: string): boolean {
+    return wishlist.wishlist.some(item => item.product_id.toString() === productId);
   }
 
   // Helper method để lấy wishlist item theo productId
-  getWishlistItem(wishlist: Wishlist, productId: string): WishlistItem | undefined {
-    return wishlist.items.find(item => item.productId === productId);
+  getWishlistItem(wishlist: WishlistResponse, productId: string): WishlistItem | undefined {
+    return wishlist.wishlist.find(item => item.product_id.toString()  === productId);
   }
 }
 
