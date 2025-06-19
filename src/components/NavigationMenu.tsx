@@ -20,6 +20,7 @@ import {
   Tag,
   TrendingUp,
   Percent,
+  Flame,
 } from "lucide-react";
 import { categoryService } from "@/services/category.service";
 import { Category } from "@/types/category";
@@ -34,29 +35,17 @@ export const MainNavigationMenu = () => {
       .catch(() => setCategories([]));
   }, []);
 
-  // Define categories as strings to match the icon mapping
-  const categoryList = [
-    "Electronics",
-    "Fashion",
-    "Home & Garden",
-    "Sports",
-    "Automotive",
-    "Beauty",
-  ];
-
   const categoryIcons = {
-    Electronics: Laptop,
-    Fashion: Shirt,
-    "Home & Garden": Home,
-    Sports: Gamepad2,
-    Automotive: Car,
-    Beauty: Gift,
+    "Điện thoại": Laptop,
+    Laptop: Laptop,
+    "Phụ kiện": Gift,
+    // ...bổ sung mapping nếu muốn
   };
 
   const quickLinks = [
-    { name: "New Arrivals", href: "/search?new=true", icon: TrendingUp },
-    { name: "Sale Items", href: "/search?discount=true", icon: Percent },
-    { name: "Gift Cards", href: "/gift-cards", icon: Gift },
+    { name: "Sản phẩm mới", href: "/search?type=new", icon: TrendingUp },
+    { name: "Sản phẩm hot", href: "/search?type=hot", icon: Flame },
+    { name: "Đang giảm giá", href: "/search?type=sale", icon: Percent },
   ];
 
   return (
@@ -76,9 +65,7 @@ export const MainNavigationMenu = () => {
                   <div className="space-y-2">
                     {categories.map((category) => {
                       const IconComponent =
-                        categoryIcons[
-                          category.name as keyof typeof categoryIcons
-                        ];
+                        categoryIcons[category.name] || Laptop;
                       return (
                         <NavigationMenuLink key={category.id} asChild>
                           <Link

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Star, ShoppingBag, Zap, Eye } from "lucide-react";
 import { getSecondImage } from "@/data/product-images";
-import { Product } from "@/data/products";
+import { Product } from "@/types/product";
 import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
 import { Heart } from "lucide-react";
@@ -100,7 +100,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           onMouseLeave={() => setIsHovered(false)}
         >
           <img
-            src={isHovered && secondImage ? secondImage : product.image}
+            src={isHovered && secondImage ? secondImage : product.image_url}
             alt={product.name}
             className="w-full h-64 object-cover transition-transform duration-500 hover:scale-105"
           />
@@ -171,12 +171,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                     ${(product.price * (1 - product.discount / 100)).toFixed(2)}
                   </p>
                   <p className="text-sm line-through text-muted-foreground">
-                    ${product.price.toFixed(2)}
+                    ${product.price}
                   </p>
                 </>
               ) : (
                 <p className="text-lg font-medium text-primary">
-                  ${product.price.toFixed(2)}
+                  ${product.price}
                 </p>
               )}
             </div>

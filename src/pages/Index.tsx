@@ -1,12 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  getFeaturedProducts,
-  getNewProducts,
-  getDiscountedProducts,
-  categories,
-} from "@/data/products";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import {
@@ -27,13 +21,108 @@ import ShopByCategory from "./ShopByCategory";
 import TrendingProducts from "./TrendingProducts";
 import WishlistButton from "@/components/products/WishlistButton";
 import { useCartNotificationContext } from "../App";
+import { productService } from "@/services/product.service";
+import { useEffect, useState } from "react";
+import { Product } from "@/types/product";
+
+// Định nghĩa type tạm cho response từ BE
+type ProductListResponse = { products: Product[] };
 
 const Index = () => {
-  const featuredProducts = getFeaturedProducts();
-  const newProducts = getNewProducts().slice(0, 4);
-  const discountedProducts = getDiscountedProducts().slice(0, 4);
+  // State cho các loại sản phẩm
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [newProducts, setNewProducts] = useState([]);
+  const [discountedProducts, setDiscountedProducts] = useState([]);
+  const [loading, setLoading] = useState({
+    featured: true,
+    new: true,
+    discount: true,
+  });
+  const [error, setError] = useState({
+    featured: null,
+    new: null,
+    discount: null,
+  });
   const { showCartNotification } = useCartNotificationContext();
-  
+
+  useEffect(() => {
+    // Lấy featured products (getAll)
+    const fetchFeatured = async () => {
+      setLoading((prev) => ({ ...prev, featured: true }));
+      try {
+        const res = await productService.getAll();
+        setFeaturedProducts(res.products || []);
+        setError((prev) => ({ ...prev, featured: null }));
+      } catch (err) {
+        setFeaturedProducts([]);
+        setError((prev) => ({
+          ...prev,
+          featured: "Không thể tải sản phẩm nổi bật",
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, featured: false }));
+      }
+    };
+    fetchFeatured();
+  }, []);
+
+  useEffect(() => {
+    // Lấy sản phẩm mới
+    const fetchNew = async () => {
+      setLoading((prev) => ({ ...prev, new: true }));
+      try {
+        const res = await productService.getNew();
+        if (Array.isArray(res)) {
+          setNewProducts(res);
+        } else if (
+          res &&
+          Array.isArray((res as ProductListResponse).products)
+        ) {
+          setNewProducts((res as ProductListResponse).products);
+        } else {
+          setNewProducts([]);
+        }
+        setError((prev) => ({ ...prev, new: null }));
+      } catch (err) {
+        setNewProducts([]);
+        setError((prev) => ({ ...prev, new: "Không thể tải sản phẩm mới" }));
+      } finally {
+        setLoading((prev) => ({ ...prev, new: false }));
+      }
+    };
+    fetchNew();
+  }, []);
+
+  useEffect(() => {
+    // Lấy sản phẩm giảm giá
+    const fetchDiscount = async () => {
+      setLoading((prev) => ({ ...prev, discount: true }));
+      try {
+        const res = await productService.getSale();
+        if (Array.isArray(res)) {
+          setDiscountedProducts(res);
+        } else if (
+          res &&
+          Array.isArray((res as ProductListResponse).products)
+        ) {
+          setDiscountedProducts((res as ProductListResponse).products);
+        } else {
+          setDiscountedProducts([]);
+        }
+        setError((prev) => ({ ...prev, discount: null }));
+      } catch (err) {
+        setDiscountedProducts([]);
+        setError((prev) => ({
+          ...prev,
+          discount: "Không thể tải sản phẩm giảm giá",
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, discount: false }));
+      }
+    };
+    fetchDiscount();
+  }, []);
+
   const handleQuickAddToCart = (product) => {
     showCartNotification(product);
   };
@@ -128,12 +217,17 @@ const Index = () => {
             <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {loading.featured ? (
+          <div>Đang tải sản phẩm nổi bật...</div>
+        ) : error.featured ? (
+          <div className="text-red-500">{error.featured}</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Discount Code Collector Section */}
@@ -166,35 +260,47 @@ const Index = () => {
               <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          <div className="space-y-4">
-            {newProducts.map((product) => (
-              <Link
-                key={product.id}
-                to={`/product/${product.id}`}
-                className="flex gap-4 p-4 rounded-lg hover:bg-white/50 dark:hover:bg-white/10 transition-colors group"
-              >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-16 h-16 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow"
-                />
-                <div className="flex-1">
-                  <h3 className="font-medium group-hover:text-primary transition-colors">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {product.category}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-primary">
-                    ${product.price.toFixed(2)}
-                  </p>
-                  <Badge className="mt-1 bg-green-500">NEW</Badge>
-                </div>
-              </Link>
-            ))}
-          </div>
+          {loading.new ? (
+            <div>Đang tải sản phẩm mới...</div>
+          ) : error.new ? (
+            <div className="text-red-500">{error.new}</div>
+          ) : (
+            <div className="space-y-4">
+              {newProducts.slice(0, 4).map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/product/${product.id}`}
+                  className="flex gap-4 p-4 rounded-lg hover:bg-white/50 dark:hover:bg-white/10 transition-colors group"
+                >
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-16 h-16 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-medium group-hover:text-primary transition-colors">
+                      {product.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {product.category_id}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-primary">
+                      {product.ProductPricing?.sale_price
+                        ? `₫${Number(
+                            product.ProductPricing.sale_price
+                          ).toLocaleString()}`
+                        : `₫${Number(
+                            product.ProductPricing?.base_price || product.price
+                          ).toLocaleString()}`}
+                    </p>
+                    <Badge className="mt-1 bg-green-500">NEW</Badge>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Special Offers */}
@@ -214,44 +320,55 @@ const Index = () => {
               <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          <div className="space-y-4">
-            {discountedProducts.map((product) => (
-              <Link
-                key={product.id}
-                to={`/product/${product.id}`}
-                className="flex gap-4 p-4 rounded-lg hover:bg-white/50 dark:hover:bg-white/10 transition-colors group"
-              >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-16 h-16 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow"
-                />
-                <div className="flex-1">
-                  <h3 className="font-medium group-hover:text-primary transition-colors">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {product.category}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-primary">
-                    $
-                    {(
-                      product.price *
-                      (1 - (product.discount || 0) / 100)
-                    ).toFixed(2)}
-                  </p>
-                  <p className="text-xs line-through text-muted-foreground">
-                    ${product.price.toFixed(2)}
-                  </p>
-                  <Badge className="mt-1 bg-red-500">
-                    {product.discount}% OFF
-                  </Badge>
-                </div>
-              </Link>
-            ))}
-          </div>
+          {loading.discount ? (
+            <div>Đang tải sản phẩm giảm giá...</div>
+          ) : error.discount ? (
+            <div className="text-red-500">{error.discount}</div>
+          ) : (
+            <div className="space-y-4">
+              {discountedProducts.slice(0, 4).map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/product/${product.id}`}
+                  className="flex gap-4 p-4 rounded-lg hover:bg-white/50 dark:hover:bg-white/10 transition-colors group"
+                >
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-16 h-16 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-medium group-hover:text-primary transition-colors">
+                      {product.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {product.category_id}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-primary">
+                      {product.ProductPricing?.sale_price
+                        ? `₫${Number(
+                            product.ProductPricing.sale_price
+                          ).toLocaleString()}`
+                        : `₫${Number(
+                            product.ProductPricing?.base_price || product.price
+                          ).toLocaleString()}`}
+                    </p>
+                    {product.ProductPricing?.sale_price && (
+                      <p className="text-xs line-through text-muted-foreground">
+                        ₫
+                        {Number(
+                          product.ProductPricing.base_price
+                        ).toLocaleString()}
+                      </p>
+                    )}
+                    <Badge className="mt-1 bg-red-500">SALE</Badge>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </div>
 

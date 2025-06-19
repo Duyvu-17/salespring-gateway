@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useWishlist } from "@/context/WishlistContext";
-import { getFeaturedProducts, getDiscountedProducts } from "@/data/products";
+import { productService } from "@/services/product.service";
 import { WishlistProductGrid } from "@/components/products/WishlistProductGrid";
 import { WishlistItem } from "@/types/wishlist";
 // import { WishlistProduct } from "@/utils/wishlist";
@@ -17,11 +17,34 @@ const Wishlist = () => {
   // Nếu wishlist là mảng (theo BE), còn nếu là object thì sửa lại cho phù hợp
   const items: WishlistItem[] = Array.isArray(wishlist) ? wishlist : [];
 
-  // Get recommended products to show in empty state
-  const recommendedProducts = [
-    ...getFeaturedProducts(),
-    ...getDiscountedProducts(),
-  ].slice(0, 4);
+  // State cho sản phẩm gợi ý
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [loadingRecommended, setLoadingRecommended] = useState(true);
+
+  useEffect(() => {
+    // Lấy sản phẩm nổi bật và giảm giá từ BE
+    const fetchRecommended = async () => {
+      setLoadingRecommended(true);
+      try {
+        const [featuredRes, saleRes] = await Promise.all([
+          productService.getAll(),
+          productService.getSale(),
+        ]);
+        let featured = Array.isArray(featuredRes)
+          ? featuredRes
+          : (featuredRes as any).products || [];
+        let sale = Array.isArray(saleRes)
+          ? saleRes
+          : (saleRes as any).products || [];
+        setRecommendedProducts([...featured, ...sale].slice(0, 4));
+      } catch (e) {
+        setRecommendedProducts([]);
+      } finally {
+        setLoadingRecommended(false);
+      }
+    };
+    fetchRecommended();
+  }, []);
 
   const handleRemoveFromWishlist = (item: WishlistItem) => {
     removeFromWishlist(String(item.id));
@@ -65,29 +88,40 @@ const Wishlist = () => {
                 VIEW ALL <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {recommendedProducts.map((product) => (
-                <Card
-                  key={product.id}
-                  className="overflow-hidden hover:shadow-md transition-all"
-                >
-                  <Link to={`/product/${product.id}`}>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-48 object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-4">
-                      <h3 className="font-medium">{product.name}</h3>
-                      <p className="text-primary font-semibold mt-1">
-                        ${product.price.toFixed(2)}
-                      </p>
-                    </div>
-                  </Link>
-                </Card>
-              ))}
-            </div>
+            {loadingRecommended ? (
+              <div>Đang tải sản phẩm gợi ý...</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {recommendedProducts.map((product) => (
+                  <Card
+                    key={product.id}
+                    className="overflow-hidden hover:shadow-md transition-all"
+                  >
+                    <Link to={`/product/${product.id}`}>
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-48 object-cover"
+                        loading="lazy"
+                      />
+                      <div className="p-4">
+                        <h3 className="font-medium">{product.name}</h3>
+                        <p className="text-primary font-semibold mt-1">
+                          {product.ProductPricing?.sale_price
+                            ? `₫${Number(
+                                product.ProductPricing.sale_price
+                              ).toLocaleString()}`
+                            : `₫${Number(
+                                product.ProductPricing?.base_price ||
+                                  product.price
+                              ).toLocaleString()}`}
+                        </p>
+                      </div>
+                    </Link>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       ) : (

@@ -27,4 +27,17 @@ export const API_ENDPOINTS = {
     UPDATE: 'categories',
     DELETE: 'categories',
   },
+  PRODUCT: {
+    GET: 'products',
+    HOT: 'products/hot',
+    SALE: 'products/sale',
+    NEW: 'products/new',
+    BY_CATEGORY: 'products/category',
+    BY_ID: 'products',
+    BY_SLUG: 'products/slug',
+    PRODUCT_VARIANTS: 'products/product-variants',
+    VARIANTS_BY_PRODUCT_ID: 'products',
+    PRODUCT_VARIANT_BY_ID: 'products/product-variants',
+    PRODUCT_VARIANT_BY_SKU: 'products/product-variants/sku',
+  },
 } as const; 
