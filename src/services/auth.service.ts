@@ -1,9 +1,10 @@
+import axios from 'axios';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
 import type { User, LoginResponse, RegisterResponse } from '@/types/auth';
 import { log } from 'console';
 
 class AuthService {
-  private getAuthHeader(): HeadersInit {
+  private getAuthHeader(): Record<string, string> {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
@@ -11,20 +12,21 @@ class AuthService {
   private async refreshToken(): Promise<string> {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) throw new Error('No refresh token');
-    const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
-    if (!response.ok) {
-      throw new Error('Refresh token failed');
+    try {
+      const { data } = await axios.post(
+        `${API_URL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
+        { refreshToken },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        return data.token;
+      }
+      throw new Error('No token in refresh response');
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Refresh token failed');
     }
-    const data = await response.json();
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      return data.token;
-    }
-    throw new Error('No token in refresh response');
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -86,79 +88,65 @@ class AuthService {
 
   async login(email: string, password: string): Promise<User> {
     try {
-      const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-      
+      const { data } = await axios.post(
+        `${API_URL}${API_ENDPOINTS.AUTH.LOGIN}`,
+        { email, password },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
       localStorage.setItem('token', data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('user', JSON.stringify(data.user)); 
+      localStorage.setItem('user', JSON.stringify(data.user));
       if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
-      
       return data.user;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Email hoặc mật khẩu không đúng');
     }
   }
 
   async register(full_name: string, email: string, password: string): Promise<User> {
     try {
-      const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.REGISTER}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ full_name, email, password }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-      
+      const { data } = await axios.post(
+        `${API_URL}${API_ENDPOINTS.AUTH.REGISTER}`,
+        { full_name, email, password },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
       localStorage.setItem('token', data.token);
       localStorage.setItem('isLoggedIn', 'true');
       if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
-      
       return data.user;
-    } catch (error) {
-      console.error('Register error:', error);
-      throw error;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Có lỗi xảy ra khi đăng ký tài khoản');
     }
   }
 
   async logout(): Promise<void> {
     try {
-      await this.request(API_ENDPOINTS.AUTH.LOGOUT, {
-        method: 'POST',
-      });
+      await axios.post(
+        `${API_URL}${API_ENDPOINTS.AUTH.LOGOUT}`,
+        {},
+        { headers: { ...this.getAuthHeader(), 'Content-Type': 'application/json' } }
+      );
     } finally {
       this.clearAuthData();
     }
   }
 
   async loginWithGoogle(idToken: string): Promise<User> {
-    const data = await this.request<LoginResponse>(API_ENDPOINTS.AUTH.GOOGLE, {
-      method: 'POST',
-      body: JSON.stringify({ idToken }), 
-    });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('isLoggedIn', 'true');
-    return data.user;
+    try {
+      const { data } = await axios.post(
+        `${API_URL}${API_ENDPOINTS.AUTH.GOOGLE}`,
+        { idToken },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('isLoggedIn', 'true');
+      return data.user;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Đăng nhập Google thất bại');
+    }
   }
 
   async getCurrentUser(): Promise<User | null> {
@@ -168,42 +156,23 @@ class AuthService {
         this.clearAuthData();
         return null;
       }
-
-      const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.ME}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        if (response.status === 401) {
-          this.clearAuthData();
-          throw new Error(`401: Unauthorized`);
-        }
-        throw new Error(`${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-      
+      const { data } = await axios.get(
+        `${API_URL}${API_ENDPOINTS.AUTH.ME}`,
+        { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
+      );
       // Kiểm tra format của response - có thể là { user: User } hoặc User trực tiếp
       let userData = null;
       if (data && data.user) {
-        // Format: { user: User }
         userData = data.user;
       } else if (data && data.id && data.email) {
-        // Format: User trực tiếp
         userData = data;
       } else {
         return null;
       }
-
       return userData;
-    } catch (error) {
-      console.error('Error getting current user:', error);
-      // Chỉ clear auth data nếu lỗi là 401 (unauthorized)
-      if (error instanceof Error && error.message.includes('401')) {
+    } catch (error: unknown) {
+      const err = error as any;
+      if (err.response?.status === 401) {
         this.clearAuthData();
       }
       return null;

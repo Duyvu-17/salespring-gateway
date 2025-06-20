@@ -69,27 +69,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const userData = await authService.login(email, password);
-      // Kiểm tra phản hồi từ authService trước khi setUser và toast
-      if (userData && userData.id) {
-        setUser(userData);
-        toast({
-          title: "Đăng nhập thành công",
-          description: "Chào mừng bạn quay trở lại!",
-        });
-        navigate("/");
-      } else {
-        throw new Error("Email hoặc mật khẩu không chính xác");
+      setUser(userData);
+    } catch (error: any) {
+      console.error("Lỗi đăng nhập:", error.message);
+
+      // Ưu tiên lấy message từ response của backend nếu có
+      let errorMsg = "Email hoặc mật khẩu không chính xác";
+      if (error?.response) {
+        // Nếu dùng axios hoặc fetch có custom, có thể lấy error.response.data.message
+        errorMsg = error.response.data?.message || errorMsg;
+      } else if (error?.message) {
+        // Nếu throw error với message là JSON string
+        try {
+          const parsed = JSON.parse(error.message);
+          if (parsed?.message) errorMsg = parsed.message;
+        } catch {
+          errorMsg = error.message;
+        }
       }
-    } catch (error) {
-      console.error("Lỗi đăng nhập:", error);
+
       toast({
         title: "Đăng nhập thất bại",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Email hoặc mật khẩu không chính xác",
+        description: errorMsg,
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -204,7 +208,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(userData);
 
       toast({
-        title: "Đăng nhập thành công",
+        title: "Đăng nhập thành công 22",
         description: "Chào mừng bạn quay trở lại!",
       });
 

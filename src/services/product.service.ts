@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Product, ProductVariant } from '@/types/product';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
 
@@ -12,70 +13,114 @@ type ProductQueryParams = Record<string, string | number>;
 
 class ProductService {
   async getAll(params?: ProductQueryParams): Promise<ProductListResponse> {
-    const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.GET}${query}`);
-    if (!res.ok) throw new Error('Không thể lấy danh sách sản phẩm');
-    return res.json();
+    try {
+      const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.GET}${query}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy danh sách sản phẩm');
+    }
   }
 
   async getById(id: number): Promise<Product> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_ID}/${id}`);
-    if (!res.ok) throw new Error('Không thể lấy chi tiết sản phẩm');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_ID}/${id}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy chi tiết sản phẩm');
+    }
   }
 
   async getBySlug(slug: string): Promise<Product> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_SLUG}/${slug}`);
-    if (!res.ok) throw new Error('Không thể lấy sản phẩm theo slug');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_SLUG}/${slug}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm theo slug');
+    }
   }
 
   async getHot(): Promise<Product[]> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.HOT}`);
-    if (!res.ok) throw new Error('Không thể lấy sản phẩm hot');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.HOT}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm hot');
+    }
   }
 
   async getSale(): Promise<Product[]> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.SALE}`);
-    if (!res.ok) throw new Error('Không thể lấy sản phẩm giảm giá');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.SALE}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm giảm giá');
+    }
   }
 
   async getNew(): Promise<Product[]> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.NEW}`);
-    if (!res.ok) throw new Error('Không thể lấy sản phẩm mới');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.NEW}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm mới');
+    }
   }
 
   async getByCategory(categoryId: number): Promise<Product[]> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_CATEGORY}/${categoryId}`);
-    if (!res.ok) throw new Error('Không thể lấy sản phẩm theo danh mục');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_CATEGORY}/${categoryId}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm theo danh mục');
+    }
   }
 
   async getAllVariants(): Promise<ProductVariant[]> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANTS}`);
-    if (!res.ok) throw new Error('Không thể lấy danh sách biến thể sản phẩm');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANTS}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy danh sách biến thể sản phẩm');
+    }
   }
 
   async getVariantsByProductId(productId: number): Promise<ProductVariant[]> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.VARIANTS_BY_PRODUCT_ID}/${productId}/variants`);
-    if (!res.ok) throw new Error('Không thể lấy biến thể theo sản phẩm');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.VARIANTS_BY_PRODUCT_ID}/${productId}/variants`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo sản phẩm');
+    }
   }
 
   async getVariantById(id: number): Promise<ProductVariant> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_ID}/${id}`);
-    if (!res.ok) throw new Error('Không thể lấy biến thể theo id');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_ID}/${id}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo id');
+    }
   }
 
   async getVariantBySku(sku: string): Promise<ProductVariant> {
-    const res = await fetch(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_SKU}/${sku}`);
-    if (!res.ok) throw new Error('Không thể lấy biến thể theo sku');
-    return res.json();
+    try {
+      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_SKU}/${sku}`);
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo sku');
+    }
   }
 }
 

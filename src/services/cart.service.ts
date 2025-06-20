@@ -1,73 +1,104 @@
+import axios from 'axios';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
-import type { Cart, Cart_items, AddToCartRequest, UpdateCartItemRequest, CartResponse } from '@/types/cart';
+import type { Cart, CartItem, AddToCartRequest, UpdateCartItemRequest, CartResponse } from '@/types/cart';
 
 class CartService {
-  private getAuthHeader(): HeadersInit {
-    const token = localStorage.getItem('token');
+  private getAuthHeader(): Record<string, string> {
+    const token = localStorage.getItem('token');  
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  async getCart(): Promise<Cart> {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...this.getAuthHeader(),
-          ...options.headers,
-        },
+      const { data } = await axios.get(`${API_URL}cart`, {
+        withCredentials: true,
+        headers: { ...this.getAuthHeader() },
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        if (response.status === 401) {
-          throw new Error(`401: ${error.message || 'Unauthorized'}`);
-        }
-        throw new Error(`${response.status}: ${error.message || 'Có lỗi xảy ra'}`);
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Cart API request error:', error);
-      throw error;
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Lỗi khi lấy giỏ hàng');
     }
   }
 
-  async getCart(): Promise<Cart> {
-    return this.request<Cart>(API_ENDPOINTS.CART.GET);
-  }
-
   async addToCart(productId: string, quantity: number = 1): Promise<Cart> {
-    const data = await this.request<CartResponse>(API_ENDPOINTS.CART.ADD_ITEM, {
-      method: 'POST',
-      body: JSON.stringify({ productId, quantity }),
-    });
-    return data.cart;
+    try {
+      const { data } = await axios.post(
+        `${API_URL}/cart/add`,
+        { productId, quantity },
+        {
+          withCredentials: true,
+          headers: { 'Content-Type': 'application/json', ...this.getAuthHeader() },
+        }
+      );
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Lỗi khi thêm vào giỏ hàng');
+    }
   }
 
   async updateCartItem(itemId: string, quantity: number): Promise<Cart> {
-    const data = await this.request<CartResponse>(`${API_ENDPOINTS.CART.UPDATE_ITEM}/${itemId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ quantity }),
-    });
-    return data.cart;
+    try {
+      const { data } = await axios.put(
+        `${API_URL}/cart/${itemId}`,
+        { quantity },
+        {
+          withCredentials: true,
+          headers: { 'Content-Type': 'application/json', ...this.getAuthHeader() },
+        }
+      );
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Lỗi khi cập nhật giỏ hàng');
+    }
   }
 
   async removeFromCart(itemId: string): Promise<Cart> {
-    const data = await this.request<CartResponse>(`${API_ENDPOINTS.CART.REMOVE_ITEM}/${itemId}`, {
-      method: 'DELETE',
-    });
-    return data.cart;
+    try {
+      const { data } = await axios.delete(`${API_URL}/cart/${itemId}`, {
+        withCredentials: true,
+        headers: { ...this.getAuthHeader() },
+      });
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Lỗi khi xóa sản phẩm khỏi giỏ hàng');
+    }
   }
 
   async clearCart(): Promise<void> {
-    await this.request(API_ENDPOINTS.CART.CLEAR, {
-      method: 'DELETE',
-    });
+    try {
+      await axios.delete(`${API_URL}/cart`, {
+        withCredentials: true,
+        headers: { ...this.getAuthHeader() },
+      });
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Lỗi khi xóa toàn bộ giỏ hàng');
+    }
+  }
+
+  async toggleCartItemSelection(itemId: string, selected: boolean): Promise<Cart> {
+    try {
+      const { data } = await axios.patch(
+        `${API_URL}/cart/${itemId}/toggle`,
+        { selected },
+        {
+          withCredentials: true,
+          headers: { 'Content-Type': 'application/json', ...this.getAuthHeader() },
+        }
+      );
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Lỗi khi chọn/bỏ chọn sản phẩm');
+    }
   }
 
   // Helper method để tính toán cart totals
-  calculateCartTotals(items: Cart_items[], discount: number = 0, shipping: number = 0) {
+  calculateCartTotals(items: CartItem[], discount: number = 0, shipping: number = 0) {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const total = subtotal - discount + shipping;
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);

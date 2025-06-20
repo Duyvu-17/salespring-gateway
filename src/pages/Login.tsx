@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
@@ -20,10 +20,10 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Get the redirect path from location state, or default to '/'
-  const from = location.state?.from || '/';
-  
+  const from = location.state?.from || "/";
+
   const validateEmail = (emailToValidate: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailToValidate) {
@@ -64,23 +64,21 @@ const Login = () => {
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
 
-    setErrors({ 
-      email: emailError, 
-      password: passwordError 
+    setErrors({
+      email: emailError,
+      password: passwordError,
     });
 
     if (!emailError && !passwordError) {
       try {
         await login(email, password);
         toast({
-          title: "Login Successful",
-          description: "Welcome back!",
+          title: "Đăng nhập thành công",
+          description: "Chào mừng bạn quay trở lại!",
         });
-        
-        // Redirect to the page the user was trying to access, or home
         navigate(from, { replace: true });
-      } catch (error) {
-        console.error("Lỗi đăng nhập:", error);
+      } catch (error: any) {
+        // Không cần hiện toast ở đây nữa vì đã hiện ở AuthContext
       }
     }
   };
@@ -92,15 +90,17 @@ const Login = () => {
       console.error("Lỗi đăng nhập với Google:", error);
     }
   };
-  
+
   return (
     <div className="container mx-auto px-4 py-16 min-h-[70vh] flex items-center justify-center">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
         <div className="text-center">
           <h1 className="text-3xl font-bold">Đăng nhập</h1>
-          <p className="text-muted-foreground mt-2">Chào mừng bạn quay trở lại</p>
+          <p className="text-muted-foreground mt-2">
+            Chào mừng bạn quay trở lại
+          </p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="flex items-center gap-2">
@@ -136,7 +136,9 @@ const Login = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={handlePasswordChange}
-                className={`pr-10 ${errors.password ? "border-destructive" : ""}`}
+                className={`pr-10 ${
+                  errors.password ? "border-destructive" : ""
+                }`}
                 required
               />
               <Button
@@ -161,7 +163,7 @@ const Login = () => {
               </div>
             )}
           </div>
-          
+
           <Button
             type="submit"
             className="w-full"
@@ -170,16 +172,18 @@ const Login = () => {
             {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
           </Button>
         </form>
-        
+
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <Separator className="w-full" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Hoặc</span>
+            <span className="bg-background px-2 text-muted-foreground">
+              Hoặc
+            </span>
           </div>
         </div>
-        
+
         <Button
           variant="outline"
           className="w-full"
@@ -195,7 +199,7 @@ const Login = () => {
           </svg>
           Đăng nhập với Google
         </Button>
-        
+
         <div className="text-center text-sm">
           Chưa có tài khoản?{" "}
           <Link to="/register" className="text-primary hover:underline">

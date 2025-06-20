@@ -1,27 +1,38 @@
-export interface Cart_items {
-  id: string;
-  productId: string;
-  productName: string;
-  productImage: string;
-  price: number;
+export interface ProductPricing {
+  base_price: string;
+  sale_price: string | null;
+}
+
+export interface ProductInventory {
   quantity: number;
-  maxQuantity?: number;
-  inStock: boolean;
+}
+
+export interface ProductInCart {
+  id: number;
+  name: string;
+  image_url: string | null;
+  description: string;
+  status: string;
+  ProductPricing: ProductPricing;
+  ProductInventory: ProductInventory;
+}
+
+export interface CartItem {
+  id: number;
+  user_id: number;
+  product_id: number;
+  quantity: number;
+  selected: boolean;
+  notes: string | null;
   createdAt: string;
   updatedAt: string;
+  Product: ProductInCart;
 }
 
 export interface Cart {
-  id: string;
-  userId: string;
-  cart_items: Cart_items[];
-  totalItems: number;
-  subtotal: number;
-  total: number;
-  discount?: number;
-  shipping?: number;
-  createdAt: string;
-  updatedAt: string;
+  cart_items: CartItem[];
+  total_items: number;
+  total_amount: number;
 }
 
 export interface AddToCartRequest {
