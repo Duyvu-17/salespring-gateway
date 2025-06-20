@@ -230,3 +230,5 @@ export const getSecondImage = (productId: number): string | null => {
 export const getProductImages = (productId: number): ProductImage[] => {
   return productImages.filter(img => img.productId === productId);
 };
+
+

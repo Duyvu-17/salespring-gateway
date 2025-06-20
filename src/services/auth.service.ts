@@ -8,6 +8,25 @@ class AuthService {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
+  private async refreshToken(): Promise<string> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) throw new Error('No refresh token');
+    const response = await fetch(`${API_URL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+    if (!response.ok) {
+      throw new Error('Refresh token failed');
+    }
+    const data = await response.json();
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      return data.token;
+    }
+    throw new Error('No token in refresh response');
+  }
+
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
       const response = await fetch(`${API_URL}${endpoint}`, {
@@ -22,9 +41,31 @@ class AuthService {
       if (!response.ok) {
         const error = await response.json();
         if (response.status === 401) {
-          // Token hết hạn hoặc không hợp lệ
-          this.clearAuthData();
-          throw new Error(`401: ${error.message || 'Unauthorized'}`);
+          // Token hết hạn hoặc không hợp lệ, thử refresh token
+          try {
+            const newToken = await this.refreshToken();
+            // Retry request với token mới
+            const retryResponse = await fetch(`${API_URL}${endpoint}`, {
+              ...options,
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${newToken}`,
+                ...options.headers,
+              },
+            });
+            if (!retryResponse.ok) {
+              if (retryResponse.status === 401) {
+                this.clearAuthData();
+                throw new Error('401: Unauthorized');
+              }
+              const retryError = await retryResponse.json();
+              throw new Error(`${retryResponse.status}: ${retryError.message || 'Có lỗi xảy ra'}`);
+            }
+            return retryResponse.json();
+          } catch (refreshError) {
+            this.clearAuthData();
+            throw new Error('401: Unauthorized');
+          }
         }
         throw new Error(`${response.status}: ${error.message || 'Có lỗi xảy ra'}`);
       }
@@ -40,6 +81,7 @@ class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
+    localStorage.removeItem('refreshToken');
   }
 
   async login(email: string, password: string): Promise<User> {
@@ -59,9 +101,10 @@ class AuthService {
 
       const data = await response.json();
       
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('user', JSON.stringify(data.user)); 
+      if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
       
       return data.user;
     } catch (error) {
@@ -89,6 +132,7 @@ class AuthService {
       
       localStorage.setItem('token', data.token);
       localStorage.setItem('isLoggedIn', 'true');
+      if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
       
       return data.user;
     } catch (error) {

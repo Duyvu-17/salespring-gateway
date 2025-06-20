@@ -2,11 +2,12 @@ export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/ap
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: 'users/login',
-    REGISTER: 'users/register',
-    LOGOUT: 'users/logout',
-    GOOGLE: 'users/google-login',
-    ME: 'users/me',
+    LOGIN: 'auth/login',
+    REGISTER: 'auth/register',
+    LOGOUT: 'auth/logout',
+    GOOGLE: 'auth/google',
+    ME: 'auth/me',
+    REFRESH_TOKEN: '/refresh-token',
   },
   CART: {
     GET: 'cart',

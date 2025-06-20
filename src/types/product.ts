@@ -45,6 +45,12 @@ export interface Product {
   supplier_id: number | null;
   createdAt: string;
   updatedAt: string;
+  images?: {
+    product_id: number;
+    variant_id: number | null;
+    is_main: boolean;
+    image_url: string;
+  }[];
   ProductInventory?: ProductInventory;
   ProductPricing?: ProductPricing;
   ProductIdentifier?: ProductIdentifier;

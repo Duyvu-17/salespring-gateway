@@ -1,5 +1,5 @@
 import { API_URL, API_ENDPOINTS } from '@/config/api';
-import type { Cart, CartItem, AddToCartRequest, UpdateCartItemRequest, CartResponse } from '@/types/cart';
+import type { Cart, Cart_items, AddToCartRequest, UpdateCartItemRequest, CartResponse } from '@/types/cart';
 
 class CartService {
   private getAuthHeader(): HeadersInit {
@@ -67,7 +67,7 @@ class CartService {
   }
 
   // Helper method để tính toán cart totals
-  calculateCartTotals(items: CartItem[], discount: number = 0, shipping: number = 0) {
+  calculateCartTotals(items: Cart_items[], discount: number = 0, shipping: number = 0) {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const total = subtotal - discount + shipping;
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
