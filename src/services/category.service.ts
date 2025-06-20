@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 import { Category } from '@/types/category';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
 
@@ -7,7 +7,7 @@ class CategoryService {
 
   async getAll(): Promise<Category[]> {
     try {
-      const { data } = await axios.get(`${API_URL}${this.endpoint}`);
+      const { data } = await axiosInstance.get(`${this.endpoint}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -17,7 +17,7 @@ class CategoryService {
 
   async getById(id: number): Promise<Category> {
     try {
-      const { data } = await axios.get(`${API_URL}${this.endpoint}/${id}`);
+      const { data } = await axiosInstance.get(`${this.endpoint}/${id}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -27,7 +27,7 @@ class CategoryService {
 
   async create(dataInput: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>): Promise<Category> {
     try {
-      const { data } = await axios.post(
+      const { data } = await axiosInstance.post(
         `${API_URL}${API_ENDPOINTS.CATEGORY.CREATE}`,
         dataInput,
         { headers: { 'Content-Type': 'application/json' } }
@@ -41,7 +41,7 @@ class CategoryService {
 
   async update(id: number, dataInput: Partial<Omit<Category, 'id'>>): Promise<Category> {
     try {
-      const { data } = await axios.put(
+      const { data } = await axiosInstance.put(
         `${API_URL}${API_ENDPOINTS.CATEGORY.UPDATE}/${id}`,
         dataInput,
         { headers: { 'Content-Type': 'application/json' } }
@@ -55,7 +55,7 @@ class CategoryService {
 
   async delete(id: number): Promise<void> {
     try {
-      await axios.delete(`${API_URL}${API_ENDPOINTS.CATEGORY.DELETE}/${id}`);
+      await axiosInstance.delete(`${API_URL}${API_ENDPOINTS.CATEGORY.DELETE}/${id}`);
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể xóa danh mục');

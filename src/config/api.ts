@@ -1,3 +1,5 @@
+import axiosInstance from "@/services/axiosInstance";
+
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 export const API_ENDPOINTS = {
@@ -8,6 +10,8 @@ export const API_ENDPOINTS = {
     GOOGLE: 'auth/google',
     ME: 'auth/me',
     REFRESH_TOKEN: '/refresh-token',
+    RESET_PASSWORD: 'auth/reset-password',
+    FORGOT_PASSWORD: 'auth/forgot-password',
   },
   CART: {
     GET: 'cart',
@@ -42,3 +46,16 @@ export const API_ENDPOINTS = {
     PRODUCT_VARIANT_BY_SKU: 'products/product-variants/sku',
   },
 } as const; 
+
+async function resetPassword(token: string, newPassword: string): Promise<any> {
+  try {
+    const { data } = await axiosInstance.post(
+      `${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
+      { token, newPassword }
+    );
+    return data;
+  } catch (error: unknown) {
+    const err = error as any;
+    throw new Error(err.response?.data?.message || 'Đổi mật khẩu thất bại');
+  }
+} 

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 import { Product, ProductVariant } from '@/types/product';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
 
@@ -15,7 +15,7 @@ class ProductService {
   async getAll(params?: ProductQueryParams): Promise<ProductListResponse> {
     try {
       const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.GET}${query}`);
+      const { data } = await axiosInstance.get(`${API_ENDPOINTS.PRODUCT.GET}${query}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -25,7 +25,7 @@ class ProductService {
 
   async getById(id: number): Promise<Product> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_ID}/${id}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_ID}/${id}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -35,7 +35,7 @@ class ProductService {
 
   async getBySlug(slug: string): Promise<Product> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_SLUG}/${slug}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_SLUG}/${slug}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -45,7 +45,7 @@ class ProductService {
 
   async getHot(): Promise<Product[]> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.HOT}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.HOT}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -55,7 +55,7 @@ class ProductService {
 
   async getSale(): Promise<Product[]> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.SALE}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.SALE}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -65,7 +65,7 @@ class ProductService {
 
   async getNew(): Promise<Product[]> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.NEW}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.NEW}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -75,7 +75,7 @@ class ProductService {
 
   async getByCategory(categoryId: number): Promise<Product[]> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_CATEGORY}/${categoryId}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_CATEGORY}/${categoryId}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -85,7 +85,7 @@ class ProductService {
 
   async getAllVariants(): Promise<ProductVariant[]> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANTS}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANTS}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -95,7 +95,7 @@ class ProductService {
 
   async getVariantsByProductId(productId: number): Promise<ProductVariant[]> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.VARIANTS_BY_PRODUCT_ID}/${productId}/variants`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.VARIANTS_BY_PRODUCT_ID}/${productId}/variants`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -105,7 +105,7 @@ class ProductService {
 
   async getVariantById(id: number): Promise<ProductVariant> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_ID}/${id}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_ID}/${id}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;
@@ -115,7 +115,7 @@ class ProductService {
 
   async getVariantBySku(sku: string): Promise<ProductVariant> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_SKU}/${sku}`);
+      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_SKU}/${sku}`);
       return data;
     } catch (error: unknown) {
       const err = error as any;

@@ -229,6 +229,11 @@ const Register = () => {
             Đăng nhập ngay
           </Link>
         </div>
+        <div className="text-center text-sm mt-2">
+          <Link to="/forgot-password" className="text-primary hover:underline">
+            Quên mật khẩu?
+          </Link>
+        </div>
       </div>
     </div>
   );

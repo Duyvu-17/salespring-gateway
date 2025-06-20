@@ -162,6 +162,14 @@ const Login = () => {
                 {errors.password}
               </div>
             )}
+            <div className="text-right mt-1">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-primary hover:underline"
+              >
+                Quên mật khẩu?
+              </Link>
+            </div>
           </div>
 
           <Button

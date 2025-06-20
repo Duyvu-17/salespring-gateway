@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
 import type { Cart, CartItem, AddToCartRequest, UpdateCartItemRequest, CartResponse } from '@/types/cart';
 
@@ -10,7 +10,7 @@ class CartService {
 
   async getCart(): Promise<Cart> {
     try {
-      const { data } = await axios.get(`${API_URL}cart`, {
+      const { data } = await axiosInstance.get(`cart`, {
         withCredentials: true,
         headers: { ...this.getAuthHeader() },
       });
@@ -23,7 +23,7 @@ class CartService {
 
   async addToCart(productId: string, quantity: number = 1): Promise<Cart> {
     try {
-      const { data } = await axios.post(
+      const { data } = await axiosInstance.post(
         `${API_URL}/cart/add`,
         { productId, quantity },
         {
@@ -40,7 +40,7 @@ class CartService {
 
   async updateCartItem(itemId: string, quantity: number): Promise<Cart> {
     try {
-      const { data } = await axios.put(
+      const { data } = await axiosInstance.put(
         `${API_URL}/cart/${itemId}`,
         { quantity },
         {
@@ -57,7 +57,7 @@ class CartService {
 
   async removeFromCart(itemId: string): Promise<Cart> {
     try {
-      const { data } = await axios.delete(`${API_URL}/cart/${itemId}`, {
+      const { data } = await axiosInstance.delete(`${API_URL}/cart/${itemId}`, {
         withCredentials: true,
         headers: { ...this.getAuthHeader() },
       });
@@ -70,7 +70,7 @@ class CartService {
 
   async clearCart(): Promise<void> {
     try {
-      await axios.delete(`${API_URL}/cart`, {
+      await axiosInstance.delete(`${API_URL}/cart`, {
         withCredentials: true,
         headers: { ...this.getAuthHeader() },
       });
@@ -82,7 +82,7 @@ class CartService {
 
   async toggleCartItemSelection(itemId: string, selected: boolean): Promise<Cart> {
     try {
-      const { data } = await axios.patch(
+      const { data } = await axiosInstance.patch(
         `${API_URL}/cart/${itemId}/toggle`,
         { selected },
         {

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
 import type { User, LoginResponse, RegisterResponse } from '@/types/auth';
 import { log } from 'console';
@@ -13,8 +13,8 @@ class AuthService {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) throw new Error('No refresh token');
     try {
-      const { data } = await axios.post(
-        `${API_URL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
+      const { data } = await axiosInstance.post(
+        `${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
         { refreshToken },
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -88,10 +88,9 @@ class AuthService {
 
   async login(email: string, password: string): Promise<User> {
     try {
-      const { data } = await axios.post(
-        `${API_URL}${API_ENDPOINTS.AUTH.LOGIN}`,
-        { email, password },
-        { headers: { 'Content-Type': 'application/json' } }
+      const { data } = await axiosInstance.post(
+        `${API_ENDPOINTS.AUTH.LOGIN}`,
+        { email, password }
       );
       localStorage.setItem('token', data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
@@ -106,8 +105,8 @@ class AuthService {
 
   async register(full_name: string, email: string, password: string): Promise<User> {
     try {
-      const { data } = await axios.post(
-        `${API_URL}${API_ENDPOINTS.AUTH.REGISTER}`,
+      const { data } = await axiosInstance.post(
+        `${API_ENDPOINTS.AUTH.REGISTER}`,
         { full_name, email, password },
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -123,8 +122,8 @@ class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await axios.post(
-        `${API_URL}${API_ENDPOINTS.AUTH.LOGOUT}`,
+      await axiosInstance.post(
+        `${API_ENDPOINTS.AUTH.LOGOUT}`,
         {},
         { headers: { ...this.getAuthHeader(), 'Content-Type': 'application/json' } }
       );
@@ -135,8 +134,8 @@ class AuthService {
 
   async loginWithGoogle(idToken: string): Promise<User> {
     try {
-      const { data } = await axios.post(
-        `${API_URL}${API_ENDPOINTS.AUTH.GOOGLE}`,
+      const { data } = await axiosInstance.post(
+        `${API_ENDPOINTS.AUTH.GOOGLE}`,
         { idToken },
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -156,8 +155,8 @@ class AuthService {
         this.clearAuthData();
         return null;
       }
-      const { data } = await axios.get(
-        `${API_URL}${API_ENDPOINTS.AUTH.ME}`,
+      const { data } = await axiosInstance.get(
+        `${API_ENDPOINTS.AUTH.ME}`,
         { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
       );
       // Kiểm tra format của response - có thể là { user: User } hoặc User trực tiếp
@@ -176,6 +175,32 @@ class AuthService {
         this.clearAuthData();
       }
       return null;
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<any> {
+    try {
+      const { data } = await axiosInstance.post(
+        `${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
+        { token, newPassword }
+      );
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Đổi mật khẩu thất bại');
+    }
+  }
+
+  async forgotPassword(email: string): Promise<any> {
+    try {
+      const { data } = await axiosInstance.post(
+        `${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
+        { email }
+      );
+      return data;
+    } catch (error: unknown) {
+      const err = error as any;
+      throw new Error(err.response?.data?.message || 'Không thể gửi email quên mật khẩu');
     }
   }
 }

@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const forgotPassword = async (email: string) => {
     setIsLoading(true);
     try {
-      // TODO: Implement forgot password
+      await authService.forgotPassword(email);
       toast({
         title: "Email đã được gửi",
         description: "Vui lòng kiểm tra hộp thư của bạn",
@@ -162,7 +162,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Lỗi quên mật khẩu:", error);
       toast({
         title: "Lỗi",
-        description: "Không thể gửi email. Vui lòng thử lại sau.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Không thể gửi email. Vui lòng thử lại sau.",
         variant: "destructive",
       });
     } finally {

@@ -1,16 +1,16 @@
-
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { Label } from '@/components/ui/label';
-import { Lock, Check, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
+import { Lock, Check, AlertTriangle, ArrowLeft } from "lucide-react";
+import { authService } from "@/services/auth.service";
 
 const ResetPassword = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [token, setToken] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [token, setToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [tokenError, setTokenError] = useState(false);
@@ -21,8 +21,8 @@ const ResetPassword = () => {
   useEffect(() => {
     // Extract token from URL query parameters
     const params = new URLSearchParams(location.search);
-    const tokenParam = params.get('token');
-    
+    const tokenParam = params.get("token");
+
     if (tokenParam) {
       setToken(tokenParam);
     } else {
@@ -32,7 +32,7 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!password || !confirmPassword) {
       toast({
         title: "Error",
@@ -41,7 +41,7 @@ const ResetPassword = () => {
       });
       return;
     }
-    
+
     if (password !== confirmPassword) {
       toast({
         title: "Error",
@@ -50,7 +50,7 @@ const ResetPassword = () => {
       });
       return;
     }
-    
+
     if (password.length < 8) {
       toast({
         title: "Error",
@@ -59,29 +59,27 @@ const ResetPassword = () => {
       });
       return;
     }
-    
+
     setIsLoading(true);
-    
-    // Simulate API call
+
     try {
-      // In a real app, you would call your backend to reset the password
-      // For demo, we'll just simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await authService.resetPassword(token, password);
       setIsSuccess(true);
       toast({
         title: "Success",
         description: "Your password has been reset successfully",
       });
-      
-      // Redirect to login after 3 seconds
       setTimeout(() => {
-        navigate('/login');
+        navigate("/login");
       }, 3000);
-    } catch (error) {
+    } catch (error: unknown) {
+      let message = "Failed to reset password. Please try again.";
+      if (error && typeof error === "object" && "message" in error) {
+        message = (error as { message?: string }).message || message;
+      }
       toast({
         title: "Error",
-        description: "Failed to reset password. Please try again.",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -100,17 +98,17 @@ const ResetPassword = () => {
               The password reset link is invalid or has expired.
             </p>
           </div>
-          
+
           <div className="space-y-4">
             <p className="text-center">
               Please request a new password reset link.
             </p>
-            
+
             <div className="flex justify-center">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="mt-4"
-                onClick={() => navigate('/forgot-password')}
+                onClick={() => navigate("/forgot-password")}
               >
                 Request New Link
               </Button>
@@ -127,12 +125,12 @@ const ResetPassword = () => {
         <div className="text-center">
           <h1 className="text-3xl font-bold">Set New Password</h1>
           <p className="text-muted-foreground mt-2">
-            {!isSuccess 
-              ? "Create a new password for your account" 
+            {!isSuccess
+              ? "Create a new password for your account"
               : "Your password has been reset successfully"}
           </p>
         </div>
-        
+
         {!isSuccess ? (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -152,9 +150,12 @@ const ResetPassword = () => {
                 Must be at least 8 characters long
               </p>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="flex items-center gap-2">
+              <Label
+                htmlFor="confirmPassword"
+                className="flex items-center gap-2"
+              >
                 <Lock className="h-4 w-4" />
                 Confirm Password
               </Label>
@@ -167,7 +168,7 @@ const ResetPassword = () => {
                 required
               />
             </div>
-            
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Resetting..." : "Reset Password"}
             </Button>
@@ -177,14 +178,18 @@ const ResetPassword = () => {
             <div className="bg-green-50 border border-green-200 rounded-md p-4 text-center">
               <Check className="mx-auto h-8 w-8 text-green-500 mb-2" />
               <p className="text-green-800">
-                Your password has been reset successfully. You will be redirected to the login page.
+                Your password has been reset successfully. You will be
+                redirected to the login page.
               </p>
             </div>
           </div>
         )}
-        
+
         <div className="text-center">
-          <Link to="/login" className="inline-flex items-center text-sm text-primary hover:underline">
+          <Link
+            to="/login"
+            className="inline-flex items-center text-sm text-primary hover:underline"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Sign In
           </Link>

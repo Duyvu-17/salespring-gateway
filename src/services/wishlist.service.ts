@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
 import type { WishlistItem, AddToWishlistRequest, WishlistResponse } from '@/types/wishlist';
 
@@ -10,7 +10,7 @@ class WishlistService {
 
   async getWishlist(): Promise<WishlistResponse> {
     try {
-      const { data } = await axios.get(`${API_URL}${API_ENDPOINTS.WISHLIST.GET}`, {
+      const { data } = await axiosInstance.get(`${API_ENDPOINTS.WISHLIST.GET}`, {
         headers: { ...this.getAuthHeader() },
       });
       return data;
@@ -22,7 +22,7 @@ class WishlistService {
 
   async addToWishlist(productId: string): Promise<WishlistResponse> {
     try {
-      const { data } = await axios.post(
+      const { data } = await axiosInstance.post(
         `${API_URL}${API_ENDPOINTS.WISHLIST.ADD_ITEM}`,
         { productId },
         { headers: { 'Content-Type': 'application/json', ...this.getAuthHeader() } }
@@ -36,7 +36,7 @@ class WishlistService {
 
   async removeFromWishlist(itemId: string): Promise<WishlistResponse> {
     try {
-      const { data } = await axios.delete(`${API_URL}${API_ENDPOINTS.WISHLIST.REMOVE_ITEM}/${itemId}`, {
+      const { data } = await axiosInstance.delete(`${API_URL}${API_ENDPOINTS.WISHLIST.REMOVE_ITEM}/${itemId}`, {
         headers: { ...this.getAuthHeader() },
       });
       return data;
@@ -48,7 +48,7 @@ class WishlistService {
 
   async clearWishlist(): Promise<void> {
     try {
-      await axios.delete(`${API_URL}${API_ENDPOINTS.WISHLIST.CLEAR}`, {
+      await axiosInstance.delete(`${API_URL}${API_ENDPOINTS.WISHLIST.CLEAR}`, {
         headers: { ...this.getAuthHeader() },
       });
     } catch (error: unknown) {
