@@ -80,12 +80,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     e.stopPropagation();
 
     toast({
-      title: "Quick Buy",
-      description: `${product.name} has been added to cart. Redirecting to checkout...`,
+      title: "Mua nhanh",
+      description: `${product.name} đã được thêm vào giỏ hàng. Đang chuyển đến trang thanh toán...`,
     });
 
-    // In a real implementation, you would add the product to cart first
-    // Then redirect to checkout
+    // Thực tế nên thêm sản phẩm vào giỏ trước khi chuyển trang
     setTimeout(() => {
       navigate("/checkout");
     }, 1000);
@@ -125,6 +124,26 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               />
             </button>
           </div>
+          {isHovered && (
+            <div className="absolute bottom-4 left-0 right-0 mx-auto flex justify-center space-x-2 animate-fade-in">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="bg-white/80 hover:bg-white text-gray-800"
+                onClick={handleQuickView}
+              >
+                <Eye className="h-4 w-4 mr-1" /> Xem nhanh
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="bg-primary/90 hover:bg-primary text-white"
+                onClick={handleQuickBuy}
+              >
+                <Zap className="h-4 w-4 mr-1" /> Mua nhanh
+              </Button>
+            </div>
+          )}
         </div>
         <div className="p-6 flex flex-col flex-1">
           <div className="flex justify-between items-start">
