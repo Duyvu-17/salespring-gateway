@@ -63,7 +63,7 @@ export const MainNavigationMenu = () => {
                     Shop by Category
                   </h4>
                   <div className="space-y-2">
-                    {categories.map((category) => {
+                    {categories?.map((category) => {
                       const IconComponent =
                         categoryIcons[category.name] || Laptop;
                       return (

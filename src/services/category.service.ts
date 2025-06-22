@@ -8,7 +8,7 @@ class CategoryService {
   async getAll(): Promise<Category[]> {
     try {
       const { data } = await axiosInstance.get(`${this.endpoint}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy danh sách danh mục');

@@ -1,42 +1,41 @@
-
-import React, { useState } from 'react';
-import { 
-  Star, 
-  MessageCircle, 
-  Image as ImageIcon, 
-  Send, 
-  Reply, 
-  ThumbsUp, 
+import React, { useState } from "react";
+import {
+  Star,
+  MessageCircle,
+  Image as ImageIcon,
+  Send,
+  Reply,
+  ThumbsUp,
   User,
   Upload,
-  X
-} from 'lucide-react';
-import { UserReview, Reply as ReplyType } from '@/data/products';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { useToast } from '@/hooks/use-toast';
+  X,
+} from "lucide-react";
+import { UserReview, Reply as ReplyType } from "@/data/products";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 
 interface ReviewSectionProps {
   productId: number;
   reviews: UserReview[];
-  onAddReview: (review: Omit<UserReview, 'id'>) => void;
-  onAddReply: (reviewId: number, reply: Omit<ReplyType, 'id'>) => void;
+  onAddReview: (review: Omit<UserReview, "id">) => void;
+  onAddReply: (reviewId: number, reply: Omit<ReplyType, "id">) => void;
 }
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ 
-  productId, 
-  reviews, 
-  onAddReview, 
-  onAddReply 
+const ReviewSection: React.FC<ReviewSectionProps> = ({
+  productId,
+  reviews,
+  onAddReview,
+  onAddReply,
 }) => {
-  const [newReview, setNewReview] = useState('');
+  const [newReview, setNewReview] = useState("");
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
-  const [newReply, setNewReply] = useState('');
+  const [newReply, setNewReply] = useState("");
   const [rating, setRating] = useState(5);
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
@@ -48,25 +47,27 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       toast({
         title: "Quá nhiều ảnh",
         description: "Bạn chỉ có thể tải lên tối đa 3 ảnh cho mỗi đánh giá",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     setImages(files);
-    
+
     // Create preview URLs
-    const newImageUrls = files.map(file => URL.createObjectURL(file));
+    const newImageUrls = files.map((file) => URL.createObjectURL(file));
     setImagePreviewUrls(newImageUrls);
   };
 
   const removeImage = (indexToRemove: number) => {
     const newImages = images.filter((_, index) => index !== indexToRemove);
-    const newImageUrls = imagePreviewUrls.filter((_, index) => index !== indexToRemove);
-    
+    const newImageUrls = imagePreviewUrls.filter(
+      (_, index) => index !== indexToRemove
+    );
+
     // Revoke the URL to free memory
     URL.revokeObjectURL(imagePreviewUrls[indexToRemove]);
-    
+
     setImages(newImages);
     setImagePreviewUrls(newImageUrls);
   };
@@ -80,16 +81,17 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     onAddReview({
       userId: "current-user",
       userName: "Người dùng hiện tại",
-      userAvatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&q=80",
+      userAvatar:
+        "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&q=80",
       rating,
       comment: newReview,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
       images: imagePreviewUrls,
-      replies: []
+      replies: [],
     });
 
     // Reset form
-    setNewReview('');
+    setNewReview("");
     setRating(5);
     setImages([]);
     setImagePreviewUrls([]);
@@ -106,19 +108,20 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     onAddReply(reviewId, {
       userId: "current-user",
       userName: "Current User",
-      userAvatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&q=80",
+      userAvatar:
+        "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&q=80",
       comment: newReply,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
     });
 
-    setNewReply('');
+    setNewReply("");
     setReplyingTo(null);
   };
 
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Đánh giá của khách hàng</h2>
-      
+
       {/* Add Review Form */}
       <Card>
         <CardContent className="p-6">
@@ -145,7 +148,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 ))}
               </div>
             </div>
-            
+
             <div>
               <Label htmlFor="comment">Đánh giá của bạn</Label>
               <Textarea
@@ -158,7 +161,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="images">Thêm ảnh (tùy chọn)</Label>
               <div className="mt-2 space-y-4">
@@ -188,7 +191,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Image Previews */}
                 {imagePreviewUrls.length > 0 && (
                   <div className="space-y-2">
@@ -217,7 +220,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 )}
               </div>
             </div>
-            
+
             <Button type="submit" className="w-full">
               <MessageCircle className="mr-2 h-4 w-4" />
               Gửi đánh giá
@@ -225,22 +228,26 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
           </form>
         </CardContent>
       </Card>
-      
+
       {/* Reviews List */}
       <div className="space-y-6">
         {reviews.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
-            Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ trải nghiệm của bạn!
+            Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ trải nghiệm của
+            bạn!
           </p>
         ) : (
-          reviews.map((review) => (
+          reviews?.map((review) => (
             <Card key={review.id} className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-3">
                     <Avatar>
                       {review.userAvatar ? (
-                        <AvatarImage src={review.userAvatar} alt={review.userName} />
+                        <AvatarImage
+                          src={review.userAvatar}
+                          alt={review.userName}
+                        />
                       ) : (
                         <AvatarFallback>
                           <User className="h-4 w-4" />
@@ -269,9 +276,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     ))}
                   </div>
                 </div>
-                
+
                 <p className="mt-4">{review.comment}</p>
-                
+
                 {review.images && review.images.length > 0 && (
                   <div className="flex space-x-2 mt-4 overflow-x-auto pb-2">
                     {review.images.map((image, index) => (
@@ -280,12 +287,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                         src={image}
                         alt={`Review ${index + 1}`}
                         className="h-24 w-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => window.open(image, '_blank')}
+                        onClick={() => window.open(image, "_blank")}
                       />
                     ))}
                   </div>
                 )}
-                
+
                 <div className="flex items-center justify-between mt-4">
                   <Button
                     variant="ghost"
@@ -295,25 +302,27 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                         setReplyingTo(null);
                       } else {
                         setReplyingTo(review.id);
-                        setNewReply('');
+                        setNewReply("");
                       }
                     }}
                   >
                     <Reply className="mr-1 h-4 w-4" />
                     Trả lời
                   </Button>
-                  
+
                   <Button variant="ghost" size="sm">
                     <ThumbsUp className="mr-1 h-4 w-4" />
                     Hữu ích
                   </Button>
                 </div>
-                
+
                 {replyingTo === review.id && (
                   <div className="mt-4 flex items-start space-x-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&q=80" />
-                      <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
+                      <AvatarFallback>
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <Textarea
@@ -324,10 +333,17 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                         rows={2}
                       />
                       <div className="flex justify-end mt-2 space-x-2">
-                        <Button size="sm" variant="ghost" onClick={() => setReplyingTo(null)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setReplyingTo(null)}
+                        >
                           Hủy
                         </Button>
-                        <Button size="sm" onClick={() => handleSubmitReply(review.id)}>
+                        <Button
+                          size="sm"
+                          onClick={() => handleSubmitReply(review.id)}
+                        >
                           <Send className="mr-1 h-3 w-3" />
                           Trả lời
                         </Button>
@@ -335,7 +351,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     </div>
                   </div>
                 )}
-                
+
                 {/* Replies */}
                 {review.replies && review.replies.length > 0 && (
                   <div className="mt-4 space-y-4">
@@ -346,7 +362,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                           <div className="flex items-center space-x-3">
                             <Avatar className="h-6 w-6">
                               {reply.userAvatar ? (
-                                <AvatarImage src={reply.userAvatar} alt={reply.userName} />
+                                <AvatarImage
+                                  src={reply.userAvatar}
+                                  alt={reply.userName}
+                                />
                               ) : (
                                 <AvatarFallback>
                                   <User className="h-3 w-3" />
@@ -354,7 +373,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                               )}
                             </Avatar>
                             <div>
-                              <h5 className="font-semibold text-sm">{reply.userName}</h5>
+                              <h5 className="font-semibold text-sm">
+                                {reply.userName}
+                              </h5>
                               <div className="text-xs text-muted-foreground">
                                 {reply.date}
                               </div>

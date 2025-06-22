@@ -45,6 +45,11 @@ export const API_ENDPOINTS = {
     PRODUCT_VARIANT_BY_ID: 'products/product-variants',
     PRODUCT_VARIANT_BY_SKU: 'products/product-variants/sku',
   },
+  PRODUCT_REVIEW: {
+    BASE: 'product-reviews',
+    REVIEWS: 'reviews',
+    REPLIES: 'replies'
+  },
 } as const; 
 
 async function resetPassword(token: string, newPassword: string): Promise<any> {

@@ -12,6 +12,10 @@ import {
   ShoppingBag,
   ChevronRight,
   ArrowRight,
+  Flame,
+  Clock,
+  Percent,
+  Sparkles,
 } from "lucide-react";
 import { ProductCard } from "@/components/products/ProductCard";
 import { DiscountCollector } from "@/components/discount/DiscountCollector";
@@ -30,18 +34,21 @@ type ProductListResponse = { products: Product[] };
 
 const Index = () => {
   // State cho các loại sản phẩm
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [newProducts, setNewProducts] = useState([]);
-  const [discountedProducts, setDiscountedProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [hotProducts, setHotProducts] = useState<Product[]>([]);
+  const [newProducts, setNewProducts] = useState<Product[]>([]);
+  const [saleProducts, setSaleProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState({
     featured: true,
+    hot: true,
     new: true,
-    discount: true,
+    sale: true,
   });
   const [error, setError] = useState({
     featured: null,
+    hot: null,
     new: null,
-    discount: null,
+    sale: null,
   });
   const { showCartNotification } = useCartNotificationContext();
 
@@ -64,6 +71,24 @@ const Index = () => {
       }
     };
     fetchFeatured();
+  }, []);
+
+  useEffect(() => {
+    // Lấy sản phẩm hot
+    const fetchHot = async () => {
+      setLoading((prev) => ({ ...prev, hot: true }));
+      try {
+        const res = await productService.getHot();
+        setHotProducts(Array.isArray(res) ? res : []);
+        setError((prev) => ({ ...prev, hot: null }));
+      } catch (err) {
+        setHotProducts([]);
+        setError((prev) => ({ ...prev, hot: "Không thể tải sản phẩm hot" }));
+      } finally {
+        setLoading((prev) => ({ ...prev, hot: false }));
+      }
+    };
+    fetchHot();
   }, []);
 
   useEffect(() => {
@@ -95,32 +120,32 @@ const Index = () => {
 
   useEffect(() => {
     // Lấy sản phẩm giảm giá
-    const fetchDiscount = async () => {
-      setLoading((prev) => ({ ...prev, discount: true }));
+    const fetchSale = async () => {
+      setLoading((prev) => ({ ...prev, sale: true }));
       try {
         const res = await productService.getSale();
         if (Array.isArray(res)) {
-          setDiscountedProducts(res);
+          setSaleProducts(res);
         } else if (
           res &&
           Array.isArray((res as ProductListResponse).products)
         ) {
-          setDiscountedProducts((res as ProductListResponse).products);
+          setSaleProducts((res as ProductListResponse).products);
         } else {
-          setDiscountedProducts([]);
+          setSaleProducts([]);
         }
-        setError((prev) => ({ ...prev, discount: null }));
+        setError((prev) => ({ ...prev, sale: null }));
       } catch (err) {
-        setDiscountedProducts([]);
+        setSaleProducts([]);
         setError((prev) => ({
           ...prev,
-          discount: "Không thể tải sản phẩm giảm giá",
+          sale: "Không thể tải sản phẩm giảm giá",
         }));
       } finally {
-        setLoading((prev) => ({ ...prev, discount: false }));
+        setLoading((prev) => ({ ...prev, sale: false }));
       }
     };
-    fetchDiscount();
+    fetchSale();
   }, []);
 
   const handleQuickAddToCart = (product) => {
@@ -197,17 +222,59 @@ const Index = () => {
           </Link>
         </div>
       </section>
+
+      {/* Hot Products Section */}
+      <section className="container mx-auto px-4">
+        <div className="flex justify-between items-center mb-10">
+          <div className="flex items-center gap-3">
+            <div className="bg-orange-500/10 p-2 rounded-full">
+              <Flame className="h-6 w-6 text-orange-500" />
+            </div>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold">Hot Products</h2>
+              <p className="text-muted-foreground mt-2">
+                Sản phẩm được yêu thích nhất
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/search?hot=true"
+            className="text-primary hover:underline flex items-center group"
+          >
+            XEM TẤT CẢ{" "}
+            <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+        {loading.hot ? (
+          <div className="text-center py-8">Đang tải sản phẩm hot...</div>
+        ) : error.hot ? (
+          <div className="text-red-500 text-center py-8">{error.hot}</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {hotProducts.slice(0, 4).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
+
       <TrendingProducts />
+
       {/* Featured Products with Enhanced Styling */}
       <section className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-10">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Featured Products
-            </h2>
-            <p className="text-muted-foreground mt-2">
-              Discover our most popular items
-            </p>
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Sparkles className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold">
+                Featured Products
+              </h2>
+              <p className="text-muted-foreground mt-2">
+                Discover our most popular items
+              </p>
+            </div>
           </div>
           <Link
             to="/search"
@@ -218,12 +285,12 @@ const Index = () => {
           </Link>
         </div>
         {loading.featured ? (
-          <div>Đang tải sản phẩm nổi bật...</div>
+          <div className="text-center py-8">Đang tải sản phẩm nổi bật...</div>
         ) : error.featured ? (
-          <div className="text-red-500">{error.featured}</div>
+          <div className="text-red-500 text-center py-8">{error.featured}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts.map((product) => (
+            {featuredProducts.slice(0, 6).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -238,6 +305,7 @@ const Index = () => {
           </div>
         </div>
       </section>
+
       {/* Shop by Category */}
       <ShopByCategory />
 
@@ -246,11 +314,16 @@ const Index = () => {
         {/* New Arrivals */}
         <section className="bg-gradient-to-tr from-primary/5 to-transparent p-8 rounded-2xl shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-2xl font-bold">New Arrivals</h2>
-              <p className="text-sm text-muted-foreground">
-                The latest additions to our store
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-500/10 p-2 rounded-full">
+                <Clock className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">New Arrivals</h2>
+                <p className="text-sm text-muted-foreground">
+                  The latest additions to our store
+                </p>
+              </div>
             </div>
             <Link
               to="/search?new=true"
@@ -261,9 +334,9 @@ const Index = () => {
             </Link>
           </div>
           {loading.new ? (
-            <div>Đang tải sản phẩm mới...</div>
+            <div className="text-center py-4">Đang tải sản phẩm mới...</div>
           ) : error.new ? (
-            <div className="text-red-500">{error.new}</div>
+            <div className="text-red-500 text-center py-4">{error.new}</div>
           ) : (
             <div className="space-y-4">
               {newProducts.slice(0, 4).map((product) => (
@@ -295,7 +368,7 @@ const Index = () => {
                             product.ProductPricing?.base_price || product.price
                           ).toLocaleString()}`}
                     </p>
-                    <Badge className="mt-1 bg-green-500">NEW</Badge>
+                    <Badge className="mt-1 bg-blue-500">NEW</Badge>
                   </div>
                 </Link>
               ))}
@@ -306,27 +379,34 @@ const Index = () => {
         {/* Special Offers */}
         <section className="bg-gradient-to-bl from-red-500/5 to-transparent p-8 rounded-2xl shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-2xl font-bold">Special Offers</h2>
-              <p className="text-sm text-muted-foreground">
-                Limited-time discounts
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="bg-red-500/10 p-2 rounded-full">
+                <Percent className="h-5 w-5 text-red-500" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Special Offers</h2>
+                <p className="text-sm text-muted-foreground">
+                  Limited-time discounts
+                </p>
+              </div>
             </div>
             <Link
-              to="/search?discount=true"
+              to="/search?sale=true"
               className="text-primary hover:underline flex items-center group"
             >
               VIEW ALL{" "}
               <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          {loading.discount ? (
-            <div>Đang tải sản phẩm giảm giá...</div>
-          ) : error.discount ? (
-            <div className="text-red-500">{error.discount}</div>
+          {loading.sale ? (
+            <div className="text-center py-4">
+              Đang tải sản phẩm giảm giá...
+            </div>
+          ) : error.sale ? (
+            <div className="text-red-500 text-center py-4">{error.sale}</div>
           ) : (
             <div className="space-y-4">
-              {discountedProducts.slice(0, 4).map((product) => (
+              {saleProducts.slice(0, 4).map((product) => (
                 <Link
                   key={product.id}
                   to={`/product/${product.id}`}

@@ -28,16 +28,6 @@ import {
   Zap,
   ThumbsUp,
 } from "lucide-react";
-import {
-  getProductById,
-  getRelatedProducts,
-  Product,
-  UserReview,
-  Reply,
-  ProductModel,
-  ProductColor,
-} from "@/data/products";
-import { getProductImages } from "@/data/product-images";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProductGallery } from "@/components/products/ProductGallery";
@@ -51,15 +41,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { reviewService } from "@/services/review.service";
+import { productService } from "@/services/product.service";
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedModel, setSelectedModel] = useState<ProductModel | null>(null);
-  const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
-  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const [selectedModel, setSelectedModel] = useState<any>(null);
+  const [selectedColor, setSelectedColor] = useState<any>(null);
+  const [product, setProduct] = useState<any>(null);
   const [isInWishlistState, setIsInWishlistState] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+  const [recentlyViewed, setRecentlyViewed] = useState<any[]>([]);
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -69,60 +61,44 @@ const ProductDetail = () => {
 
   const [reviewPage, setReviewPage] = useState(1);
   const reviewsPerPage = 3;
+  const [reviews, setReviews] = useState<any[]>([]);
 
-  // Find the product
   useEffect(() => {
-    const foundProduct = getProductById(Number(id));
-    setProduct(foundProduct);
-
-    if (foundProduct) {
-      setIsInWishlistState(isInWishlist(String(foundProduct.id)));
-
-      // Set initial model and color if available
-      if (foundProduct.models && foundProduct.models.length > 0) {
-        setSelectedModel(foundProduct.models[0]);
-        if (
-          foundProduct.models[0].colors &&
-          foundProduct.models[0].colors.length > 0
-        ) {
-          setSelectedColor(foundProduct.models[0].colors[0]);
-        }
+    if (!id) return;
+    (async () => {
+      try {
+        const res = await productService.getById(Number(id));
+        console.log(res)
+        setProduct(res);
+        // Lấy review từ BE
+        const fetchedReviews = await reviewService.getReviews(res.id);
+        setReviews(fetchedReviews);
+        // Recently viewed logic
+        const viewed = JSON.parse(
+          localStorage.getItem("recentlyViewed") || "[]"
+        );
+        const filteredViewed = viewed.filter((item: any) => item.id !== res.id);
+        const mainImage =
+          res.image_url ||
+          res.images?.find((img: any) => img.is_main)?.image_url;
+        const categoryName = res.category?.name || "";
+        const newViewed = [
+          {
+            id: res.id,
+            name: res.name,
+            image: mainImage,
+            price: Number(res.price),
+            category: categoryName,
+          },
+          ...filteredViewed,
+        ].slice(0, 4);
+        localStorage.setItem("recentlyViewed", JSON.stringify(newViewed));
+        setRecentlyViewed(newViewed);
+      } catch (e: unknown) {
+        setProduct(null);
       }
-
-      // Track recently viewed products
-      const viewed = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
-
-      // Remove this product if it's already in the list
-      const filteredViewed = viewed.filter(
-        (item) => item.id !== foundProduct.id
-      );
-
-      // Add this product to the beginning of the list
-      const newViewed = [
-        {
-          id: foundProduct.id,
-          name: foundProduct.name,
-          image: foundProduct.image,
-          price: foundProduct.price,
-          category: foundProduct.category,
-        },
-        ...filteredViewed,
-      ].slice(0, 4);
-
-      localStorage.setItem("recentlyViewed", JSON.stringify(newViewed));
-
-      // Get recently viewed products
-      const recentProducts = newViewed
-        .slice(1)
-        .map((item) => getProductById(item.id))
-        .filter(Boolean);
-
-      setRecentlyViewed(recentProducts as Product[]);
-    }
+    })();
   }, [id]);
-
-  const relatedProducts = product ? getRelatedProducts(product.id) : [];
-  const productImages = product ? getProductImages(product.id) : [];
 
   if (!product) {
     return (
@@ -137,6 +113,17 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  // Lấy dữ liệu từ product chuẩn hóa
+  const mainImage =
+    product.image_url ||
+    product.images?.find((img: any) => img.is_main)?.image_url;
+  const additionalImages =
+    product.images?.filter((img: any) => !img.is_main) || [];
+  const categoryName = product.category?.name || "";
+  const brandName = product.brand?.name || "";
+  const price = Number(product.price);
+  const stock = product.stock;
 
   const handleAddToCart = () => {
     if (!selectedModel || !selectedColor) {
@@ -184,7 +171,7 @@ const ProductDetail = () => {
     setQuantity(newQuantity);
   };
 
-  const handleModelSelect = (model: ProductModel) => {
+  const handleModelSelect = (model: any) => {
     setSelectedModel(model);
     // Reset color selection when model changes
     if (model.colors && model.colors.length > 0) {
@@ -194,51 +181,29 @@ const ProductDetail = () => {
     }
   };
 
-  const handleColorSelect = (color: ProductColor) => {
+  const handleColorSelect = (color: any) => {
     setSelectedColor(color);
   };
 
-  const handleAddReview = (newReview: Omit<UserReview, "id">) => {
-    if (!product.userReviews) {
-      product.userReviews = [];
-    }
-
-    const newReviewWithId = {
-      ...newReview,
-      id: product.userReviews.length + 1,
-    };
-
-    const updatedProduct = {
-      ...product,
-      userReviews: [...product.userReviews, newReviewWithId],
-      reviews: product.reviews + 1,
-    };
-
-    setProduct(updatedProduct);
+  const handleAddReview = async (review: any) => {
+    if (!product) return;
+    await reviewService.addReview(product.id, review);
+    const updatedReviews = await reviewService.getReviews(product.id);
+    setReviews(updatedReviews);
   };
 
-  const handleAddReply = (reviewId: number, newReply: Omit<Reply, "id">) => {
-    if (!product.userReviews) return;
+  const handleAddReply = async (reviewId: number, reply: any) => {
+    if (!product) return;
+    await reviewService.addReply(product.id, reviewId, reply);
+    const updatedReviews = await reviewService.getReviews(product.id);
+    setReviews(updatedReviews);
+  };
 
-    const updatedUserReviews = product.userReviews.map((review) => {
-      if (review.id === reviewId) {
-        const replies = review.replies || [];
-        const newReplyWithId = {
-          ...newReply,
-          id: replies.length + 1,
-        };
-        return {
-          ...review,
-          replies: [...replies, newReplyWithId],
-        };
-      }
-      return review;
-    });
-
-    setProduct({
-      ...product,
-      userReviews: updatedUserReviews,
-    });
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!product) return;
+    await reviewService.deleteReview(product.id, reviewId);
+    const updatedReviews = await reviewService.getReviews(product.id);
+    setReviews(updatedReviews);
   };
 
   const handleAddToWishlist = async () => {
@@ -307,7 +272,7 @@ const ProductDetail = () => {
     if (selectedModel && selectedModel.price !== undefined) {
       return selectedModel.price;
     }
-    return product.price;
+    return price;
   };
 
   const currentPrice = getCurrentPrice();
@@ -320,7 +285,7 @@ const ProductDetail = () => {
     if (selectedModel && selectedModel.inStock !== undefined) {
       return selectedModel.inStock;
     }
-    return product.inStock;
+    return stock;
   };
 
   const stockLevel = isCurrentlyInStock() ? "In Stock" : "Out of Stock";
@@ -357,10 +322,10 @@ const ProductDetail = () => {
         </Link>
         <span className="mx-2 text-muted-foreground">/</span>
         <Link
-          to={`/search?category=${encodeURIComponent(product.category)}`}
+          to={`/search?category=${encodeURIComponent(categoryName)}`}
           className="text-muted-foreground hover:text-primary"
         >
-          {product.category}
+          {categoryName}
         </Link>
         <span className="mx-2 text-muted-foreground">/</span>
         <span className="text-foreground font-medium truncate">
@@ -373,9 +338,9 @@ const ProductDetail = () => {
         {/* Product Gallery - Left Column */}
         <div>
           <ProductGallery
-            mainImage={selectedColor?.image || product.image}
+            mainImage={mainImage}
             productName={product.name}
-            additionalImages={productImages}
+            additionalImages={additionalImages}
             discount={product.discount}
             isNew={product.new}
           />
@@ -395,7 +360,7 @@ const ProductDetail = () => {
               </Badge>
             )}
             <h1 className="text-2xl md:text-3xl font-bold">{product.name}</h1>
-            <p className="text-muted-foreground mt-1">{product.category}</p>
+            <p className="text-muted-foreground mt-1">{categoryName}</p>
             <div className="flex items-center mt-2">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
@@ -670,11 +635,11 @@ const ProductDetail = () => {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Brand</span>
-              <span className="font-medium">StoreX</span>
+              <span className="font-medium">{brandName}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Category</span>
-              <span className="font-medium">{product.category}</span>
+              <span className="font-medium">{categoryName}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Warranty</span>
@@ -794,7 +759,7 @@ const ProductDetail = () => {
 
         <ReviewSection
           productId={product.id}
-          reviews={currentReviews}
+          reviews={reviews}
           onAddReview={handleAddReview}
           onAddReply={handleAddReply}
         />
@@ -862,7 +827,7 @@ const ProductDetail = () => {
                     {item.name}
                   </h3>
                   <p className="text-lg font-bold text-primary">
-                    ${item.price.toFixed(2)}
+                    ${item.price}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {item.category}

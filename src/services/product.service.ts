@@ -25,8 +25,8 @@ class ProductService {
 
   async getById(id: number): Promise<Product> {
     try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_ID}/${id}`);
-      return data;
+      const  {data} = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_ID}/${id}`);      
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy chi tiết sản phẩm');
