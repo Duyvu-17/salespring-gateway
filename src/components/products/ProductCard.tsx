@@ -156,22 +156,22 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               </h3>
             </div>
             <div className="text-right flex-shrink-0">
-              {product.ProductPricing?.sale_price ? (
+              {product.pricing?.sale_price ? (
                 <>
                   <p className="text-lg font-medium text-primary">
                     ₫
-                    {Number(product.ProductPricing.sale_price).toLocaleString()}
+                    {Number(product.pricing.sale_price).toLocaleString()}
                   </p>
                   <p className="text-sm line-through text-muted-foreground">
                     ₫
-                    {Number(product.ProductPricing.base_price).toLocaleString()}
+                    {Number(product.pricing.base_price).toLocaleString()}
                   </p>
                 </>
               ) : (
                 <p className="text-lg font-medium text-primary">
                   ₫
                   {Number(
-                    product.ProductPricing?.base_price || product.price
+                    product.pricing?.base_price || product.price
                   ).toLocaleString()}
                 </p>
               )}

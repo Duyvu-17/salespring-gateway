@@ -32,7 +32,7 @@ export interface ProductColor {
 }
 
 export interface UserReview {
-  id: number;
+  review_id: number;
   userId: string;
   userName: string;
   userAvatar?: string;

@@ -52,7 +52,7 @@ export interface Product {
     image_url: string;
   }[];
   ProductInventory?: ProductInventory;
-  ProductPricing?: ProductPricing;
+  pricing?: ProductPricing;
   ProductIdentifier?: ProductIdentifier;
   ProductMetadatum?: ProductMetadatum;
   ProductVariants?: ProductVariant[];

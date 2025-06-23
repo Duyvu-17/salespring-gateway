@@ -1,19 +1,18 @@
-
-import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Search as SearchIcon, 
-  SlidersHorizontal, 
-  Star, 
-  X, 
+import { useState, useEffect } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Search as SearchIcon,
+  SlidersHorizontal,
+  Star,
+  X,
   Filter,
-  Check
-} from 'lucide-react';
+  Check,
+} from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -21,7 +20,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Slider } from "@/components/ui/slider";
-import { products, categories, searchProducts } from '@/data/products';
 import {
   Sheet,
   SheetContent,
@@ -30,133 +28,155 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { productService } from "@/services/product.service";
+import { categoryService } from "@/services/category.service";
+import { Product } from "@/types/product";
+import { Category } from "@/types/category";
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    searchParams.get('category')
+    searchParams.get("category")
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1500]);
   const [showOnSale, setShowOnSale] = useState<boolean>(false);
   const [showInStock, setShowInStock] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  
+  const [maxPrice, setMaxPrice] = useState<number>(1500);
+
+  // Lấy danh mục từ BE
   useEffect(() => {
-    const query = searchParams.get('q') || '';
-    const category = searchParams.get('category');
-    const onSale = searchParams.get('discount') === 'true';
-    const newArrivals = searchParams.get('new') === 'true';
+    categoryService
+      .getAll()
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
+
+  // Lấy sản phẩm từ BE theo filter/search - Fixed version
+  useEffect(() => {
+    setIsLoading(true);
+    const params: Record<string, string | number | boolean> = {};
     
-    setSearchTerm(query);
-    setSelectedCategory(category);
-    setShowOnSale(onSale);
+    // Fixed: Đồng bộ parameter names với BE
+    if (searchTerm) params.q = searchTerm;
+    if (selectedCategory) params.category = selectedCategory;
     
+    // Fixed: Gửi đúng parameter name mà BE expect
+    if (showOnSale) params.sale = true;
+    
+    if (searchParams.get("new") === "true") params.new = true;
+    if (showInStock) params.inStock = true;
+    
+    // Fixed: Sử dụng consistent parameter names
+    if (priceRange[0] > 0) params.min_price = priceRange[0];
+    if (priceRange[1] < maxPrice) params.max_price = priceRange[1];
+
+    productService
+      .getAll(params)
+      .then((res) => {
+        // Fixed: Handle different response structures
+        const products = res.products || res.data || res;
+        const productsArray = Array.isArray(products) ? products : [];
+        
+        setFilteredProducts(productsArray);
+        
+        // Fixed: Safe max price calculation
+        if (productsArray.length > 0) {
+          const maxP = Math.max(...productsArray.map((p) => {
+            // Handle both direct price and nested pricing
+            const price = p.price || p.ProductPricing?.base_price || 0;
+            return Number(price);
+          }));
+          setMaxPrice(maxP > 0 ? maxP : 1500);
+        } else {
+          setMaxPrice(1500);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching products:', error);
+        setFilteredProducts([]);
+        setMaxPrice(1500);
+      })
+      .finally(() => setIsLoading(false));
+  }, [searchParams, priceRange, showInStock, showOnSale]); // Added showOnSale dependency
+
+  useEffect(() => {
     // Calculate active filters
     const filters = [];
-    if (category) filters.push(`Category: ${category}`);
-    if (onSale) filters.push('On Sale');
-    if (newArrivals) filters.push('New Arrivals');
-    if (showInStock) filters.push('In Stock Only');
-    if (priceRange[0] > 0 || priceRange[1] < 1500) {
+    if (selectedCategory) filters.push(`Category: ${selectedCategory}`);
+    if (showOnSale) filters.push("On Sale");
+    if (searchParams.get("new") === "true") filters.push("New Arrivals");
+    if (showInStock) filters.push("In Stock Only");
+    if (priceRange[0] > 0 || priceRange[1] < maxPrice) {
       filters.push(`Price: $${priceRange[0]} - $${priceRange[1]}`);
     }
     setActiveFilters(filters);
-    
-    // Filter products based on search params
-    let filtered = query ? searchProducts(query) : [...products];
-    
-    if (category) {
-      filtered = filtered.filter(p => p.category === category);
-    }
-    
-    if (onSale) {
-      filtered = filtered.filter(p => p.discount);
-    }
-    
-    if (newArrivals) {
-      filtered = filtered.filter(p => p.new);
-    }
-    
-    if (showInStock) {
-      filtered = filtered.filter(p => p.inStock);
-    }
-    
-    // Filter by price range
-    filtered = filtered.filter(
-      p => p.price >= priceRange[0] && p.price <= priceRange[1]
-    );
-    
-    setFilteredProducts(filtered);
-    
-    // Simulate loading
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-  }, [searchParams, priceRange, showInStock]);
-  
+  }, [
+    selectedCategory,
+    showOnSale,
+    showInStock,
+    priceRange,
+    maxPrice,
+    searchParams,
+  ]);
+
+  // Fixed: Đồng bộ handleSearch với BE parameters
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    
-    if (searchTerm) params.set('q', searchTerm);
-    if (selectedCategory) params.set('category', selectedCategory);
-    if (showOnSale) params.set('discount', 'true');
-    
+    if (searchTerm) params.set("q", searchTerm);
+    if (selectedCategory) params.set("category", selectedCategory);
+    if (showOnSale) params.set("sale", "true"); // Fixed: use 'sale' instead of 'discount'
     setSearchParams(params);
   };
-  
+
+  // Fixed: Đồng bộ handleCategorySelect
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(selectedCategory === category ? null : category);
-    
     const params = new URLSearchParams(searchParams);
     if (selectedCategory === category) {
-      params.delete('category');
+      params.delete("category");
     } else {
-      params.set('category', category);
+      params.set("category", category);
     }
-    
-    if (searchTerm) params.set('q', searchTerm);
-    if (showOnSale) params.set('discount', 'true');
-    
+    if (searchTerm) params.set("q", searchTerm);
+    if (showOnSale) params.set("sale", "true"); // Fixed
     setSearchParams(params);
   };
-  
+
   const handlePriceChange = (values: number[]) => {
     setPriceRange([values[0], values[1]]);
   };
-  
+
   const handleClearFilters = () => {
     setSearchParams({});
     setSelectedCategory(null);
-    setPriceRange([0, 1500]);
+    setPriceRange([0, maxPrice]);
     setShowOnSale(false);
     setShowInStock(true);
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
+  // Fixed: Update removeFilter function
   const removeFilter = (filter: string) => {
     const params = new URLSearchParams(searchParams);
-    
-    if (filter.startsWith('Category:')) {
+    if (filter.startsWith("Category:")) {
       setSelectedCategory(null);
-      params.delete('category');
-    } else if (filter === 'On Sale') {
+      params.delete("category");
+    } else if (filter === "On Sale") {
       setShowOnSale(false);
-      params.delete('discount');
-    } else if (filter === 'In Stock Only') {
+      params.delete("sale"); // Fixed: use 'sale' instead of 'discount'
+    } else if (filter === "In Stock Only") {
       setShowInStock(false);
-    } else if (filter.startsWith('Price:')) {
-      setPriceRange([0, 1500]);
+    } else if (filter.startsWith("Price:")) {
+      setPriceRange([0, maxPrice]);
     }
-    
     setSearchParams(params);
   };
-
-  const maxPrice = Math.max(...products.map(p => p.price));
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -165,6 +185,7 @@ const Search = () => {
       {/* New Search and Filter UI */}
       <div className="mb-8 relative">
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+          
           {/* Search Input */}
           <form onSubmit={handleSearch} className="flex-1">
             <div className="relative">
@@ -174,8 +195,8 @@ const Search = () => {
                 placeholder="Search for products..."
                 className="pr-10"
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary"
               >
                 <SearchIcon className="h-5 w-5" />
@@ -186,25 +207,29 @@ const Search = () => {
           {/* Filter Button - Sheet Trigger */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" className="flex gap-2 whitespace-nowrap">
+              <Button
+                variant="outline"
+                className="flex gap-2 whitespace-nowrap"
+              >
                 <Filter className="h-4 w-4" />
                 Filters
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:w-96 overflow-y-auto">
+            <SheetContent
+              side="right"
+              className="w-full sm:w-96 overflow-y-auto"
+            >
               <SheetHeader className="mb-6">
                 <SheetTitle>Filters</SheetTitle>
-                <SheetDescription>
-                  Refine your product search
-                </SheetDescription>
+                <SheetDescription>Refine your product search</SheetDescription>
               </SheetHeader>
-              
               <div className="space-y-6">
+                
                 {/* Categories in Sheet */}
                 <div className="space-y-4">
                   <h3 className="font-medium text-base">Categories</h3>
                   <div className="grid grid-cols-2 gap-2">
-                    {categories.map(category => (
+                    {categories.map((category) => (
                       <button
                         key={category.id}
                         onClick={() => handleCategorySelect(category.name)}
@@ -214,7 +239,7 @@ const Search = () => {
                             : "bg-card hover:bg-muted border-input"
                         }`}
                       >
-                        <span>{category.name}</span>
+                        <span className="text-sm">{category.name}</span>
                         {selectedCategory === category.name && (
                           <Check className="h-4 w-4" />
                         )}
@@ -235,8 +260,8 @@ const Search = () => {
                     onValueChange={handlePriceChange}
                   />
                   <div className="flex items-center justify-between text-sm">
-                    <span>${priceRange[0]}</span>
-                    <span>${priceRange[1]}</span>
+                    <span>₫{priceRange[0].toLocaleString()}</span>
+                    <span>₫{priceRange[1].toLocaleString()}</span>
                   </div>
                 </div>
                 
@@ -245,8 +270,8 @@ const Search = () => {
                   <h3 className="font-medium text-base">Availability</h3>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="in-stock-sheet" 
+                      <Checkbox
+                        id="in-stock-sheet"
                         checked={showInStock}
                         onCheckedChange={(checked) => {
                           setShowInStock(checked as boolean);
@@ -259,20 +284,20 @@ const Search = () => {
                         In Stock Only
                       </label>
                     </div>
+                    
+                    {/* Fixed: Update onSale checkbox handler in Sheet */}
                     <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="on-sale-sheet" 
+                      <Checkbox
+                        id="on-sale-sheet"
                         checked={showOnSale}
                         onCheckedChange={(checked) => {
                           setShowOnSale(checked as boolean);
-                          
                           const params = new URLSearchParams(searchParams);
                           if (checked) {
-                            params.set('discount', 'true');
+                            params.set("sale", "true"); // Fixed: use 'sale'
                           } else {
-                            params.delete('discount');
+                            params.delete("sale");
                           }
-                          
                           setSearchParams(params);
                         }}
                       />
@@ -288,17 +313,15 @@ const Search = () => {
                 
                 {/* Apply/Clear Buttons */}
                 <div className="flex gap-2 pt-4 border-t">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="flex-1"
                     onClick={handleClearFilters}
                   >
                     Clear All
                   </Button>
                   <SheetTrigger asChild>
-                    <Button className="flex-1">
-                      Apply Filters
-                    </Button>
+                    <Button className="flex-1">Apply Filters</Button>
                   </SheetTrigger>
                 </div>
               </div>
@@ -321,16 +344,22 @@ const Search = () => {
         {/* Active filters */}
         {activeFilters.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-muted-foreground">Active filters:</span>
+            <span className="text-sm text-muted-foreground">
+              Active filters:
+            </span>
             {activeFilters.map((filter) => (
-              <Badge key={filter} variant="outline" className="flex items-center gap-1 py-1">
+              <Badge
+                key={filter}
+                variant="outline"
+                className="flex items-center gap-1 py-1"
+              >
                 {filter}
                 <button onClick={() => removeFilter(filter)}>
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
             ))}
-            <Button 
+            <Button
               variant="ghost"
               size="sm"
               onClick={handleClearFilters}
@@ -346,18 +375,19 @@ const Search = () => {
       <div>
         {isLoading ? (
           <div className="h-64 flex items-center justify-center">
-            <p>Loading products...</p>
+            <div className="flex flex-col items-center gap-2">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="text-muted-foreground">Loading products...</p>
+            </div>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center">
             <h2 className="text-xl font-semibold mb-2">No products found</h2>
             <p className="text-muted-foreground mb-6">
-              Try adjusting your search or filter to find what you're looking for.
+              Try adjusting your search or filter to find what you're looking
+              for.
             </p>
-            <Button
-              variant="outline"
-              onClick={handleClearFilters}
-            >
+            <Button variant="outline" onClick={handleClearFilters}>
               Clear all filters
             </Button>
           </div>
@@ -368,62 +398,103 @@ const Search = () => {
                 Showing {filteredProducts.length} products
               </p>
             </div>
-
+            
+            {/* Fixed: Safe product rendering với fallback cho price structure */}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
-                <Card key={product.id} className="glass-card hover-scale overflow-hidden">
+                <Card
+                  key={product.id}
+                  className="glass-card hover-scale overflow-hidden"
+                >
                   <Link to={`/product/${product.id}`}>
                     <div className="relative">
                       <img
-                        src={product.image}
+                        src={
+                          product.image_url || 
+                          product.images?.[0]?.image_url || 
+                          "/placeholder-product.jpg"
+                        }
                         alt={product.name}
                         className="w-full h-48 object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                        }}
                       />
-                      {product.discount && (
+                      {(product.sale_price || product.pricing?.sale_price) && (
                         <Badge className="absolute top-2 right-2 bg-red-500">
-                          {product.discount}% OFF
+                          SALE
                         </Badge>
                       )}
-                      {product.new && (
+                      {product.has_sale && (
                         <Badge className="absolute top-2 left-2 bg-green-500">
                           NEW
                         </Badge>
                       )}
                     </div>
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold mb-1">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{product.category}</p>
-                      <div className="flex items-center mb-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-3 w-3 ${
-                                i < Math.floor(product.rating)
-                                  ? "text-yellow-400 fill-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-xs text-muted-foreground ml-1">
-                          ({product.reviews})
-                        </span>
-                      </div>
-                      {product.discount ? (
-                        <div className="flex justify-between items-center">
-                          <p className="text-lg font-medium text-primary">
-                            ${(product.price * (1 - product.discount / 100)).toFixed(2)}
-                          </p>
-                          <p className="text-sm line-through text-muted-foreground">
-                            ${product.price.toFixed(2)}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-lg font-medium text-primary">
-                          ${product.price.toFixed(2)}
+                      <h3 className="text-lg font-semibold mb-1 line-clamp-2">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {product.Category?.name || 
+                         product.category_name ||
+                         categories.find((c) => c.id === product.category_id)?.name || 
+                         "Uncategorized"}
+                      </p>
+                      
+                      {/* Brand info if available */}
+                      {(product.Brand?.name || product.brand_name) && (
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Brand: {product.Brand?.name || product.brand_name}
                         </p>
                       )}
+                      
+                      {/* Stock status */}
+                      <div className="flex items-center gap-2 mb-2">
+                        {product.in_stock !== undefined ? (
+                          <Badge 
+                            variant={product.in_stock ? "default" : "secondary"}
+                            className="text-xs"
+                          >
+                            {product.in_stock ? "In Stock" : "Out of Stock"}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">
+                            Stock Unknown
+                          </Badge>
+                        )}
+                        
+                        {product.stock_quantity !== undefined && product.stock_quantity > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            ({product.stock_quantity} available)
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Fixed: Handle different price structures */}
+                      {(() => {
+                        const salePrice = product.sale_price || product.pricing?.sale_price;
+                        const basePrice = product.price || product.pricing?.base_price;
+                        
+                        if (salePrice && parseInt(salePrice) > 0) {
+                          return (
+                            <div className="flex justify-between items-center">
+                              <p className="text-lg font-medium text-primary">
+                                ₫{Number(salePrice).toLocaleString()}
+                              </p>
+                              <p className="text-sm line-through text-muted-foreground">
+                                ₫{Number(basePrice).toLocaleString()}
+                              </p>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <p className="text-lg font-medium text-primary">
+                              ₫{Number(basePrice || 0).toLocaleString()}
+                            </p>
+                          );
+                        }
+                      })()}
                     </div>
                   </Link>
                 </Card>

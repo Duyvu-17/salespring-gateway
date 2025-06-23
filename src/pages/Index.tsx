@@ -339,12 +339,12 @@ const Index = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-primary">
-                      {product.ProductPricing?.sale_price
+                      {product.pricing?.base_price
                         ? `₫${Number(
-                            product.ProductPricing.sale_price
+                            product.pricing?.sale_price
                           ).toLocaleString()}`
                         : `₫${Number(
-                            product.ProductPricing?.base_price || product.price
+                            product.pricing?.base_price || product.price
                           ).toLocaleString()}`}
                     </p>
                     <Badge className="mt-1 bg-blue-500">NEW</Badge>
@@ -406,19 +406,19 @@ const Index = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-primary">
-                      {product.ProductPricing?.sale_price
+                      {product.pricing?.sale_price
                         ? `₫${Number(
-                            product.ProductPricing.sale_price
+                            product.pricing.sale_price
                           ).toLocaleString()}`
                         : `₫${Number(
-                            product.ProductPricing?.base_price || product.price
+                            product.pricing?.base_price || product.price
                           ).toLocaleString()}`}
                     </p>
-                    {product.ProductPricing?.sale_price && (
+                    {product.pricing?.sale_price && (
                       <p className="text-xs line-through text-muted-foreground">
                         ₫
                         {Number(
-                          product.ProductPricing.base_price
+                          product.pricing.base_price
                         ).toLocaleString()}
                       </p>
                     )}

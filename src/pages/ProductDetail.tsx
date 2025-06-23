@@ -43,6 +43,11 @@ import {
 } from "@/components/ui/popover";
 import { reviewService } from "@/services/review.service";
 import { productService } from "@/services/product.service";
+import ProductInfo from "@/components/products/ProductInfo";
+import ProductStatistics from "@/components/products/ProductStatistics";
+import ProductBoxContent from "@/components/products/ProductBoxContent";
+import RecentlyViewedProducts from "@/components/products/RecentlyViewedProducts";
+import  ProductFeatures  from '@/components/products/ProductFeatures';
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
@@ -68,7 +73,6 @@ const ProductDetail = () => {
     (async () => {
       try {
         const res = await productService.getById(Number(id));
-        console.log(res)
         setProduct(res);
         // Lấy review từ BE
         const fetchedReviews = await reviewService.getReviews(res.id);
@@ -77,17 +81,17 @@ const ProductDetail = () => {
         const viewed = JSON.parse(
           localStorage.getItem("recentlyViewed") || "[]"
         );
-        const filteredViewed = viewed.filter((item: any) => item.id !== res.id);
+        const filteredViewed = viewed.filter((item) => item.id !== res.id);
         const mainImage =
           res.image_url ||
-          res.images?.find((img: any) => img.is_main)?.image_url;
+          res.images?.find((img) => img.is_main)?.image_url;
         const categoryName = res.category?.name || "";
         const newViewed = [
           {
             id: res.id,
             name: res.name,
             image: mainImage,
-            price: Number(res.price),
+            price: res?.pricing?.sale_price,
             category: categoryName,
           },
           ...filteredViewed,
@@ -117,9 +121,9 @@ const ProductDetail = () => {
   // Lấy dữ liệu từ product chuẩn hóa
   const mainImage =
     product.image_url ||
-    product.images?.find((img: any) => img.is_main)?.image_url;
+    product.images?.find((img) => img.is_main)?.image_url;
   const additionalImages =
-    product.images?.filter((img: any) => !img.is_main) || [];
+    product.images?.filter((img) => !img.is_main) || [];
   const categoryName = product.category?.name || "";
   const brandName = product.brand?.name || "";
   const price = Number(product.price);
@@ -171,7 +175,7 @@ const ProductDetail = () => {
     setQuantity(newQuantity);
   };
 
-  const handleModelSelect = (model: any) => {
+  const handleModelSelect = (model) => {
     setSelectedModel(model);
     // Reset color selection when model changes
     if (model.colors && model.colors.length > 0) {
@@ -181,18 +185,18 @@ const ProductDetail = () => {
     }
   };
 
-  const handleColorSelect = (color: any) => {
+  const handleColorSelect = (color) => {
     setSelectedColor(color);
   };
 
-  const handleAddReview = async (review: any) => {
+  const handleAddReview = async (review) => {
     if (!product) return;
     await reviewService.addReview(product.id, review);
     const updatedReviews = await reviewService.getReviews(product.id);
     setReviews(updatedReviews);
   };
 
-  const handleAddReply = async (reviewId: number, reply: any) => {
+  const handleAddReply = async (reviewId: number, reply) => {
     if (!product) return;
     await reviewService.addReply(product.id, reviewId, reply);
     const updatedReviews = await reviewService.getReviews(product.id);
@@ -345,385 +349,46 @@ const ProductDetail = () => {
             isNew={product.new}
           />
         </div>
-
         {/* Product Info - Right Column */}
-        <div className="space-y-8">
-          <div>
-            {product.new && (
-              <Badge variant="default" className="bg-green-600 text-white mb-2">
-                NEW
-              </Badge>
-            )}
-            {product.discount && (
-              <Badge variant="destructive" className="mb-2 ml-2">
-                SAVE {product.discount}%
-              </Badge>
-            )}
-            <h1 className="text-2xl md:text-3xl font-bold">{product.name}</h1>
-            <p className="text-muted-foreground mt-1">{categoryName}</p>
-            <div className="flex items-center mt-2">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-4 w-4 ${
-                      i < Math.floor(product.rating)
-                        ? "text-yellow-400 fill-yellow-400"
-                        : i < product.rating
-                        ? "text-yellow-400 fill-yellow-400 opacity-50"
-                        : "text-gray-300"
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="ml-2 text-sm text-muted-foreground">
-                {product.rating} ({product.reviews} reviews)
-              </span>
-            </div>
-          </div>
-
-          {/* Price Section */}
-          <div className="space-y-1">
-            {discountedPrice ? (
-              <div className="flex items-center">
-                <div className="text-xl md:text-2xl font-bold text-primary">
-                  ${discountedPrice.toFixed(2)}
-                </div>
-                <div className="ml-2 text-muted-foreground line-through">
-                  ${currentPrice.toFixed(2)}
-                </div>
-                <Badge variant="destructive" className="ml-2">
-                  {product.discount}% OFF
-                </Badge>
-              </div>
-            ) : (
-              <div className="text-xl md:text-2xl font-bold text-primary">
-                ${currentPrice.toFixed(2)}
-              </div>
-            )}
-
-            {/* Stock status */}
-            <div className="flex items-center mt-2">
-              <div className={`h-3 w-3 rounded-full ${stockIndicator}`}></div>
-              <span className="ml-2 text-sm font-medium">{stockLevel}</span>
-              {isCurrentlyInStock() && (
-                <span className="ml-2 text-sm text-muted-foreground">
-                  - Usually ships in 1-2 business days
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Product Statistics */}
-          <div className="grid grid-cols-3 gap-4 border-t border-b py-3">
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="flex items-center text-primary">
-                <Package className="h-4 w-4 mr-1" />
-                <span className="font-semibold">{totalPurchases}</span>
-              </div>
-              <span className="text-xs text-muted-foreground">Purchases</span>
-            </div>
-            <div className="flex flex-col items-center justify-center text-center border-x">
-              <div className="flex items-center text-primary">
-                <ThumbsUp className="h-4 w-4 mr-1" />
-                <span className="font-semibold">{totalLikes}</span>
-              </div>
-              <span className="text-xs text-muted-foreground">Likes</span>
-            </div>
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="flex items-center text-primary">
-                <Eye className="h-4 w-4 mr-1" />
-                <span className="font-semibold">{totalViews}</span>
-              </div>
-              <span className="text-xs text-muted-foreground">Views</span>
-            </div>
-          </div>
-
-          {/* Model Selection */}
-          {product.models && product.models.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Model</h3>
-              <RadioGroup
-                defaultValue={product.models[0].id.toString()}
-                onValueChange={(value) => {
-                  const model = product.models?.find(
-                    (m) => m.id.toString() === value
-                  );
-                  if (model) handleModelSelect(model);
-                }}
-                className="flex flex-wrap gap-2"
-              >
-                {product.models.map((model) => (
-                  <div key={model.id} className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value={model.id.toString()}
-                      id={`model-${model.id}`}
-                    />
-                    <Label
-                      htmlFor={`model-${model.id}`}
-                      className={`px-3 py-1 border rounded-md text-sm cursor-pointer ${
-                        selectedModel?.id === model.id
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      {model.name}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          )}
-
-          {/* Color Selection */}
-          {selectedModel &&
-            selectedModel.colors &&
-            selectedModel.colors.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium">Color</h3>
-                <div className="flex flex-wrap gap-3">
-                  {selectedModel.colors.map((color) => (
-                    <button
-                      key={color.name}
-                      type="button"
-                      onClick={() => handleColorSelect(color)}
-                      className={`relative p-1 rounded-full border-2 ${
-                        selectedColor?.name === color.name
-                          ? "border-primary"
-                          : "border-transparent hover:border-muted-foreground/50"
-                      }`}
-                      title={color.name}
-                    >
-                      <div
-                        className="w-8 h-8 rounded-full"
-                        style={{ backgroundColor: color.code }}
-                      ></div>
-                      {selectedColor?.name === color.name && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Check className="text-white drop-shadow-md h-4 w-4" />
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Selected:{" "}
-                  <span className="font-medium">{selectedColor?.name}</span>
-                </p>
-              </div>
-            )}
-
-          {/* Quantity and Add to Cart */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center border rounded-md">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleQuantityChange(quantity - 1)}
-                  disabled={!isCurrentlyInStock() || quantity <= 1}
-                >
-                  -
-                </Button>
-                <span className="w-10 text-center">{quantity}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleQuantityChange(quantity + 1)}
-                  disabled={!isCurrentlyInStock()}
-                >
-                  +
-                </Button>
-              </div>
-
-              <Button
-                className="flex-1"
-                onClick={handleAddToCart}
-                disabled={!isCurrentlyInStock()}
-              >
-                {isCurrentlyInStock() ? "Add to Cart" : "Out of Stock"}
-              </Button>
-
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleAddToWishlist}
-                className={isInWishlistState ? "bg-primary/10" : ""}
-              >
-                <Heart
-                  className={`h-5 w-5 ${
-                    isInWishlistState
-                      ? "fill-red-500 text-red-500 animate-heartbeat"
-                      : ""
-                  }`}
-                />
-              </Button>
-
-              {/* Share Button */}
-              <Popover open={isShareOpen} onOpenChange={setIsShareOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Share2 className="h-5 w-5" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-56 p-0" align="end">
-                  <div className="p-2">
-                    <p className="text-sm font-medium px-2 py-1 mb-1">
-                      Share this product
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start mb-1"
-                      onClick={() => handleShare("facebook")}
-                    >
-                      <Facebook className="h-4 w-4 mr-2" /> Facebook
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start mb-1"
-                      onClick={() => handleShare("twitter")}
-                    >
-                      <Twitter className="h-4 w-4 mr-2" /> Twitter
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start mb-1"
-                      onClick={() => handleShare("linkedin")}
-                    >
-                      <Linkedin className="h-4 w-4 mr-2" /> LinkedIn
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start"
-                      onClick={() => handleShare("copy")}
-                    >
-                      <Copy className="h-4 w-4 mr-2" /> Copy Link
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* Buy Now Button */}
-            <Button
-              className="w-full bg-green-600 hover:bg-green-700 flex gap-2 items-center justify-center"
-              onClick={handleBuyNow}
-              disabled={!isCurrentlyInStock()}
-            >
-              <CreditCard className="h-5 w-5" />
-              {isCurrentlyInStock() ? "Buy Now" : "Out of Stock"}
-            </Button>
-          </div>
+        <div>
+          <ProductInfo
+            product={product}
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+            selectedColor={selectedColor}
+            setSelectedColor={setSelectedColor}
+            quantity={quantity}
+            setQuantity={setQuantity}
+            handleAddToCart={handleAddToCart}
+            handleBuyNow={handleBuyNow}
+            isInWishlistState={isInWishlistState}
+            handleAddToWishlist={handleAddToWishlist}
+            isShareOpen={isShareOpen}
+            setIsShareOpen={setIsShareOpen}
+            handleShare={handleShare}
+            isCurrentlyInStock={isCurrentlyInStock}
+            stockLevel={stockLevel}
+            stockIndicator={stockIndicator}
+            currentPrice={currentPrice}
+            discountedPrice={discountedPrice}
+            categoryName={categoryName}
+            brandName={brandName}
+          />
+          <ProductStatistics
+            totalPurchases={totalPurchases}
+            totalLikes={totalLikes}
+            totalViews={totalViews}
+          />
         </div>
       </div>
-
       {/* Product Information Cards Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-        {/* Description Card */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center mb-4">
-            <Info className="h-5 w-5 text-primary mr-2" />
-            <h3 className="text-lg font-semibold">Product Description</h3>
-          </div>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-            {product.description}
-          </p>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Brand</span>
-              <span className="font-medium">{brandName}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Category</span>
-              <span className="font-medium">{categoryName}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Warranty</span>
-              <span className="font-medium">2 Years</span>
-            </div>
-          </div>
-        </Card>
-
-        {/* Features Card */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center mb-4">
-            <Zap className="h-5 w-5 text-primary mr-2" />
-            <h3 className="text-lg font-semibold">Key Features</h3>
-          </div>
-          <ul className="space-y-2">
-            {product.features?.slice(0, 4).map((feature, index) => (
-              <li key={index} className="flex items-start text-sm">
-                <Check className="h-4 w-4 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
-          {product.features && product.features.length > 4 && (
-            <p className="text-xs text-muted-foreground mt-3">
-              +{product.features.length - 4} more features
-            </p>
-          )}
-        </Card>
-
-        {/* Shipping & Service Card */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center mb-4">
-            <Truck className="h-5 w-5 text-primary mr-2" />
-            <h3 className="text-lg font-semibold">Shipping & Service</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center text-sm">
-              <Truck className="h-4 w-4 text-primary mr-2" />
-              <span>Free shipping on orders over $50</span>
-            </div>
-            <div className="flex items-center text-sm">
-              <RefreshCw className="h-4 w-4 text-primary mr-2" />
-              <span>30-day return policy</span>
-            </div>
-            <div className="flex items-center text-sm">
-              <ShieldCheck className="h-4 w-4 text-primary mr-2" />
-              <span>2-year warranty included</span>
-            </div>
-            <div className="flex items-center text-sm">
-              <Award className="h-4 w-4 text-primary mr-2" />
-              <span>Quality guarantee</span>
-            </div>
-          </div>
-        </Card>
-      </div>
-
+      <ProductFeatures
+        product={product}
+        brandName={brandName}
+        categoryName={categoryName}
+      />
       {/* What's in the Box Section */}
-      <Card className="p-8 mb-16">
-        <div className="text-center mb-8">
-          <Package className="h-8 w-8 text-primary mx-auto mb-3" />
-          <h2 className="text-2xl font-bold">What's in the Box</h2>
-          <p className="text-muted-foreground mt-2">
-            Everything you need to get started
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {[
-            { item: product.name, icon: Package },
-            { item: "User Manual", icon: Info },
-            { item: "Warranty Card", icon: ShieldCheck },
-            { item: "Charging Cable", icon: Zap },
-            { item: "Power Adapter", icon: Zap },
-          ].map((boxItem, index) => (
-            <div
-              key={index}
-              className="flex flex-col items-center text-center p-4 bg-muted/30 rounded-lg"
-            >
-              <boxItem.icon className="h-6 w-6 text-primary mb-2" />
-              <span className="text-sm font-medium">{boxItem.item}</span>
-            </div>
-          ))}
-        </div>
-      </Card>
-
+      <ProductBoxContent product={product} />
       {/* Reviews Section */}
       <Card className="p-8 mb-16">
         <div className="flex items-center justify-between mb-6">
@@ -738,9 +403,9 @@ const ProductDetail = () => {
                   <Star
                     key={i}
                     className={`h-4 w-4 ${
-                      i < Math.floor(product.rating)
+                      i < Math.floor(Number(product.rating_avg))
                         ? "text-yellow-400 fill-yellow-400"
-                        : i < product.rating
+                        : i < Number(product.rating_avg)
                         ? "text-yellow-400 fill-yellow-400 opacity-50"
                         : "text-gray-300"
                     }`}
@@ -748,22 +413,20 @@ const ProductDetail = () => {
                 ))}
               </div>
               <span className="ml-2 font-medium">
-                {product.rating} out of 5
+                {Number(product.rating_avg).toFixed(2)} trên 5 sao
               </span>
               <span className="ml-2 text-sm text-muted-foreground">
-                ({product.reviews} reviews)
+                ({product.rating_count} đánh giá)
               </span>
             </div>
           </div>
         </div>
-
         <ReviewSection
           productId={product.id}
           reviews={reviews}
           onAddReview={handleAddReview}
           onAddReply={handleAddReply}
         />
-
         {/* Pagination */}
         {totalReviewPages > 1 && (
           <div className="flex justify-center mt-8">
@@ -800,44 +463,11 @@ const ProductDetail = () => {
           </div>
         )}
       </Card>
-
       {/* Recently Viewed Products - Desktop */}
-      {recentlyViewed.length > 0 && (
-        <Card className="p-8">
-          <h2 className="text-2xl font-bold mb-6 flex items-center">
-            <Clock className="h-6 w-6 mr-3" />
-            Recently Viewed
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {recentlyViewed.map((item) => (
-              <Card
-                key={item.id}
-                className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-                onClick={() => navigate(`/product/${item.id}`)}
-              >
-                <div className="aspect-square overflow-hidden bg-muted/20">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="font-medium text-sm truncate mb-2">
-                    {item.name}
-                  </h3>
-                  <p className="text-lg font-bold text-primary">
-                    ${item.price}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.category}
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </Card>
-      )}
+      <RecentlyViewedProducts
+        recentlyViewed={recentlyViewed}
+        navigate={navigate}
+      />
     </div>
   );
 };
