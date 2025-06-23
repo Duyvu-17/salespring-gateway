@@ -28,6 +28,10 @@ import { useCartNotificationContext } from "../App";
 import { productService } from "@/services/product.service";
 import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
+import HotProductsSection from "@/components/products/HotProductsSection";
+import SaleProductsSection from "@/components/products/SaleProductsSection";
+import NewProductsSection from "@/components/products/NewProductsSection";
+import AllProductsSection from "@/components/products/AllProductsSection";
 
 // Định nghĩa type tạm cho response từ BE
 type ProductListResponse = { products: Product[] };
@@ -224,41 +228,16 @@ const Index = () => {
       </section>
 
       {/* Hot Products Section */}
-      <section className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-10">
-          <div className="flex items-center gap-3">
-            <div className="bg-orange-500/10 p-2 rounded-full">
-              <Flame className="h-6 w-6 text-orange-500" />
-            </div>
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold">Hot Products</h2>
-              <p className="text-muted-foreground mt-2">
-                Sản phẩm được yêu thích nhất
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/search?hot=true"
-            className="text-primary hover:underline flex items-center group"
-          >
-            XEM TẤT CẢ{" "}
-            <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-        {loading.hot ? (
-          <div className="text-center py-8">Đang tải sản phẩm hot...</div>
-        ) : error.hot ? (
-          <div className="text-red-500 text-center py-8">{error.hot}</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {hotProducts.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
-      </section>
+      <HotProductsSection />
 
-      <TrendingProducts />
+      {/* Sale Products Section */}
+      <SaleProductsSection />
+
+      {/* New Products Section */}
+      <NewProductsSection />
+
+      {/* All Products Section */}
+      <AllProductsSection />
 
       {/* Featured Products with Enhanced Styling */}
       <section className="container mx-auto px-4">

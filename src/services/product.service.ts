@@ -16,7 +16,7 @@ class ProductService {
     try {
       const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
       const { data } = await axiosInstance.get(`${API_ENDPOINTS.PRODUCT.GET}${query}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy danh sách sản phẩm');
@@ -36,7 +36,7 @@ class ProductService {
   async getBySlug(slug: string): Promise<Product> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_SLUG}/${slug}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm theo slug');
@@ -46,7 +46,7 @@ class ProductService {
   async getHot(): Promise<Product[]> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.HOT}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm hot');
@@ -56,7 +56,7 @@ class ProductService {
   async getSale(): Promise<Product[]> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.SALE}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm giảm giá');
@@ -66,7 +66,7 @@ class ProductService {
   async getNew(): Promise<Product[]> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.NEW}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm mới');
@@ -76,7 +76,7 @@ class ProductService {
   async getByCategory(categoryId: number): Promise<Product[]> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_CATEGORY}/${categoryId}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm theo danh mục');
@@ -86,7 +86,7 @@ class ProductService {
   async getAllVariants(): Promise<ProductVariant[]> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANTS}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy danh sách biến thể sản phẩm');
@@ -96,7 +96,7 @@ class ProductService {
   async getVariantsByProductId(productId: number): Promise<ProductVariant[]> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.VARIANTS_BY_PRODUCT_ID}/${productId}/variants`);
-      return data;
+    return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo sản phẩm');
@@ -106,7 +106,7 @@ class ProductService {
   async getVariantById(id: number): Promise<ProductVariant> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_ID}/${id}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo id');
@@ -116,7 +116,7 @@ class ProductService {
   async getVariantBySku(sku: string): Promise<ProductVariant> {
     try {
       const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_SKU}/${sku}`);
-      return data;
+      return data.data;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo sku');
