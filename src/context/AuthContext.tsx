@@ -51,27 +51,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const initAuth = async () => {
       try {
         const currentUser = await authService.getCurrentUser();
+        console.log("[AuthContext] getCurrentUser:", currentUser);
         if (currentUser) {
           setUser(currentUser);
+        } else {
+          setUser(null);
         }
       } catch (error) {
-        console.error("Lỗi khi khởi tạo xác thực:", error);
-        // Không cần clear auth data ở đây vì authService đã xử lý
+        setUser(null);
+        console.error("[AuthContext] Lỗi khi khởi tạo xác thực:", error);
       } finally {
         setIsLoading(false);
+        console.log("[AuthContext] isLoading:", false);
       }
     };
-
     initAuth();
   }, []);
+
+  useEffect(() => {
+    console.log(
+      "[AuthContext] Render: user =",
+      user,
+      "isAuthenticated =",
+      !!user,
+      "isLoading =",
+      isLoading
+    );
+  }, [user, isLoading]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
       const userData = await authService.login(email, password);
       setUser(userData);
-    } catch (error: any) {
-      console.error("Lỗi đăng nhập:", error.message);
+      console.log("[AuthContext] login thành công:", userData);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      console.error("Lỗi đăng nhập:", errMsg);
 
       // Ưu tiên lấy message từ response của backend nếu có
       let errorMsg = "Email hoặc mật khẩu không chính xác";
@@ -108,6 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const userData = await authService.register(full_name, email, password);
       setUser(userData);
+      console.log("[AuthContext] register thành công:", userData);
       toast({
         title: "Đăng ký thành công",
         description: "Chào mừng bạn đến với Salespring!",

@@ -1,7 +1,6 @@
 import axiosInstance from './axiosInstance';
 import { API_URL, API_ENDPOINTS } from '@/config/api';
 import type { User, LoginResponse, RegisterResponse } from '@/types/auth';
-import { log } from 'console';
 
 class AuthService {
   private getAuthHeader(): Record<string, string> {
@@ -19,7 +18,7 @@ class AuthService {
         { headers: { 'Content-Type': 'application/json' } }
       );
       if (data.token) {
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', data.data.accessToken);
         return data.token;
       }
       throw new Error('No token in refresh response');
@@ -92,11 +91,12 @@ class AuthService {
         `${API_ENDPOINTS.AUTH.LOGIN}`,
         { email, password }
       );
-      localStorage.setItem('token', data.accessToken);
+      localStorage.setItem('token', data.data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('user', JSON.stringify(data.user));
-      if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
-      return data.user;
+      localStorage.setItem('user', JSON.stringify(data.data.user));
+      localStorage.setItem('refreshToken', data.data.refreshToken);
+      if (data.refreshToken) localStorage.setItem('refreshToken', data.data.refreshToken);
+      return data.data.user;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Email hoặc mật khẩu không đúng');
@@ -110,9 +110,9 @@ class AuthService {
         { full_name, email, password },
         { headers: { 'Content-Type': 'application/json' } }
       );
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
-      if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+      if (data.refreshToken) localStorage.setItem('refreshToken', data.data.refreshToken);
       return data.user;
     } catch (error: unknown) {
       const err = error as any;
@@ -139,9 +139,12 @@ class AuthService {
         { idToken },
         { headers: { 'Content-Type': 'application/json' } }
       );
-      localStorage.setItem('token', data.token);
+      console.log(data);
+      localStorage.setItem('token', data.data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
-      return data.user;
+      localStorage.setItem('user', JSON.stringify(data.data.user));
+      localStorage.setItem('refreshToken', data.data.refreshToken);
+      return data.data.user;
     } catch (error: unknown) {
       const err = error as any;
       throw new Error(err.response?.data?.message || 'Đăng nhập Google thất bại');

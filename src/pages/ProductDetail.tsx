@@ -47,16 +47,20 @@ import ProductInfo from "@/components/products/ProductInfo";
 import ProductStatistics from "@/components/products/ProductStatistics";
 import ProductBoxContent from "@/components/products/ProductBoxContent";
 import RecentlyViewedProducts from "@/components/products/RecentlyViewedProducts";
-import  ProductFeatures  from '@/components/products/ProductFeatures';
+import ProductFeatures from "@/components/products/ProductFeatures";
+import { useRecentlyViewed } from "@/context/RecentlyViewedContext";
+import { Product } from "@/types/product";
+import type { ProductModel, ProductColor, UserReview } from "@/data/products";
+import { categories } from "@/data/products";
 
 const ProductDetail = () => {
-  const [quantity, setQuantity] = useState(1);
-  const [selectedModel, setSelectedModel] = useState<any>(null);
-  const [selectedColor, setSelectedColor] = useState<any>(null);
-  const [product, setProduct] = useState<any>(null);
+  const [quantity, setQuantity] = useState<number>(1);
+  const [selectedModel, setSelectedModel] = useState<ProductModel | null>(null);
+  const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [isInWishlistState, setIsInWishlistState] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [recentlyViewed, setRecentlyViewed] = useState<any[]>([]);
+  const { recentlyViewed, addRecentlyViewed } = useRecentlyViewed();
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -64,9 +68,9 @@ const ProductDetail = () => {
     useWishlist();
   const { isAuthenticated } = useAuth();
 
-  const [reviewPage, setReviewPage] = useState(1);
+  const [reviewPage, setReviewPage] = useState<number>(1);
   const reviewsPerPage = 3;
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<UserReview[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -77,27 +81,21 @@ const ProductDetail = () => {
         // Lấy review từ BE
         const fetchedReviews = await reviewService.getReviews(res.id);
         setReviews(fetchedReviews);
-        // Recently viewed logic
-        const viewed = JSON.parse(
-          localStorage.getItem("recentlyViewed") || "[]"
-        );
-        const filteredViewed = viewed.filter((item) => item.id !== res.id);
+        // Thêm vào recently viewed qua context
         const mainImage =
-          res.image_url ||
-          res.images?.find((img) => img.is_main)?.image_url;
-        const categoryName = res.category?.name || "";
-        const newViewed = [
-          {
-            id: res.id,
-            name: res.name,
-            image: mainImage,
-            price: res?.pricing?.sale_price,
-            category: categoryName,
-          },
-          ...filteredViewed,
-        ].slice(0, 4);
-        localStorage.setItem("recentlyViewed", JSON.stringify(newViewed));
-        setRecentlyViewed(newViewed);
+          res.image_url || res.images?.find((img) => img.is_main)?.image_url;
+        // Map category_id sang tên
+        const categoryObj = categories.find(
+          (c) => String(c.id) === String(res.category_id)
+        );
+        const categoryName = categoryObj ? categoryObj.name : "";
+        addRecentlyViewed({
+          id: res.id,
+          name: res.name,
+          image: mainImage,
+          price: Number(res?.pricing?.sale_price) || Number(res.pricing.base_price) || Number(res.pricing.cost_price),
+          category: categoryName,
+        });
       } catch (e: unknown) {
         setProduct(null);
       }
@@ -120,12 +118,15 @@ const ProductDetail = () => {
 
   // Lấy dữ liệu từ product chuẩn hóa
   const mainImage =
-    product.image_url ||
-    product.images?.find((img) => img.is_main)?.image_url;
-  const additionalImages =
-    product.images?.filter((img) => !img.is_main) || [];
-  const categoryName = product.category?.name || "";
-  const brandName = product.brand?.name || "";
+    product.image_url || product.images?.find((img) => img.is_main)?.image_url;
+  const additionalImages = product.images?.filter((img) => !img.is_main) || [];
+  // Map category_id sang tên
+  const categoryObj = categories.find(
+    (c) => String(c.id) === String(product.category_id)
+  );
+  const categoryName = categoryObj ? categoryObj.name : "";
+  // Không có brandName vì không có dữ liệu brand
+  const brandName = "";
   const price = Number(product.price);
   const stock = product.stock;
 
