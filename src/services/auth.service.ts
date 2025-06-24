@@ -28,51 +28,27 @@ class AuthService {
     }
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async request<T>(endpoint: string, options: import('axios').AxiosRequestConfig = {}): Promise<T> {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        ...options,
+      const response = await axiosInstance({
+        url: endpoint,
+        method: options.method || 'get',
+        data: options.data,
         headers: {
-          'Content-Type': 'application/json',
-          ...this.getAuthHeader(),
           ...options.headers,
         },
+        ...options,
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        if (response.status === 401) {
-          // Token hết hạn hoặc không hợp lệ, thử refresh token
-          try {
-            const newToken = await this.refreshToken();
-            // Retry request với token mới
-            const retryResponse = await fetch(`${API_URL}${endpoint}`, {
-              ...options,
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${newToken}`,
-                ...options.headers,
-              },
-            });
-            if (!retryResponse.ok) {
-              if (retryResponse.status === 401) {
-                this.clearAuthData();
-                throw new Error('401: Unauthorized');
-              }
-              const retryError = await retryResponse.json();
-              throw new Error(`${retryResponse.status}: ${retryError.message || 'Có lỗi xảy ra'}`);
-            }
-            return retryResponse.json();
-          } catch (refreshError) {
-            this.clearAuthData();
-            throw new Error('401: Unauthorized');
-          }
+      return response.data;
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const err = error as { response: { status: number; data?: { message?: string } } };
+        if (err.response.status === 401) {
+          this.clearAuthData();
+          throw new Error('401: Unauthorized');
         }
-        throw new Error(`${response.status}: ${error.message || 'Có lỗi xảy ra'}`);
+        throw new Error(`${err.response.status}: ${err.response.data?.message || 'Có lỗi xảy ra'}`);
       }
-
-      return response.json();
-    } catch (error) {
       console.error('API request error:', error);
       throw error;
     }
