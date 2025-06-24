@@ -164,9 +164,9 @@ class AuthService {
       );
       // Kiểm tra format của response - có thể là { user: User } hoặc User trực tiếp
       let userData = null;
-      if (data && data.user) {
-        userData = data.user;
-      } else if (data && data.id && data.email) {
+      if (data && data.data.user) {
+        userData = data.data.user;
+      } else if (data && data.data.id && data.data.email) {
         userData = data;
       } else {
         return null;
