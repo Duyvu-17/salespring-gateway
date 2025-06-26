@@ -9,6 +9,7 @@ import {
   User,
   Upload,
   X,
+  Camera,
 } from "lucide-react";
 import { UserReview, Reply as ReplyType } from "@/data/products";
 import { Button } from "@/components/ui/button";
@@ -166,9 +167,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
             <div>
               <Label htmlFor="images">Thêm ảnh (tùy chọn)</Label>
-              <div className="mt-2 space-y-4">
-                {/* Custom Upload Button */}
-                <div className="relative">
+              <div className="mt-2 space-y-3">
+                {/* Compact Upload Button */}
+                <div className="relative inline-block">
                   <input
                     id="images"
                     type="file"
@@ -177,41 +178,38 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     onChange={handleImageChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors bg-gray-50 hover:bg-gray-100">
-                    <div className="flex flex-col items-center space-y-2">
-                      <div className="p-3 bg-blue-100 rounded-full">
-                        <Upload className="h-6 w-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          Nhấp để tải ảnh lên
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PNG, JPG, GIF tối đa 10MB (tối đa 3 ảnh)
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    className="flex items-center gap-2 h-9 px-3 border-dashed hover:bg-gray-50"
+                  >
+                    <Camera className="h-4 w-4" />
+                    Chọn ảnh
+                    <span className="text-xs text-gray-500 ml-1">
+                      (tối đa 3)
+                    </span>
+                  </Button>
                 </div>
 
                 {/* Image Previews */}
                 {imagePreviewUrls.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-700">
-                      Ảnh đã chọn ({imagePreviewUrls.length}/3):
+                    <p className="text-sm text-gray-600">
+                      Đã chọn {imagePreviewUrls.length}/3 ảnh:
                     </p>
-                    <div className="flex space-x-3 overflow-x-auto pb-2">
+                    <div className="flex flex-wrap gap-2">
                       {imagePreviewUrls.map((url, index) => (
                         <div key={index} className="relative group">
                           <img
                             src={url}
                             alt={`Preview ${index + 1}`}
-                            className="h-20 w-20 object-cover rounded-lg border-2 border-gray-200"
+                            className="h-16 w-16 object-cover rounded-lg border border-gray-200 shadow-sm"
                           />
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            className="absolute -top-1 -right-1 p-0.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm"
                           >
                             <X className="h-3 w-3" />
                           </button>
@@ -220,10 +218,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     </div>
                   </div>
                 )}
+
+                {/* Upload Guidelines */}
+                <p className="text-xs text-gray-500">
+                  Hỗ trợ JPG, PNG, GIF. Tối đa 10MB mỗi ảnh.
+                </p>
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-40">
               <MessageCircle className="mr-2 h-4 w-4" />
               Gửi đánh giá
             </Button>

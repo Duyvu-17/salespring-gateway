@@ -27,6 +27,8 @@ import {
   ChevronUp,
   Zap,
   ThumbsUp,
+  Sparkles,
+  ChevronRight,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -58,30 +60,22 @@ import RecentlyViewedProducts from "@/components/products/RecentlyViewedProducts
 import ProductFeatures from "@/components/products/ProductFeatures";
 import { Product } from "@/types/product";
 import type { ProductModel, ProductColor, UserReview } from "@/data/products";
-import { categories } from "@/data/products";
 
-// Memoized selectors
-const selectWishlist = (state: RootState) => state.wishlist;
-const selectWishlistMemo = createSelector(
-  [selectWishlist],
-  (wishlist) => wishlist ?? []
-);
+const EMPTY_ARRAY: any[] = [];
+const selectWishlist = (state: RootState) =>
+  state.wishlist.wishlist || EMPTY_ARRAY;
 const selectRecentlyViewed = (state: RootState) =>
-  state.recentlyViewed.recentlyViewed;
-const selectRecentlyViewedMemo = createSelector(
-  [selectRecentlyViewed],
-  (recentlyViewed) => recentlyViewed ?? []
-);
+  state.recentlyViewed.recentlyViewed ?? [];
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedModel, setSelectedModel] = useState<ProductModel | null>(null);
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<any>(null);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
-  const wishlist = useSelector(selectWishlistMemo);
-  const recentlyViewed = useSelector(selectRecentlyViewedMemo);
+  const wishlist = useSelector(selectWishlist);
+  const recentlyViewed = useSelector(selectRecentlyViewed);
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
@@ -96,34 +90,36 @@ const ProductDetail = () => {
   const [reviewPage, setReviewPage] = useState<number>(1);
   const reviewsPerPage = 3;
   const [reviews, setReviews] = useState<UserReview[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<"info" | "reviews" | "faq">(
+    "info"
+  );
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
     (async () => {
       try {
         const res = await productService.getById(Number(id));
-        setProduct(res);
+        const prod = res;
+        setProduct(prod);
         // Lấy review từ BE
-        const fetchedReviews = await reviewService.getReviews(res.id);
+        const fetchedReviews = await reviewService.getReviews(prod.id);
         setReviews(fetchedReviews);
         // Thêm vào recently viewed qua redux
         const mainImage =
-          res.image_url || res.images?.find((img) => img.is_main)?.image_url;
-        // Map category_id sang tên
-        const categoryObj = categories.find(
-          (c) => String(c.id) === String(res.category_id)
-        );
-        const categoryName = categoryObj ? categoryObj.name : "";
+          prod.image_url ||
+          prod.images?.find((img: any) => img.is_main)?.image_url;
         dispatch(
           addRecentlyViewed({
-            id: res.id,
-            name: res.name,
+            id: prod.id,
+            name: prod.name,
             image: mainImage,
             price:
-              Number(res?.pricing?.sale_price) ||
-              Number(res.pricing.base_price) ||
-              Number(res.pricing.cost_price),
-            category: categoryName,
+              Number(prod.pricing?.sale_price) ||
+              Number(prod.pricing?.base_price) ||
+              0,
+            category: prod.category?.name || "",
           })
         );
       } catch (e: unknown) {
@@ -132,47 +128,91 @@ const ProductDetail = () => {
     })();
   }, [id, dispatch]);
 
+  // Tự động chọn variant đầu tiên khi load product
+  useEffect(() => {
+    if (product && product.variants && product.variants.length > 0) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product]);
+
+  // Khi chọn variant mới, tự động set ảnh chính
+  useEffect(() => {
+    if (selectedVariant) {
+      const main = selectedVariant.images?.find(
+        (img: any) => img.is_main
+      )?.image_url;
+      setSelectedImage(
+        main || selectedVariant.images?.[0]?.image_url || product?.image_url
+      );
+    } else if (product) {
+      setSelectedImage(product.image_url);
+    }
+  }, [selectedVariant, product]);
+
   if (!product) {
     return (
       <div className="container mx-auto px-4 py-16 min-h-[60vh] flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold mb-4">Product Not Found</h1>
-        <p className="text-lg mb-8">
-          We couldn't find the product you're looking for.
-        </p>
-        <Button asChild size="lg">
-          <Link to="/">Return to Home</Link>
-        </Button>
+        <div className="text-center space-y-6">
+          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <Package className="w-12 h-12 text-gray-400" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Product Not Found
+            </h1>
+            <p className="text-lg text-gray-600 max-w-md mx-auto">
+              We couldn't find the product you're looking for. It might have
+              been removed or doesn't exist.
+            </p>
+          </div>
+          <Button
+            asChild
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
+            <Link to="/" className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Return to Home
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }
 
   // Lấy dữ liệu từ product chuẩn hóa
   const mainImage =
-    product.image_url || product.images?.find((img) => img.is_main)?.image_url;
-  const additionalImages = product.images?.filter((img) => !img.is_main) || [];
-  // Map category_id sang tên
-  const categoryObj = categories.find(
-    (c) => String(c.id) === String(product.category_id)
-  );
-  const categoryName = categoryObj ? categoryObj.name : "";
-  // Không có brandName vì không có dữ liệu brand
-  const brandName = "";
-  const price = Number(product.price);
-  const stock = product.stock;
+    selectedVariant?.images?.find((img: any) => img.is_main)?.image_url ||
+    product.image_url ||
+    product.images?.find((img: any) => img.is_main)?.image_url;
+  const additionalImages =
+    selectedVariant?.images?.filter((img: any) => !img.is_main) ||
+    product.images?.filter((img: any) => !img.is_main) ||
+    [];
+  const categoryName = product.category?.name || "";
+  const brandName = product.brand?.name || "";
+  const price = Number(product.pricing?.base_price) || 0;
+  const salePrice = Number(product.pricing?.sale_price) || null;
+  const stock = product.inventory?.quantity ?? 0;
+
+  // Giá và tồn kho theo variant
+  const currentPrice = selectedVariant
+    ? Number(selectedVariant.sale_price) || Number(selectedVariant.price)
+    : salePrice || price;
+  const currentStock = selectedVariant ? selectedVariant.stock : stock;
 
   const handleAddToCart = () => {
-    if (!selectedModel || !selectedColor) {
+    if (!selectedVariant) {
       toast({
         title: "Selection required",
-        description: "Please select a model and color before adding to cart",
+        description: "Please select a variant before adding to cart",
         variant: "destructive",
       });
       return;
     }
-
     toast({
       title: "Added to cart",
-      description: `${product.name} - ${selectedModel.name} (${selectedColor.name}) x${quantity} has been added to your cart`,
+      description: `${product.name} - ${selectedVariant.name} x${quantity} has been added to your cart`,
     });
   };
 
@@ -187,10 +227,10 @@ const ProductDetail = () => {
       return;
     }
 
-    if (!selectedModel || !selectedColor) {
+    if (!selectedVariant) {
       toast({
         title: "Selection required",
-        description: "Please select a model and color before purchasing",
+        description: "Please select a variant before purchasing",
         variant: "destructive",
       });
       return;
@@ -298,26 +338,9 @@ const ProductDetail = () => {
     setIsShareOpen(false);
   };
 
-  // Get current price based on selected model
-  const getCurrentPrice = () => {
-    if (selectedModel && selectedModel.price !== undefined) {
-      return selectedModel.price;
-    }
-    return price;
-  };
-
-  const currentPrice = getCurrentPrice();
-  const discountedPrice =
-    product && "discount" in product && product.discount
-      ? currentPrice * (1 - (product.discount as number) / 100)
-      : null;
-
-  // Check if product is in stock based on selected model
+  // Check if product is in stock based on selected variant
   const isCurrentlyInStock = () => {
-    if (selectedModel && selectedModel.inStock !== undefined) {
-      return selectedModel.inStock;
-    }
-    return stock;
+    return currentStock > 0;
   };
 
   const stockLevel = isCurrentlyInStock() ? "In Stock" : "Out of Stock";
@@ -329,14 +352,14 @@ const ProductDetail = () => {
   const totalViews = Math.floor(Math.random() * 5000) + 500;
 
   // Calculate total review pages
-  const totalReviews = (product as any)?.userReviews?.length || 0;
+  const totalReviews = (product)?.userReviews?.length || 0;
   const totalReviewPages = Math.ceil(totalReviews / reviewsPerPage);
 
   // Get current page reviews
   const getCurrentReviews = () => {
-    if (!(product as any)?.userReviews) return [];
+    if (!(product)?.userReviews) return [];
     const startIndex = (reviewPage - 1) * reviewsPerPage;
-    return (product as any).userReviews.slice(
+    return (product).userReviews.slice(
       startIndex,
       startIndex + reviewsPerPage
     );
@@ -344,161 +367,374 @@ const ProductDetail = () => {
 
   const currentReviews = getCurrentReviews();
 
-  return (
-    <div className="container mx-auto px-4 py-8 md:py-16">
-      {/* Breadcrumb navigation */}
-      <div className="flex items-center mb-8 text-sm overflow-x-auto whitespace-nowrap pb-2">
-        <Link to="/" className="text-muted-foreground hover:text-primary">
-          Home
-        </Link>
-        <span className="mx-2 text-muted-foreground">/</span>
-        <Link to="/search" className="text-muted-foreground hover:text-primary">
-          Products
-        </Link>
-        <span className="mx-2 text-muted-foreground">/</span>
-        <Link
-          to={`/search?category=${encodeURIComponent(categoryName)}`}
-          className="text-muted-foreground hover:text-primary"
-        >
-          {categoryName}
-        </Link>
-        <span className="mx-2 text-muted-foreground">/</span>
-        <span className="text-foreground font-medium truncate">
-          {product.name}
-        </span>
-      </div>
+  // Enhanced Variant Selection Component
+  const VariantSelector = () => {
+    if (!product.variants || product.variants.length === 0) return null;
 
-      {/* Main Product Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
-        {/* Product Gallery - Left Column */}
-        <div>
-          <ProductGallery
-            mainImage={mainImage}
-            productName={product.name}
-            additionalImages={additionalImages}
-            discount={(product as any)?.discount}
-            isNew={(product as any)?.new}
-          />
+    return (
+      <div className="space-y-4 mb-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-primary" />
+            Chọn phiên bản
+          </h3>
+          {selectedVariant && (
+            <Badge
+              variant="secondary"
+              className="bg-primary/10 text-primary hover:bg-primary/5"
+            >
+              {selectedVariant.name}
+            </Badge>
+          )}
         </div>
-        {/* Product Info - Right Column */}
-        <div>
-          <ProductInfo
-            product={product}
-            selectedModel={selectedModel}
-            setSelectedModel={setSelectedModel}
-            selectedColor={selectedColor}
-            setSelectedColor={setSelectedColor}
-            quantity={quantity}
-            setQuantity={setQuantity}
-            handleAddToCart={handleAddToCart}
-            handleBuyNow={handleBuyNow}
-            isInWishlistState={isInWishlistState}
-            handleAddToWishlist={handleAddToWishlist}
-            isShareOpen={isShareOpen}
-            setIsShareOpen={setIsShareOpen}
-            handleShare={handleShare}
-            isCurrentlyInStock={isCurrentlyInStock}
-            stockLevel={stockLevel}
-            stockIndicator={stockIndicator}
-            currentPrice={currentPrice}
-            discountedPrice={discountedPrice}
-            categoryName={categoryName}
-            brandName={brandName}
-          />
-          <ProductStatistics
-            totalPurchases={totalPurchases}
-            totalLikes={totalLikes}
-            totalViews={totalViews}
-          />
+
+        {/* Compact variant buttons */}
+        <div className="flex flex-wrap gap-2">
+          {product.variants.map((variant) => {
+            const isSelected = selectedVariant?.id === variant.id;
+            const isOutOfStock = variant.stock <= 0;
+
+            return (
+              <button
+                key={variant.id}
+                disabled={isOutOfStock}
+                className={`
+                  relative px-4 py-2.5 rounded-lg border transition-all duration-200 
+                  text-sm font-medium min-w-[120px] text-left
+                  ${
+                    isSelected
+                      ? "border-primary bg-primary/10 text-primary shadow-sm"
+                      : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-primary/5"
+                  }
+                  ${
+                    isOutOfStock
+                      ? "opacity-50 cursor-not-allowed bg-muted text-muted-foreground"
+                      : "cursor-pointer"
+                  }
+                `}
+                onClick={() => !isOutOfStock && setSelectedVariant(variant)}
+              >
+                {/* Selection indicator */}
+                {isSelected && (
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                    <Check className="w-2.5 h-2.5 text-primary-foreground" />
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium truncate pr-2">
+                      {variant.name}
+                    </span>
+                    {variant.is_popular && (
+                      <Badge className="bg-orange-400 text-white text-xs px-1.5 py-0.5 h-auto">
+                        Hot
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-foreground">
+                      {Number(
+                        variant.sale_price || variant.price
+                      ).toLocaleString("vi-VN")}
+                      ₫
+                    </span>
+                    {variant.sale_price &&
+                      variant.price !== variant.sale_price && (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {Number(variant.price).toLocaleString("vi-VN")}₫
+                        </span>
+                      )}
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        variant.stock > 10
+                          ? "bg-green-500"
+                          : variant.stock > 0
+                          ? "bg-yellow-500"
+                          : "bg-destructive"
+                      }`}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {isOutOfStock
+                        ? "Hết hàng"
+                        : variant.stock > 10
+                        ? "Còn hàng"
+                        : `Còn ${variant.stock}`}
+                    </span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
-      </div>
-      {/* Product Information Cards Section */}
-      <ProductFeatures
-        product={product}
-        brandName={brandName}
-        categoryName={categoryName}
-      />
-      {/* What's in the Box Section */}
-      <ProductBoxContent product={product} />
-      {/* Reviews Section */}
-      <Card className="p-8 mb-16">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold flex items-center">
-              <MessageSquare className="h-6 w-6 mr-3" />
-              Customer Reviews
-            </h2>
-            <div className="flex items-center mt-2">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-4 w-4 ${
-                      i < Math.floor(Number(product.rating_avg))
-                        ? "text-yellow-400 fill-yellow-400"
-                        : i < Number(product.rating_avg)
-                        ? "text-yellow-400 fill-yellow-400 opacity-50"
-                        : "text-gray-300"
-                    }`}
-                  />
-                ))}
+
+        {/* Selected variant summary - more compact */}
+        {selectedVariant && (
+          <div className="p-3 bg-gradient-to-r from-primary/10 to-primary rounded-lg border border-primary">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-primary rounded-full" />
+                <div>
+                  <span className="font-medium text-primary text-sm">
+                    {selectedVariant.name}
+                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="font-bold text-primary">
+                      {Number(
+                        selectedVariant.sale_price || selectedVariant.price
+                      ).toLocaleString("vi-VN")}
+                      ₫
+                    </span>
+                    {selectedVariant.sale_price &&
+                      selectedVariant.price !== selectedVariant.sale_price && (
+                        <>
+                          <span className="text-xs text-primary line-through">
+                            {Number(selectedVariant.price).toLocaleString(
+                              "vi-VN"
+                            )}
+                            ₫
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className="bg-green-100 text-green-700 text-xs px-1.5 py-0.5 h-auto"
+                          >
+                            -
+                            {Math.round(
+                              ((selectedVariant.price -
+                                selectedVariant.sale_price) /
+                                selectedVariant.price) *
+                                100
+                            )}
+                            %
+                          </Badge>
+                        </>
+                      )}
+                  </div>
+                </div>
               </div>
-              <span className="ml-2 font-medium">
-                {Number(product.rating_avg).toFixed(2)} trên 5 sao
-              </span>
-              <span className="ml-2 text-sm text-muted-foreground">
-                ({product.rating_count} đánh giá)
-              </span>
-            </div>
-          </div>
-        </div>
-        <ReviewSection
-          productId={product.id}
-          reviews={reviews}
-          onAddReview={handleAddReview}
-          onAddReply={handleAddReply}
-        />
-        {/* Pagination */}
-        {totalReviewPages > 1 && (
-          <div className="flex justify-center mt-8">
-            <div className="flex space-x-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setReviewPage((prev) => Math.max(prev - 1, 1))}
-                disabled={reviewPage === 1}
-              >
-                Previous
-              </Button>
-              {[...Array(totalReviewPages)].map((_, i) => (
-                <Button
-                  key={i}
-                  variant={reviewPage === i + 1 ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setReviewPage(i + 1)}
-                >
-                  {i + 1}
-                </Button>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setReviewPage((prev) => Math.min(prev + 1, totalReviewPages))
-                }
-                disabled={reviewPage === totalReviewPages}
-              >
-                Next
-              </Button>
             </div>
           </div>
         )}
-      </Card>
-      {/* Recently Viewed Products - Desktop */}
-      <RecentlyViewedProducts
-        recentlyViewed={recentlyViewed}
-        navigate={navigate}
-      />
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Left: Product Images */}
+          <div className="lg:sticky lg:top-8 lg:self-start">
+            <div className="bg-card rounded-2xl shadow-xl overflow-hidden">
+              <img
+                src={selectedImage || mainImage}
+                alt={product.name}
+                className="w-full h-[400px] object-cover object-center"
+              />
+            </div>
+            {/* Thumbnails nếu có nhiều ảnh */}
+            {((selectedVariant && selectedVariant.images?.length > 1) ||
+              additionalImages.length > 0) && (
+              <div className="flex gap-2 mt-4">
+                {(selectedVariant?.images || additionalImages).map(
+                  (img) => (
+                    <img
+                      key={img.id}
+                      src={img.image_url}
+                      alt=""
+                      onClick={() => setSelectedImage(img.image_url)}
+                      className={`w-16 h-16 object-cover rounded-lg border cursor-pointer transition-all duration-150 ${
+                        selectedImage === img.image_url
+                          ? "border-primary ring-2 ring-primary"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    />
+                  )
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right: Product Info */}
+          <div className="space-y-8">
+            {/* Tên, rating */}
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                {product.name}
+              </h1>
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-5 w-5 ${
+                        i < Math.floor(Number(product.rating_avg))
+                          ? "text-yellow-400 fill-yellow-400"
+                          : i < Number(product.rating_avg)
+                          ? "text-yellow-400 fill-yellow-400 opacity-50"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="ml-2 text-muted-foreground text-sm">
+                  {Number(product.rating_avg).toFixed(2)} trên 5 sao
+                </span>
+                <span className="ml-2 text-muted-foreground text-sm">
+                  ({product.rating_count} đánh giá)
+                </span>
+              </div>
+            </div>
+
+            {/* Giá & giảm giá */}
+            <div className="flex items-center gap-4">
+              <span className="text-3xl font-bold text-primary">
+                {Number(
+                  selectedVariant?.sale_price || selectedVariant?.price
+                ).toLocaleString("vi-VN")}
+                ₫
+              </span>
+              {selectedVariant?.sale_price && (
+                <span className="line-through text-muted-foreground text-xl">
+                  {Number(selectedVariant.price).toLocaleString("vi-VN")}₫
+                </span>
+              )}
+              {/* Badge giảm giá */}
+              {product.discounts?.map((d) => (
+                <span
+                  key={d.id}
+                  className="bg-destructive/10 text-destructive px-2 py-0.5 rounded text-xs ml-2"
+                >
+                  {d.name} -{d.value}%
+                </span>
+              ))}
+            </div>
+
+            {/* Chọn variant */}
+            {product.variants && product.variants.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-2 text-foreground">
+                  Chọn phiên bản
+                </h3>
+                <div className="flex gap-2 flex-wrap">
+                  {product.variants.map((variant) => (
+                    <button
+                      key={variant.id}
+                      className={`min-w-[160px] text-center px-4 py-2 rounded-lg border transition-all duration-200 text-sm font-medium
+                        ${
+                          selectedVariant?.id === variant.id
+                            ? "border-primary bg-primary/10 text-primary shadow-sm"
+                            : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-primary/5"
+                        }
+                        ${
+                          variant.stock <= 0
+                            ? "opacity-50 cursor-not-allowed bg-muted text-muted-foreground"
+                            : "cursor-pointer"
+                        }`}
+                      onClick={() => setSelectedVariant(variant)}
+                      disabled={variant.stock <= 0}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium truncate pr-2">
+                          {variant.name}
+                        </span>
+                        {variant.is_popular && (
+                          <Badge className="bg-orange-400 text-white text-xs px-1.5 py-0.5 h-auto ml-2">
+                            Hot
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="font-semibold text-foreground">
+                          {Number(
+                            variant.sale_price || variant.price
+                          ).toLocaleString("vi-VN")}
+                          ₫
+                        </span>
+                        {variant.sale_price &&
+                          variant.price !== variant.sale_price && (
+                            <span className="text-xs text-muted-foreground line-through">
+                              {Number(variant.price).toLocaleString("vi-VN")}₫
+                            </span>
+                          )}
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            variant.stock > 10
+                              ? "bg-green-500"
+                              : variant.stock > 0
+                              ? "bg-yellow-500"
+                              : "bg-destructive"
+                          }`}
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          {variant.stock <= 0
+                            ? "Hết hàng"
+                            : variant.stock > 10
+                            ? "Còn hàng"
+                            : `Còn ${variant.stock}`}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Số lượng, Add to Cart */}
+            <div className="flex items-center gap-4 mt-4">
+              <input
+                type="number"
+                min={1}
+                max={selectedVariant?.stock || 1}
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-20 border rounded-lg px-3 py-2 text-lg text-center focus:ring-2 focus:ring-primary"
+              />
+              <button
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-primary/90 transition text-lg"
+                onClick={handleAddToCart}
+                disabled={selectedVariant?.stock <= 0}
+              >
+                Thêm vào giỏ hàng
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Phần dưới giữ nguyên UI/logic ban đầu */}
+        <div className="mt-16">
+          {/* What's Inside */}
+          <ProductFeatures
+            product={product}
+            brandName={brandName}
+            categoryName={categoryName}
+          />
+          <ProductBoxContent product={product} />
+
+          {/* Reviews */}
+          <ReviewSection
+            productId={product.id}
+            reviews={reviews}
+            onAddReview={handleAddReview}
+            onAddReply={handleAddReply}
+          />
+
+          {/* FAQs hoặc các phần khác giữ nguyên */}
+          {/* ... */}
+
+          {/* Recently Viewed Products */}
+          <RecentlyViewedProducts
+            recentlyViewed={recentlyViewed}
+            navigate={navigate}
+          />
+        </div>
+      </div>
     </div>
   );
 };

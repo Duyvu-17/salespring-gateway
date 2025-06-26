@@ -28,6 +28,10 @@ import Terms from "./pages/Terms";
 import Returns from "./pages/Returns";
 import FAQ from "./pages/FAQ";
 import TrendingProducts from "./pages/TrendingProducts";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { useEffect } from "react";
+import { ThemeType } from "@/store/slices/themeSlice";
 
 const queryClient = new QueryClient();
 
@@ -63,47 +67,73 @@ const CartNotificationProvider = ({
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <CartNotificationProvider>
-        <ScrollToTop />
-        <Routes>
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/customer-service" element={<CustomerService />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/returns" element={<Returns />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/trending-products" element={<TrendingProducts />} />
+const themes: ThemeType[] = [
+  "light",
+  "dark",
+  "purple",
+  "ocean",
+  "sunset",
+  "forest",
+  "midnight",
+  "coffee",
+];
 
-            {/* Protected routes - require authentication */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/shipping" element={<Shipping />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+function updateHtmlTheme(theme: ThemeType) {
+  const htmlElement = document.documentElement;
+  htmlElement.classList.remove(...themes);
+  htmlElement.classList.add(theme);
+  htmlElement.setAttribute("data-theme", theme);
+}
+
+const App = () => {
+  const theme = useSelector((state: RootState) => state.theme.theme);
+
+  useEffect(() => {
+    updateHtmlTheme(theme);
+  }, [theme]);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <CartNotificationProvider>
+          <ScrollToTop />
+          <Routes>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/customer-service" element={<CustomerService />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/returns" element={<Returns />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/trending-products" element={<TrendingProducts />} />
+
+              {/* Protected routes - require authentication */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="/shipping" element={<Shipping />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+              </Route>
+
+              <Route path="*" element={<NotFound />} />
             </Route>
-
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-        <Toaster />
-      </CartNotificationProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+          </Routes>
+          <Toaster />
+        </CartNotificationProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

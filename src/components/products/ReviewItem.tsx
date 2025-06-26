@@ -13,7 +13,7 @@ const ReviewItem = ({
   newReply,
   setNewReply,
   handleSubmitReply,
-}: any) => {
+}) => {
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-6">
@@ -69,13 +69,13 @@ const ReviewItem = ({
         )}
         {review.images && review.images.length > 0 && (
           <div className="flex space-x-2 mt-4 overflow-x-auto pb-2">
-            {review.images.map((image: string, index: number) => (
+            {review.images.map((img: any, index: number) => (
               <img
-                key={index}
-                src={image}
+                key={img.id || index}
+                src={img.image_url}
                 alt={`Review ${index + 1}`}
                 className="h-24 w-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => window.open(image, "_blank")}
+                onClick={() => window.open(img.image_url, "_blank")}
               />
             ))}
           </div>

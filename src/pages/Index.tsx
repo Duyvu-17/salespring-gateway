@@ -38,7 +38,7 @@ type ProductListResponse = { products: Product[] };
 
 const Index = () => {
   // State cho các loại sản phẩm
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   const [saleProducts, setSaleProducts] = useState<Product[]>([]);
@@ -62,10 +62,10 @@ const Index = () => {
       setLoading((prev) => ({ ...prev, featured: true }));
       try {
         const res = await productService.getAll();
-        setFeaturedProducts(res.products || []);
+        setAllProducts(res);
         setError((prev) => ({ ...prev, featured: null }));
       } catch (err) {
-        setFeaturedProducts([]);
+        setAllProducts([]);
         setError((prev) => ({
           ...prev,
           featured: "Không thể tải sản phẩm nổi bật",
@@ -228,16 +228,32 @@ const Index = () => {
       </section>
 
       {/* Hot Products Section */}
-      <HotProductsSection />
+      <HotProductsSection
+        products={hotProducts}
+        loading={loading.hot}
+        error={error.hot}
+      />
 
       {/* Sale Products Section */}
-      <SaleProductsSection />
+      <SaleProductsSection
+        products={saleProducts}
+        loading={loading.sale}
+        error={error.sale}
+      />
 
       {/* New Products Section */}
-      <NewProductsSection />
+      <NewProductsSection
+        products={newProducts}
+        loading={loading.new}
+        error={error.new}
+      />
 
       {/* All Products Section */}
-      <AllProductsSection />
+      <AllProductsSection
+        products={allProducts}
+        loading={loading.featured}
+        error={error.featured}
+      />
 
       {/* Featured Products with Enhanced Styling */}
       <section className="container mx-auto px-4">
@@ -269,7 +285,7 @@ const Index = () => {
           <div className="text-red-500 text-center py-8">{error.featured}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts.slice(0, 6).map((product) => (
+            {allProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -416,10 +432,7 @@ const Index = () => {
                     </p>
                     {product.pricing?.sale_price && (
                       <p className="text-xs line-through text-muted-foreground">
-                        ₫
-                        {Number(
-                          product.pricing.base_price
-                        ).toLocaleString()}
+                        ₫{Number(product.pricing.base_price).toLocaleString()}
                       </p>
                     )}
                     <Badge className="mt-1 bg-red-500">SALE</Badge>

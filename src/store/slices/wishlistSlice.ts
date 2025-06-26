@@ -21,8 +21,9 @@ export const fetchWishlist = createAsyncThunk(
     try {
       const data = await wishlistService.getWishlist();
       return Array.isArray(data.wishlist) ? data.wishlist : [];
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Lỗi khi tải danh sách yêu thích");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      return rejectWithValue(error.message || "Lỗi khi tải danh sách yêu thích");
     }
   }
 );
@@ -34,8 +35,9 @@ export const addToWishlist = createAsyncThunk(
     try {
       const data = await wishlistService.addToWishlist(productId);
       return Array.isArray(data.wishlist) ? data.wishlist : [];
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Lỗi thêm vào danh sách yêu thích");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      return rejectWithValue(error.message || "Lỗi thêm vào danh sách yêu thích");
     }
   }
 );
@@ -47,8 +49,9 @@ export const removeFromWishlist = createAsyncThunk(
     try {
       const data = await wishlistService.removeFromWishlist(itemId);
       return Array.isArray(data.wishlist) ? data.wishlist : [];
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Lỗi xóa sản phẩm khỏi danh sách yêu thích");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      return rejectWithValue(error.message || "Lỗi xóa sản phẩm khỏi danh sách yêu thích");
     }
   }
 );
@@ -60,8 +63,9 @@ export const clearWishlist = createAsyncThunk(
     try {
       await wishlistService.clearWishlist();
       return [];
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Lỗi xóa danh sách yêu thích");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      return rejectWithValue(error.message || "Lỗi xóa danh sách yêu thích");
     }
   }
 );
@@ -140,5 +144,5 @@ export const selectWishlistLoading = (state: { wishlist: WishlistState }) => sta
 export const getWishlistItem = (wishlist: WishlistItem[] | null, productId: string) =>
   wishlist?.find((item) => String(item.product_id) === String(productId));
 
-export const isInWishlist = (wishlist: WishlistItem[] | null, productId: string) =>
-  !!wishlist?.some((item) => String(item.product_id) === String(productId));
+export const isInWishlist = (wishlist: WishlistItem[] | null | undefined, productId: string) =>
+  Array.isArray(wishlist) && wishlist.some((item) => String(item.product_id) === String(productId));

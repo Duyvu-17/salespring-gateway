@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { Flame, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { productService } from "@/services/product.service";
 import { LazyProductGrid } from "./LazyProductGrid";
 import { Product } from "@/types/product";
 
@@ -109,27 +107,17 @@ const SectionEmpty = ({ title, icon }: SectionEmptyProps) => (
   </section>
 );
 
-const HotProductsSection = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface HotProductsSectionProps {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+}
 
-  useEffect(() => {
-    const fetchHot = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await productService.getHot();
-        setProducts(Array.isArray(res) ? res : []);
-      } catch (err) {
-        setError("Không thể tải sản phẩm hot.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHot();
-  }, []);
-
+const HotProductsSection = ({
+  products,
+  loading,
+  error,
+}: HotProductsSectionProps) => {
   if (loading)
     return (
       <SectionLoading

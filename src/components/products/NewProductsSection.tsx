@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { Clock, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { productService } from "@/services/product.service";
 import { LazyProductGrid } from "./LazyProductGrid";
 import { Product } from "@/types/product";
 
@@ -12,7 +10,13 @@ interface SectionWrapperProps {
   linkText?: string;
   children: React.ReactNode;
 }
-const SectionWrapper = ({ title, icon, link, linkText, children }: SectionWrapperProps) => (
+const SectionWrapper = ({
+  title,
+  icon,
+  link,
+  linkText,
+  children,
+}: SectionWrapperProps) => (
   <section className="container mx-auto px-4 py-12">
     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-10 gap-4">
       <div>
@@ -26,7 +30,8 @@ const SectionWrapper = ({ title, icon, link, linkText, children }: SectionWrappe
           to={link}
           className="text-primary hover:underline flex items-center group font-medium"
         >
-          {linkText} <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          {linkText}{" "}
+          <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
         </Link>
       )}
     </div>
@@ -102,37 +107,54 @@ const SectionEmpty = ({ title, icon }: SectionEmptyProps) => (
   </section>
 );
 
-const NewProductsSection = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface NewProductsSectionProps {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+}
 
-  useEffect(() => {
-    const fetchNew = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await productService.getNew();
-        setProducts(Array.isArray(res) ? res : []);
-      } catch (err) {
-        setError("Không thể tải sản phẩm mới.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchNew();
-  }, []);
-
-  if (loading) return <SectionLoading title="Sản phẩm mới" icon={<Clock className="h-8 w-8 text-blue-500" />} />;
-  if (error) return <SectionError title="Sản phẩm mới" icon={<Clock className="h-8 w-8 text-blue-500" />} error={error} />;
-  if (products.length === 0) return <SectionEmpty title="Sản phẩm mới" icon={<Clock className="h-8 w-8 text-blue-500" />} />;
+const NewProductsSection = ({
+  products,
+  loading,
+  error,
+}: NewProductsSectionProps) => {
+  if (loading)
+    return (
+      <SectionLoading
+        title="Sản phẩm mới"
+        icon={<Clock className="h-8 w-8 text-blue-500" />}
+      />
+    );
+  if (error)
+    return (
+      <SectionError
+        title="Sản phẩm mới"
+        icon={<Clock className="h-8 w-8 text-blue-500" />}
+        error={error}
+      />
+    );
+  if (products.length === 0)
+    return (
+      <SectionEmpty
+        title="Sản phẩm mới"
+        icon={<Clock className="h-8 w-8 text-blue-500" />}
+      />
+    );
 
   return (
-    <SectionWrapper title="Sản phẩm mới" icon={<Clock className="h-8 w-8 text-blue-500" />}
-      link="/search?new=true" linkText="Xem tất cả">
-      <LazyProductGrid products={products.slice(0, 12)} initialCount={6} loadMoreCount={6} />
+    <SectionWrapper
+      title="Sản phẩm mới"
+      icon={<Clock className="h-8 w-8 text-blue-500" />}
+      link="/search?new=true"
+      linkText="Xem tất cả"
+    >
+      <LazyProductGrid
+        products={products.slice(0, 12)}
+        initialCount={6}
+        loadMoreCount={6}
+      />
     </SectionWrapper>
   );
 };
 
-export default NewProductsSection; 
+export default NewProductsSection;

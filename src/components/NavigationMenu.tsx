@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   NavigationMenu,
@@ -22,18 +23,20 @@ import {
   Percent,
   Flame,
 } from "lucide-react";
-import { categoryService } from "@/services/category.service";
-import { Category } from "@/types/category";
+import { fetchCategories } from "@/store/slices/categorySlice";
+import type { RootState, AppDispatch } from "@/store";
 
 export const MainNavigationMenu = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const categories = useSelector(
+    (state: RootState) => state.category.categories
+  );
 
   useEffect(() => {
-    categoryService
-      .getAll()
-      .then(setCategories)
-      .catch(() => setCategories([]));
-  }, []);
+    if (!categories.length) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, categories.length]);
 
   const categoryIcons = {
     "Điện thoại": Laptop,

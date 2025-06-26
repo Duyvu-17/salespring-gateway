@@ -32,6 +32,9 @@ import { productService } from "@/services/product.service";
 import { categoryService } from "@/services/category.service";
 import { Product } from "@/types/product";
 import { Category } from "@/types/category";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchCategories } from "@/store/slices/categorySlice";
+import type { RootState, AppDispatch } from "@/store";
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -47,30 +50,33 @@ const Search = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number>(1500);
+  const dispatch = useDispatch<AppDispatch>();
+  const categoriesRedux = useSelector(
+    (state: RootState) => state.category.categories
+  );
 
-  // Lấy danh mục từ BE
+  // Lấy danh mục từ redux store nếu chưa có thì fetch
   useEffect(() => {
-    categoryService
-      .getAll()
-      .then(setCategories)
-      .catch(() => setCategories([]));
-  }, []);
+    if (!categoriesRedux.length) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, categoriesRedux.length]);
 
   // Lấy sản phẩm từ BE theo filter/search - Fixed version
   useEffect(() => {
     setIsLoading(true);
     const params: Record<string, string | number | boolean> = {};
-    
+
     // Fixed: Đồng bộ parameter names với BE
     if (searchTerm) params.q = searchTerm;
     if (selectedCategory) params.category = selectedCategory;
-    
+
     // Fixed: Gửi đúng parameter name mà BE expect
     if (showOnSale) params.sale = true;
-    
+
     if (searchParams.get("new") === "true") params.new = true;
     if (showInStock) params.inStock = true;
-    
+
     // Fixed: Sử dụng consistent parameter names
     if (priceRange[0] > 0) params.min_price = priceRange[0];
     if (priceRange[1] < maxPrice) params.max_price = priceRange[1];
@@ -81,23 +87,25 @@ const Search = () => {
         // Fixed: Handle different response structures
         const products = res.products || res.data || res;
         const productsArray = Array.isArray(products) ? products : [];
-        
+
         setFilteredProducts(productsArray);
-        
+
         // Fixed: Safe max price calculation
         if (productsArray.length > 0) {
-          const maxP = Math.max(...productsArray.map((p) => {
-            // Handle both direct price and nested pricing
-            const price = p.price || p.ProductPricing?.base_price || 0;
-            return Number(price);
-          }));
+          const maxP = Math.max(
+            ...productsArray.map((p) => {
+              // Handle both direct price and nested pricing
+              const price = p.price || p.ProductPricing?.base_price || 0;
+              return Number(price);
+            })
+          );
           setMaxPrice(maxP > 0 ? maxP : 1500);
         } else {
           setMaxPrice(1500);
         }
       })
       .catch((error) => {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
         setFilteredProducts([]);
         setMaxPrice(1500);
       })
@@ -181,11 +189,10 @@ const Search = () => {
   return (
     <div className="container mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold mb-8">Search Products</h1>
-      
+
       {/* New Search and Filter UI */}
       <div className="mb-8 relative">
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-          
           {/* Search Input */}
           <form onSubmit={handleSearch} className="flex-1">
             <div className="relative">
@@ -203,7 +210,7 @@ const Search = () => {
               </button>
             </div>
           </form>
-          
+
           {/* Filter Button - Sheet Trigger */}
           <Sheet>
             <SheetTrigger asChild>
@@ -224,12 +231,11 @@ const Search = () => {
                 <SheetDescription>Refine your product search</SheetDescription>
               </SheetHeader>
               <div className="space-y-6">
-                
                 {/* Categories in Sheet */}
                 <div className="space-y-4">
                   <h3 className="font-medium text-base">Categories</h3>
                   <div className="grid grid-cols-2 gap-2">
-                    {categories.map((category) => (
+                    {categoriesRedux.map((category) => (
                       <button
                         key={category.id}
                         onClick={() => handleCategorySelect(category.name)}
@@ -247,7 +253,7 @@ const Search = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Price Range in Sheet */}
                 <div className="space-y-4">
                   <h3 className="font-medium text-base">Price Range</h3>
@@ -264,7 +270,7 @@ const Search = () => {
                     <span>₫{priceRange[1].toLocaleString()}</span>
                   </div>
                 </div>
-                
+
                 {/* Availability in Sheet */}
                 <div className="space-y-4">
                   <h3 className="font-medium text-base">Availability</h3>
@@ -284,7 +290,7 @@ const Search = () => {
                         In Stock Only
                       </label>
                     </div>
-                    
+
                     {/* Fixed: Update onSale checkbox handler in Sheet */}
                     <div className="flex items-center space-x-2">
                       <Checkbox
@@ -310,7 +316,7 @@ const Search = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Apply/Clear Buttons */}
                 <div className="flex gap-2 pt-4 border-t">
                   <Button
@@ -327,7 +333,7 @@ const Search = () => {
               </div>
             </SheetContent>
           </Sheet>
-          
+
           {/* Sort Dropdown */}
           <div className="flex items-center gap-2 min-w-36">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
@@ -340,7 +346,7 @@ const Search = () => {
             </select>
           </div>
         </div>
-        
+
         {/* Active filters */}
         {activeFilters.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2 items-center">
@@ -370,7 +376,7 @@ const Search = () => {
           </div>
         )}
       </div>
-      
+
       {/* Products Display */}
       <div>
         {isLoading ? (
@@ -398,7 +404,7 @@ const Search = () => {
                 Showing {filteredProducts.length} products
               </p>
             </div>
-            
+
             {/* Fixed: Safe product rendering với fallback cho price structure */}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
@@ -410,14 +416,15 @@ const Search = () => {
                     <div className="relative">
                       <img
                         src={
-                          product.image_url || 
-                          product.images?.[0]?.image_url || 
+                          product.image_url ||
+                          product.images?.[0]?.image_url ||
                           "/placeholder-product.jpg"
                         }
                         alt={product.name}
                         className="w-full h-48 object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                          (e.target as HTMLImageElement).src =
+                            "/placeholder-product.jpg";
                         }}
                       />
                       {(product.sale_price || product.pricing?.sale_price) && (
@@ -436,23 +443,25 @@ const Search = () => {
                         {product.name}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-2">
-                        {product.Category?.name || 
-                         product.category_name ||
-                         categories.find((c) => c.id === product.category_id)?.name || 
-                         "Uncategorized"}
+                        {product.Category?.name ||
+                          product.category_name ||
+                          categoriesRedux.find(
+                            (c) => c.id === product.category_id
+                          )?.name ||
+                          "Uncategorized"}
                       </p>
-                      
+
                       {/* Brand info if available */}
                       {(product.Brand?.name || product.brand_name) && (
                         <p className="text-xs text-muted-foreground mb-2">
                           Brand: {product.Brand?.name || product.brand_name}
                         </p>
                       )}
-                      
+
                       {/* Stock status */}
                       <div className="flex items-center gap-2 mb-2">
                         {product.in_stock !== undefined ? (
-                          <Badge 
+                          <Badge
                             variant={product.in_stock ? "default" : "secondary"}
                             className="text-xs"
                           >
@@ -463,19 +472,22 @@ const Search = () => {
                             Stock Unknown
                           </Badge>
                         )}
-                        
-                        {product.stock_quantity !== undefined && product.stock_quantity > 0 && (
-                          <span className="text-xs text-muted-foreground">
-                            ({product.stock_quantity} available)
-                          </span>
-                        )}
+
+                        {product.stock_quantity !== undefined &&
+                          product.stock_quantity > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              ({product.stock_quantity} available)
+                            </span>
+                          )}
                       </div>
-                      
+
                       {/* Fixed: Handle different price structures */}
                       {(() => {
-                        const salePrice = product.sale_price || product.pricing?.sale_price;
-                        const basePrice = product.price || product.pricing?.base_price;
-                        
+                        const salePrice =
+                          product.sale_price || product.pricing?.sale_price;
+                        const basePrice =
+                          product.price || product.pricing?.base_price;
+
                         if (salePrice && parseInt(salePrice) > 0) {
                           return (
                             <div className="flex justify-between items-center">

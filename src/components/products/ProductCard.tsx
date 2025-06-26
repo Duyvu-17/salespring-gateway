@@ -35,10 +35,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const { toast } = useToast();
   const wishlist = useSelector(selectWishlistMemo);
   const wishlistLoading = useSelector(
-    (state: RootState) => state.isLoading
+    (state: RootState) => state.wishlist.isLoading
   );
   const inWishlist = isInWishlistSelector(wishlist, String(product.id));
-
+  console.log('product', product);
+  
   // Lấy hình ảnh chính và hình ảnh thứ 2 từ BE
   const mainImage =
     product.images && product.images.length > 0
@@ -53,6 +54,43 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const truncateProductName = (name: string, maxLength: number = 20) => {
     if (name.length <= maxLength) return name;
     return name.substring(0, maxLength).trim() + "...";
+  };
+
+  // Component hiển thị rating stars
+  const renderRating = () => {
+    if (!product.rating_avg || !product.rating_count) return null;
+    
+    const rating = parseFloat(product.rating_avg);
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    return (
+      <div className="flex items-center space-x-1 mb-2">
+        <div className="flex">
+          {/* Full stars */}
+          {[...Array(fullStars)].map((_, i) => (
+            <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+          ))}
+          {/* Half star */}
+          {hasHalfStar && (
+            <div className="relative">
+              <Star className="h-4 w-4 text-gray-300" />
+              <div className="absolute top-0 left-0 overflow-hidden w-1/2">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              </div>
+            </div>
+          )}
+          {/* Empty stars */}
+          {[...Array(emptyStars)].map((_, i) => (
+            <Star key={i} className="h-4 w-4 text-gray-300" />
+          ))}
+        </div>
+        <span className="text-sm text-muted-foreground">
+          {rating.toFixed(1)} ({product.rating_count})
+        </span>
+      </div>
+    );
   };
 
   const handleAddToWishlist = async (e: React.MouseEvent) => {
@@ -167,6 +205,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               >
                 {truncateProductName(product.name)}
               </h3>
+              {/* Thêm rating vào đây */}
+              {renderRating()}
             </div>
             <div className="text-right flex-shrink-0">
               {product.pricing?.sale_price ? (
