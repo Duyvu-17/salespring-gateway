@@ -8,7 +8,7 @@ class AuthService {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  private async refreshToken(): Promise<string> {
+  public async refreshToken(): Promise<string> {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) throw new Error('No refresh token');
     try {
@@ -23,7 +23,7 @@ class AuthService {
       }
       throw new Error('No token in refresh response');
     } catch (error: unknown) {
-      const err = error as any;
+      const err = error as { response?: { data?: { message?: string } } };
       throw new Error(err.response?.data?.message || 'Refresh token failed');
     }
   }
@@ -63,45 +63,43 @@ class AuthService {
 
   async login(email: string, password: string): Promise<User> {
     try {
-      const { data } = await axiosInstance.post(
-        `${API_ENDPOINTS.AUTH.LOGIN}`,
-        { email, password }
+      const data = await this.request<{ data: { user: User, accessToken: string, refreshToken: string } }>(
+        API_ENDPOINTS.AUTH.LOGIN,
+        { method: 'post', data: { email, password } }
       );
       localStorage.setItem('token', data.data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('user', JSON.stringify(data.data.user));
       localStorage.setItem('refreshToken', data.data.refreshToken);
-      if (data.refreshToken) localStorage.setItem('refreshToken', data.data.refreshToken);
+      if (data.data.refreshToken) localStorage.setItem('refreshToken', data.data.refreshToken);
       return data.data.user;
     } catch (error: unknown) {
-      const err = error as any;
+      const err = error as { response?: { data?: { message?: string } } };
       throw new Error(err.response?.data?.message || 'Email hoặc mật khẩu không đúng');
     }
   }
 
   async register(full_name: string, email: string, password: string): Promise<User> {
     try {
-      const { data } = await axiosInstance.post(
-        `${API_ENDPOINTS.AUTH.REGISTER}`,
-        { full_name, email, password },
-        { headers: { 'Content-Type': 'application/json' } }
+      const data = await this.request<{ data: { user: User, accessToken: string, refreshToken: string } }>(
+        API_ENDPOINTS.AUTH.REGISTER,
+        { method: 'post', data: { full_name, email, password }, headers: { 'Content-Type': 'application/json' } }
       );
       localStorage.setItem('token', data.data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
-      if (data.refreshToken) localStorage.setItem('refreshToken', data.data.refreshToken);
-      return data.user;
+      if (data.data.refreshToken) localStorage.setItem('refreshToken', data.data.refreshToken);
+      return data.data.user;
     } catch (error: unknown) {
-      const err = error as any;
+      const err = error as { response?: { data?: { message?: string } } };
       throw new Error(err.response?.data?.message || 'Có lỗi xảy ra khi đăng ký tài khoản');
     }
   }
 
   async logout(): Promise<void> {
     try {
-      await axiosInstance.post(
-        `${API_ENDPOINTS.AUTH.LOGOUT}`,
-        {},
-        { headers: { ...this.getAuthHeader(), 'Content-Type': 'application/json' } }
+      await this.request(
+        API_ENDPOINTS.AUTH.LOGOUT,
+        { method: 'post', data: {}, headers: { ...this.getAuthHeader(), 'Content-Type': 'application/json' } }
       );
     } finally {
       this.clearAuthData();
@@ -110,19 +108,17 @@ class AuthService {
 
   async loginWithGoogle(idToken: string): Promise<User> {
     try {
-      const { data } = await axiosInstance.post(
-        `${API_ENDPOINTS.AUTH.GOOGLE}`,
-        { idToken },
-        { headers: { 'Content-Type': 'application/json' } }
+      const data = await this.request<{ data: { user: User, accessToken: string, refreshToken: string } }>(
+        API_ENDPOINTS.AUTH.GOOGLE,
+        { method: 'post', data: { idToken }, headers: { 'Content-Type': 'application/json' } }
       );
-      console.log(data);
       localStorage.setItem('token', data.data.accessToken);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('user', JSON.stringify(data.data.user));
       localStorage.setItem('refreshToken', data.data.refreshToken);
       return data.data.user;
     } catch (error: unknown) {
-      const err = error as any;
+      const err = error as { response?: { data?: { message?: string } } };
       throw new Error(err.response?.data?.message || 'Đăng nhập Google thất bại');
     }
   }
@@ -134,22 +130,19 @@ class AuthService {
         this.clearAuthData();
         return null;
       }
-      const { data } = await axiosInstance.get(
-        `${API_ENDPOINTS.AUTH.ME}`,
-        { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
+      const data = await this.request<{ data: { user: User } }>(
+        API_ENDPOINTS.AUTH.ME,
+        { method: 'get', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
       );
-      // Kiểm tra format của response - có thể là { user: User } hoặc User trực tiếp
       let userData = null;
       if (data && data.data.user) {
         userData = data.data.user;
-      } else if (data && data.data.id && data.data.email) {
-        userData = data;
       } else {
         return null;
       }
       return userData;
     } catch (error: unknown) {
-      const err = error as any;
+      const err = error as { response?: { status?: number; data?: { message?: string } } };
       if (err.response?.status === 401) {
         this.clearAuthData();
       }
@@ -159,26 +152,26 @@ class AuthService {
 
   async resetPassword(token: string, newPassword: string): Promise<any> {
     try {
-      const { data } = await axiosInstance.post(
-        `${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
-        { token, newPassword }
+      const data = await this.request(
+        API_ENDPOINTS.AUTH.RESET_PASSWORD,
+        { method: 'post', data: { token, newPassword } }
       );
       return data;
     } catch (error: unknown) {
-      const err = error as any;
+      const err = error as { response?: { data?: { message?: string } } };
       throw new Error(err.response?.data?.message || 'Đổi mật khẩu thất bại');
     }
   }
 
   async forgotPassword(email: string): Promise<any> {
     try {
-      const { data } = await axiosInstance.post(
-        `${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
-        { email }
+      const data = await this.request(
+        API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
+        { method: 'post', data: { email } }
       );
       return data;
     } catch (error: unknown) {
-      const err = error as any;
+      const err = error as { response?: { data?: { message?: string } } };
       throw new Error(err.response?.data?.message || 'Không thể gửi email quên mật khẩu');
     }
   }

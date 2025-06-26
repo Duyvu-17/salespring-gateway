@@ -14,8 +14,9 @@ import {
   Mail,
   Palette,
 } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
-import { useAuth } from "@/context/AuthContext";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/store";
+import { setTheme, toggleTheme } from "@/store/slices/themeSlice";
 import { Badge } from "@/components/ui/badge";
 import { LogoutConfirmDialog } from "./LogoutConfirmDialog";
 import { MainNavigationMenu } from "./NavigationMenu";
@@ -27,8 +28,12 @@ export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
-  const { theme, toggleTheme, themeLabel } = useTheme();
-  const { isAuthenticated } = useAuth();
+  const dispatch = useDispatch();
+  const theme = useSelector((state: RootState) => state.theme.theme);
+  const themeLabel = theme.charAt(0).toUpperCase() + theme.slice(1);
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,7 +97,7 @@ export const Header = () => {
 
           <div className="flex space-x-4 items-center">
             <button
-              onClick={toggleTheme}
+              onClick={() => dispatch(toggleTheme())}
               className="text-xs hover:text-primary"
             >
               Theme: {themeLabel}
@@ -273,7 +278,7 @@ export const Header = () => {
                 <button
                   className="px-4 py-2 hover:bg-muted rounded-md text-left"
                   onClick={() => {
-                    toggleTheme();
+                    dispatch(toggleTheme());
                     setIsMenuOpen(false);
                   }}
                 >

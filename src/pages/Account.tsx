@@ -24,12 +24,17 @@ import Appearance from "@/components/account/Appearance";
 import Order from "@/components/account/Order";
 import { OrderDetailsTab } from "@/components/account/OrderDetailsTab";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAuth } from "@/context/AuthContext";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 
 const Account = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
+  const isLoading = useSelector((state: RootState) => state.auth.isLoading);
   const [profile, setProfile] = useState(user);
 
   const [paymentMethods, setPaymentMethods] = useState([

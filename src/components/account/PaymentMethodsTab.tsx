@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Card,
@@ -20,7 +19,8 @@ import {
   Settings,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "@/context/ThemeContext";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,15 +48,17 @@ interface PaymentMethod {
 
 export const PaymentMethodsTab = () => {
   const { toast } = useToast();
-  const { theme } = useTheme();
+  const theme = useSelector((state: RootState) => state.theme.theme);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showThemeSettings, setShowThemeSettings] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [currentEditPaymentMethod, setCurrentEditPaymentMethod] = useState<PaymentMethod | undefined>(undefined);
+  const [currentEditPaymentMethod, setCurrentEditPaymentMethod] = useState<
+    PaymentMethod | undefined
+  >(undefined);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null);
-  
+
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
     {
       id: "visa1",
@@ -109,7 +111,7 @@ export const PaymentMethodsTab = () => {
           pm.id === currentEditPaymentMethod.id ? paymentMethod : pm
         )
       );
-      
+
       toast({
         title: "Payment method updated",
         description: "Your payment method has been updated successfully.",
@@ -117,7 +119,7 @@ export const PaymentMethodsTab = () => {
     } else {
       // Add new payment method
       setPaymentMethods([...paymentMethods, paymentMethod]);
-      
+
       toast({
         title: "Payment method added",
         description: "Your new payment method has been added successfully.",
@@ -132,13 +134,15 @@ export const PaymentMethodsTab = () => {
 
   const handleRemoveCard = () => {
     if (paymentToDelete) {
-      setPaymentMethods(paymentMethods.filter(pm => pm.id !== paymentToDelete));
-      
+      setPaymentMethods(
+        paymentMethods.filter((pm) => pm.id !== paymentToDelete)
+      );
+
       toast({
         title: "Payment method removed",
         description: "Your payment method has been removed successfully.",
       });
-      
+
       setShowDeleteConfirm(false);
       setPaymentToDelete(null);
     }
@@ -151,7 +155,7 @@ export const PaymentMethodsTab = () => {
         isDefault: pm.id === id,
       }))
     );
-    
+
     toast({
       title: "Default payment method updated",
       description: "Your default payment method has been updated successfully.",
@@ -162,15 +166,35 @@ export const PaymentMethodsTab = () => {
     switch (type) {
       case "visa":
       case "mastercard":
-        return <div className="bg-blue-100 p-3 rounded-md"><CreditCard className="h-5 w-5 text-blue-600" /></div>;
+        return (
+          <div className="bg-blue-100 p-3 rounded-md">
+            <CreditCard className="h-5 w-5 text-blue-600" />
+          </div>
+        );
       case "momo":
-        return <div className="bg-pink-100 p-3 rounded-md"><Wallet className="h-5 w-5 text-pink-600" /></div>;
+        return (
+          <div className="bg-pink-100 p-3 rounded-md">
+            <Wallet className="h-5 w-5 text-pink-600" />
+          </div>
+        );
       case "vnpay":
-        return <div className="bg-purple-100 p-3 rounded-md"><Banknote className="h-5 w-5 text-purple-600" /></div>;
+        return (
+          <div className="bg-purple-100 p-3 rounded-md">
+            <Banknote className="h-5 w-5 text-purple-600" />
+          </div>
+        );
       case "zalopay":
-        return <div className="bg-blue-100 p-3 rounded-md"><Wallet className="h-5 w-5 text-blue-600" /></div>;
+        return (
+          <div className="bg-blue-100 p-3 rounded-md">
+            <Wallet className="h-5 w-5 text-blue-600" />
+          </div>
+        );
       default:
-        return <div className="bg-gray-100 p-3 rounded-md"><CreditCard className="h-5 w-5 text-gray-600" /></div>;
+        return (
+          <div className="bg-gray-100 p-3 rounded-md">
+            <CreditCard className="h-5 w-5 text-gray-600" />
+          </div>
+        );
     }
   };
 
@@ -249,7 +273,9 @@ export const PaymentMethodsTab = () => {
                     {getPaymentMethodIcon(method.type)}
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{getPaymentMethodName(method)}</h3>
+                        <h3 className="font-medium">
+                          {getPaymentMethodName(method)}
+                        </h3>
                         {method.isDefault && (
                           <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
                             Default
@@ -268,14 +294,16 @@ export const PaymentMethodsTab = () => {
                           )}
                           {method.billingAddress && (
                             <p>
-                              <strong>Billing address:</strong> {method.billingAddress}
+                              <strong>Billing address:</strong>{" "}
+                              {method.billingAddress}
                             </p>
                           )}
-                          {method.phoneNumber && !method.type.includes("card") && (
-                            <p>
-                              <strong>Phone:</strong> {method.phoneNumber}
-                            </p>
-                          )}
+                          {method.phoneNumber &&
+                            !method.type.includes("card") && (
+                              <p>
+                                <strong>Phone:</strong> {method.phoneNumber}
+                              </p>
+                            )}
                         </div>
                       )}
                     </div>
@@ -335,12 +363,15 @@ export const PaymentMethodsTab = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Payment Method</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this payment method? This action cannot be undone.
+              Are you sure you want to remove this payment method? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRemoveCard}>Remove</AlertDialogAction>
+            <AlertDialogAction onClick={handleRemoveCard}>
+              Remove
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

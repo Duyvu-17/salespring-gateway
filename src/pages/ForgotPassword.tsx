@@ -1,28 +1,25 @@
-
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Mail, KeyRound, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Mail, KeyRound, ArrowLeft } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "@/store";
+import { forgotPassword } from '@/store/slices/authSlice';
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { forgotPassword, isLoading } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const isLoading = useSelector((state: RootState) => state.auth.isLoading);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email) return;
-    
-    try {
-      await forgotPassword(email);
+    const resultAction = await dispatch(forgotPassword(email));
+    if (forgotPassword.fulfilled.match(resultAction)) {
       setIsSubmitted(true);
-    } catch (error) {
-      // Error is handled in the auth provider
-      console.error('Forgot password error:', error);
     }
   };
 
@@ -32,12 +29,12 @@ const ForgotPassword = () => {
         <div className="text-center">
           <h1 className="text-3xl font-bold">Reset Password</h1>
           <p className="text-muted-foreground mt-2">
-            {!isSubmitted 
-              ? "Enter your email to receive a password reset link" 
+            {!isSubmitted
+              ? "Enter your email to receive a password reset link"
               : "Check your email for reset instructions"}
           </p>
         </div>
-        
+
         {!isSubmitted ? (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -54,7 +51,7 @@ const ForgotPassword = () => {
                 required
               />
             </div>
-            
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Sending..." : "Send Reset Link"}
             </Button>
@@ -64,19 +61,26 @@ const ForgotPassword = () => {
             <div className="bg-green-50 border border-green-200 rounded-md p-4 text-center">
               <KeyRound className="mx-auto h-8 w-8 text-green-500 mb-2" />
               <p className="text-green-800">
-                If an account exists with the email <strong>{email}</strong>, 
+                If an account exists with the email <strong>{email}</strong>,
                 you will receive a password reset link shortly.
               </p>
             </div>
-            
-            <Button variant="outline" className="w-full" onClick={() => setIsSubmitted(false)}>
+
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setIsSubmitted(false)}
+            >
               Try another email
             </Button>
           </div>
         )}
-        
+
         <div className="text-center">
-          <Link to="/login" className="inline-flex items-center text-sm text-primary hover:underline">
+          <Link
+            to="/login"
+            className="inline-flex items-center text-sm text-primary hover:underline"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Sign In
           </Link>

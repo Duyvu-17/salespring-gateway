@@ -12,12 +12,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 
 export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
+  const isLoading = useSelector((state: RootState) => state.auth.isLoading);
   const [profile, setProfile] = useState(user);
 
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);

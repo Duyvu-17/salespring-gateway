@@ -1,4 +1,3 @@
-
 import {
   Card,
   CardContent,
@@ -8,17 +7,21 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useTheme } from "@/context/ThemeContext";
 import { Check } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store";
+import { setTheme, ThemeType } from "@/store/slices/themeSlice";
 
 export const Appearance = () => {
-  const { theme, setTheme } = useTheme();
-  
+  // const { theme, setTheme } = useTheme();
+  const dispatch = useDispatch();
+  const theme = useSelector((state: RootState) => state.theme.theme);
+
   const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme as any);
+    dispatch(setTheme(newTheme as ThemeType));
     toast.success(`Theme changed to ${newTheme}`);
   };
-  
+
   const themes = [
     { id: "light", name: "Light" },
     { id: "dark", name: "Dark" },
@@ -54,7 +57,9 @@ export const Appearance = () => {
                         className="justify-center"
                         onClick={() => handleThemeChange(t.id)}
                       >
-                        <span className={`mr-2 rounded-full w-3 h-3 inline-block theme-dot bg-primary`}></span>
+                        <span
+                          className={`mr-2 rounded-full w-3 h-3 inline-block theme-dot bg-primary`}
+                        ></span>
                         {t.name}
                         {theme === t.id && <Check className="ml-2 h-4 w-4" />}
                       </Button>

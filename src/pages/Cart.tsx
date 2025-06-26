@@ -1,28 +1,36 @@
-import { useCart } from "@/context/CartContext";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "@/store";
+import {
+  removeFromCart,
+  updateCartItem,
+  toggleItemSelection,
+  selectAllItems,
+  fetchCart,
+} from "@/store/slices/cartSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Minus, Plus, ShoppingBag, Tag } from "lucide-react";
 import type { Cart, CartItem, ProductInCart } from "@/types/cart";
+import { useEffect } from "react";
 
 const Cart = () => {
-  const {
-    cart,
-    isLoading,
-    removeFromCart,
-    updateCartItem,
-    toggleItemSelection,
-    selectAllItems,
-  } = useCart();
+  const dispatch = useDispatch<AppDispatch>();
+  const cart = useSelector((state: any) => state.cart?.cart);
+  const isLoading = useSelector((state: any) => state.cart?.isLoading);
+
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch]);
 
   const handleRemoveItem = (itemId: number) => {
-    removeFromCart(String(itemId));
+    dispatch(removeFromCart(String(itemId)));
   };
 
   const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
-    updateCartItem(String(itemId), newQuantity);
+    dispatch(updateCartItem({ itemId: String(itemId), quantity: newQuantity }));
   };
 
   const getProductPrice = (product: ProductInCart) => {
@@ -105,7 +113,9 @@ const Cart = () => {
               <Checkbox
                 id="select-all"
                 checked={allSelected}
-                onCheckedChange={selectAllItems}
+                onCheckedChange={(checked) =>
+                  dispatch(selectAllItems(checked as boolean))
+                }
                 className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
               <label
@@ -133,7 +143,12 @@ const Cart = () => {
                         id={`item-${item.id}`}
                         checked={item.selected}
                         onCheckedChange={(checked) =>
-                          toggleItemSelection(item.id, checked as boolean)
+                          dispatch(
+                            toggleItemSelection({
+                              itemId: item.id,
+                              selected: checked as boolean,
+                            })
+                          )
                         }
                         className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
@@ -156,7 +171,7 @@ const Cart = () => {
 
                     {/* Product Info */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg mb-1 line-clamp-2">
+                      <h3 className="text-lg font-semibold mb-1 line-clamp-2">
                         {item.Product.name}
                       </h3>
 

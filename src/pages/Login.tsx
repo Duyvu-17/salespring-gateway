@@ -3,10 +3,12 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "@/store";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { login, loginWithGoogle } from "@/store/slices/authSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +18,10 @@ const Login = () => {
     email?: string;
     password?: string;
   }>({});
-  const { login, loginWithGoogle, isLoading } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoading, error, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -70,24 +75,37 @@ const Login = () => {
     });
 
     if (!emailError && !passwordError) {
-      try {
-        await login(email, password);
+      const resultAction = await dispatch(login({ email, password }));
+      if (login.fulfilled.match(resultAction)) {
         toast({
           title: "Đăng nhập thành công",
           description: "Chào mừng bạn quay trở lại!",
         });
         navigate(from, { replace: true });
-      } catch (error: any) {
-        // Không cần hiện toast ở đây nữa vì đã hiện ở AuthContext
+      } else if (login.rejected.match(resultAction)) {
+        toast({
+          title: "Đăng nhập thất bại",
+          description: resultAction.payload as string,
+          variant: "destructive",
+        });
       }
     }
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      await loginWithGoogle();
-    } catch (error) {
-      console.error("Lỗi đăng nhập với Google:", error);
+    const resultAction = await dispatch(loginWithGoogle());
+    if (loginWithGoogle.fulfilled.match(resultAction)) {
+      toast({
+        title: "Đăng nhập Google thành công",
+        description: "Chào mừng bạn quay trở lại!",
+      });
+      navigate("/");
+    } else if (loginWithGoogle.rejected.match(resultAction)) {
+      toast({
+        title: "Đăng nhập Google thất bại",
+        description: resultAction.payload as string,
+        variant: "destructive",
+      });
     }
   };
 
@@ -179,6 +197,12 @@ const Login = () => {
           >
             {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
           </Button>
+          {error && (
+            <div className="text-destructive text-sm mt-2 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              {error}
+            </div>
+          )}
         </form>
 
         <div className="relative">

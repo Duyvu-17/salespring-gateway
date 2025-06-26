@@ -5,9 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Star, ShoppingBag, Zap, Eye } from "lucide-react";
 import { Product } from "@/types/product";
-import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
 import { Heart } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "@/store";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  getWishlistItem,
+  isInWishlist as isInWishlistSelector,
+} from "@/store/slices/wishlistSlice";
+import { createSelector } from "@reduxjs/toolkit";
+
+// Memoized selector cho wishlist
+const selectWishlist = (state: RootState) => state.wishlist.wishlist;
+const selectWishlistMemo = createSelector(
+  [selectWishlist],
+  (wishlist) => wishlist ?? []
+);
 
 interface ProductCardProps {
   product: Product;
@@ -16,12 +31,13 @@ interface ProductCardProps {
 export const ProductCard = ({ product }: ProductCardProps) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const { addToWishlist, removeFromWishlist, isInWishlist, wishlist } =
-    useWishlist();
+  const dispatch = useDispatch<AppDispatch>();
   const { toast } = useToast();
-  const [inWishlist, setInWishlist] = useState(
-    isInWishlist(String(product.id))
+  const wishlist = useSelector(selectWishlistMemo);
+  const wishlistLoading = useSelector(
+    (state: RootState) => state.isLoading
   );
+  const inWishlist = isInWishlistSelector(wishlist, String(product.id));
 
   // Lấy hình ảnh chính và hình ảnh thứ 2 từ BE
   const mainImage =
@@ -44,20 +60,16 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     e.stopPropagation();
     if (inWishlist) {
       // Tìm item trong wishlist để lấy id
-      const item = wishlist?.find(
-        (i) => String(i.product_id) === String(product.id)
-      );
+      const item = getWishlistItem(wishlist, String(product.id));
       if (item) {
-        await removeFromWishlist(String(item.id));
-        setInWishlist(false);
+        await dispatch(removeFromWishlist(String(item.id)));
         toast({
           title: "Removed from wishlist",
           description: `${product.name} has been removed from your wishlist`,
         });
       }
     } else {
-      await addToWishlist(String(product.id));
-      setInWishlist(true);
+      await dispatch(addToWishlist(String(product.id)));
       toast({
         title: "Added to wishlist",
         description: `${product.name} has been added to your wishlist`,
@@ -114,6 +126,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             <button
               onClick={handleAddToWishlist}
               className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors"
+              disabled={wishlistLoading}
             >
               <Heart
                 className={`h-5 w-5 ${
@@ -159,12 +172,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               {product.pricing?.sale_price ? (
                 <>
                   <p className="text-lg font-medium text-primary">
-                    ₫
-                    {Number(product.pricing.sale_price).toLocaleString()}
+                    ₫{Number(product.pricing.sale_price).toLocaleString()}
                   </p>
                   <p className="text-sm line-through text-muted-foreground">
-                    ₫
-                    {Number(product.pricing.base_price).toLocaleString()}
+                    ₫{Number(product.pricing.base_price).toLocaleString()}
                   </p>
                 </>
               ) : (

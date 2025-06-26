@@ -32,10 +32,18 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import ReviewSection from "@/components/products/ReviewSection";
-import { useWishlist } from "@/context/WishlistContext";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/context/AuthContext";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "@/store";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  getWishlistItem,
+  isInWishlist as isInWishlistSelector,
+} from "@/store/slices/wishlistSlice";
+import { addRecentlyViewed } from "@/store/slices/recentlyViewedSlice";
+import { createSelector } from "@reduxjs/toolkit";
 import {
   Popover,
   PopoverContent,
@@ -48,25 +56,42 @@ import ProductStatistics from "@/components/products/ProductStatistics";
 import ProductBoxContent from "@/components/products/ProductBoxContent";
 import RecentlyViewedProducts from "@/components/products/RecentlyViewedProducts";
 import ProductFeatures from "@/components/products/ProductFeatures";
-import { useRecentlyViewed } from "@/context/RecentlyViewedContext";
 import { Product } from "@/types/product";
 import type { ProductModel, ProductColor, UserReview } from "@/data/products";
 import { categories } from "@/data/products";
+
+// Memoized selectors
+const selectWishlist = (state: RootState) => state.wishlist;
+const selectWishlistMemo = createSelector(
+  [selectWishlist],
+  (wishlist) => wishlist ?? []
+);
+const selectRecentlyViewed = (state: RootState) =>
+  state.recentlyViewed.recentlyViewed;
+const selectRecentlyViewedMemo = createSelector(
+  [selectRecentlyViewed],
+  (recentlyViewed) => recentlyViewed ?? []
+);
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedModel, setSelectedModel] = useState<ProductModel | null>(null);
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
-  const [isInWishlistState, setIsInWishlistState] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const { recentlyViewed, addRecentlyViewed } = useRecentlyViewed();
+  const dispatch = useDispatch<AppDispatch>();
+  const wishlist = useSelector(selectWishlistMemo);
+  const recentlyViewed = useSelector(selectRecentlyViewedMemo);
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
+  const isInWishlistState = product
+    ? isInWishlistSelector(wishlist, String(product.id))
+    : false;
+
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isInWishlist, addToWishlist, removeFromWishlist, wishlist } =
-    useWishlist();
-  const { isAuthenticated } = useAuth();
 
   const [reviewPage, setReviewPage] = useState<number>(1);
   const reviewsPerPage = 3;
@@ -81,7 +106,7 @@ const ProductDetail = () => {
         // Lấy review từ BE
         const fetchedReviews = await reviewService.getReviews(res.id);
         setReviews(fetchedReviews);
-        // Thêm vào recently viewed qua context
+        // Thêm vào recently viewed qua redux
         const mainImage =
           res.image_url || res.images?.find((img) => img.is_main)?.image_url;
         // Map category_id sang tên
@@ -89,18 +114,23 @@ const ProductDetail = () => {
           (c) => String(c.id) === String(res.category_id)
         );
         const categoryName = categoryObj ? categoryObj.name : "";
-        addRecentlyViewed({
-          id: res.id,
-          name: res.name,
-          image: mainImage,
-          price: Number(res?.pricing?.sale_price) || Number(res.pricing.base_price) || Number(res.pricing.cost_price),
-          category: categoryName,
-        });
+        dispatch(
+          addRecentlyViewed({
+            id: res.id,
+            name: res.name,
+            image: mainImage,
+            price:
+              Number(res?.pricing?.sale_price) ||
+              Number(res.pricing.base_price) ||
+              Number(res.pricing.cost_price),
+            category: categoryName,
+          })
+        );
       } catch (e: unknown) {
         setProduct(null);
       }
     })();
-  }, [id]);
+  }, [id, dispatch]);
 
   if (!product) {
     return (
@@ -215,20 +245,16 @@ const ProductDetail = () => {
     if (!product) return;
     if (isInWishlistState) {
       // Tìm item trong wishlist để lấy id
-      const item = wishlist?.find(
-        (i) => String(i.product_id) === String(product.id)
-      );
+      const item = getWishlistItem(wishlist, String(product.id));
       if (item) {
-        await removeFromWishlist(String(item.id));
-        setIsInWishlistState(false);
+        await dispatch(removeFromWishlist(String(item.id)));
         toast({
           title: "Removed from wishlist",
           description: `${product.name} has been removed from your wishlist`,
         });
       }
     } else {
-      await addToWishlist(String(product.id));
-      setIsInWishlistState(true);
+      await dispatch(addToWishlist(String(product.id)));
       toast({
         title: "Added to wishlist",
         description: `${product.name} has been added to your wishlist`,
@@ -281,9 +307,10 @@ const ProductDetail = () => {
   };
 
   const currentPrice = getCurrentPrice();
-  const discountedPrice = product.discount
-    ? currentPrice * (1 - product.discount / 100)
-    : null;
+  const discountedPrice =
+    product && "discount" in product && product.discount
+      ? currentPrice * (1 - (product.discount as number) / 100)
+      : null;
 
   // Check if product is in stock based on selected model
   const isCurrentlyInStock = () => {
@@ -302,14 +329,17 @@ const ProductDetail = () => {
   const totalViews = Math.floor(Math.random() * 5000) + 500;
 
   // Calculate total review pages
-  const totalReviews = product.userReviews?.length || 0;
+  const totalReviews = (product as any)?.userReviews?.length || 0;
   const totalReviewPages = Math.ceil(totalReviews / reviewsPerPage);
 
   // Get current page reviews
   const getCurrentReviews = () => {
-    if (!product.userReviews) return [];
+    if (!(product as any)?.userReviews) return [];
     const startIndex = (reviewPage - 1) * reviewsPerPage;
-    return product.userReviews.slice(startIndex, startIndex + reviewsPerPage);
+    return (product as any).userReviews.slice(
+      startIndex,
+      startIndex + reviewsPerPage
+    );
   };
 
   const currentReviews = getCurrentReviews();
@@ -346,8 +376,8 @@ const ProductDetail = () => {
             mainImage={mainImage}
             productName={product.name}
             additionalImages={additionalImages}
-            discount={product.discount}
-            isNew={product.new}
+            discount={(product as any)?.discount}
+            isNew={(product as any)?.new}
           />
         </div>
         {/* Product Info - Right Column */}

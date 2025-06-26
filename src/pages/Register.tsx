@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, User, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "@/store";
 import { Separator } from "@/components/ui/separator";
+import { loginWithGoogle, register } from "@/store/slices/authSlice";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [full_name, setFullName] = useState("");
@@ -16,7 +20,12 @@ const Register = () => {
     email?: string;
     password?: string;
   }>({});
-  const { register, loginWithGoogle, isLoading } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoading, error, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const validateEmail = (emailToValidate: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -81,19 +90,31 @@ const Register = () => {
     });
 
     if (!emailError && !passwordError) {
-      try {
-        await register(full_name, email, password);
-      } catch (error) {
-        console.error("Lỗi đăng ký:", error);
+      const resultAction = await dispatch(
+        register({ full_name, email, password })
+      );
+      if (register.fulfilled.match(resultAction)) {
+        // Có thể toast hoặc chuyển hướng tại đây nếu muốn
+      } else if (register.rejected.match(resultAction)) {
+        // Có thể toast lỗi tại đây nếu muốn
       }
     }
   };
 
-  const handleGoogleSignUp = async () => {
-    try {
-      await loginWithGoogle();
-    } catch (error) {
-      console.error("Lỗi đăng ký với Google:", error);
+  const handleGoogleLogin = async () => {
+    const resultAction = await dispatch(loginWithGoogle());
+    if (loginWithGoogle.fulfilled.match(resultAction)) {
+      toast({
+        title: "Đăng nhập Google thành công",
+        description: "Chào mừng bạn quay trở lại!",
+      });
+      navigate("/");
+    } else if (loginWithGoogle.rejected.match(resultAction)) {
+      toast({
+        title: "Đăng nhập Google thất bại",
+        description: resultAction.payload as string,
+        variant: "destructive",
+      });
     }
   };
 
@@ -194,6 +215,12 @@ const Register = () => {
           >
             {isLoading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
           </Button>
+          {error && (
+            <div className="text-destructive text-sm mt-2 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              {error}
+            </div>
+          )}
         </form>
 
         <div className="relative">
@@ -210,7 +237,7 @@ const Register = () => {
         <Button
           variant="outline"
           className="w-full"
-          onClick={handleGoogleSignUp}
+          onClick={handleGoogleLogin}
           disabled={isLoading}
         >
           <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">

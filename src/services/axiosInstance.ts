@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { authService } from './auth.service';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/';
 
@@ -11,9 +12,9 @@ const axiosInstance = axios.create({
 });
 
 let isRefreshing = false;
-let failedQueue: any[] = [];
+let failedQueue: Array<{ resolve: (token: string | null) => void; reject: (error: unknown) => void }> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error);
@@ -39,7 +40,21 @@ axiosInstance.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    console.log('[AXIOS INTERCEPTOR] originalRequest.url:', originalRequest.url);
+    // Danh sách các endpoint không cần xác thực
+    const excludedEndpoints = [
+      'auth/login',
+      'auth/register',
+      'auth/google-login',
+      'auth/forgot-password',
+      'auth/reset-password',
+    ];
+    // Nếu request là tới các endpoint này thì không refreshToken, không logout
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !excludedEndpoints.some(endpoint => originalRequest.url?.endsWith(endpoint))
+    ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
@@ -53,23 +68,14 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        const res = await axios.post(
-          API_URL + 'auth/refresh-token',
-          { refreshToken },
-          { withCredentials: true }
-        );
-        const { accessToken, refreshToken: newRefreshToken } = res.data;
-        localStorage.setItem('token', accessToken);
-        if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
+        const accessToken = await authService.refreshToken();
         axiosInstance.defaults.headers['Authorization'] = 'Bearer ' + accessToken;
         processQueue(null, accessToken);
         originalRequest.headers['Authorization'] = 'Bearer ' + accessToken;
         return axiosInstance(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
+        await authService.logout();
         window.location.href = '/login';
         return Promise.reject(err);
       } finally {

@@ -4,14 +4,29 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useWishlist } from "@/context/WishlistContext";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "@/store";
+import {
+  removeFromWishlist,
+  fetchWishlist,
+} from "@/store/slices/wishlistSlice";
 import { productService } from "@/services/product.service";
 import { WishlistProductGrid } from "@/components/products/WishlistProductGrid";
 import { WishlistItem } from "@/types/wishlist";
+import { createSelector } from "@reduxjs/toolkit";
 // import { WishlistProduct } from "@/utils/wishlist";
 
+// Memoized selector cho wishlist
+const selectWishlist = (state: RootState) => state.wishlist.wishlist;
+const selectWishlistMemo = createSelector(
+  [selectWishlist],
+  (wishlist) => wishlist ?? []
+);
+
 const Wishlist = () => {
-  const { wishlist, isLoading, removeFromWishlist } = useWishlist();
+  const dispatch = useDispatch<AppDispatch>();
+  const wishlist = useSelector(selectWishlistMemo);
+  const isLoading = useSelector((state: RootState) => state.wishlist.isLoading);
   const { toast } = useToast();
 
   // Nếu wishlist là mảng (theo BE), còn nếu là object thì sửa lại cho phù hợp
@@ -22,6 +37,8 @@ const Wishlist = () => {
   const [loadingRecommended, setLoadingRecommended] = useState(true);
 
   useEffect(() => {
+    dispatch(fetchWishlist());
+
     // Lấy sản phẩm nổi bật và giảm giá từ BE
     const fetchRecommended = async () => {
       setLoadingRecommended(true);
@@ -30,10 +47,10 @@ const Wishlist = () => {
           productService.getAll(),
           productService.getSale(),
         ]);
-        let featured = Array.isArray(featuredRes)
+        const featured = Array.isArray(featuredRes)
           ? featuredRes
           : (featuredRes as any).products || [];
-        let sale = Array.isArray(saleRes)
+        const sale = Array.isArray(saleRes)
           ? saleRes
           : (saleRes as any).products || [];
         setRecommendedProducts([...featured, ...sale].slice(0, 4));
@@ -44,10 +61,10 @@ const Wishlist = () => {
       }
     };
     fetchRecommended();
-  }, []);
+  }, [dispatch]);
 
   const handleRemoveFromWishlist = (item: WishlistItem) => {
-    removeFromWishlist(String(item.id));
+    dispatch(removeFromWishlist(String(item.id)));
   };
 
   return (

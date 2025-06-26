@@ -8,53 +8,50 @@ class WishlistService {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  async getWishlist(): Promise<WishlistResponse> {
+  private async request<T>(config: import('axios').AxiosRequestConfig): Promise<T> {
     try {
-      const { data } = await axiosInstance.get(`${API_ENDPOINTS.WISHLIST.GET}`, {
-        headers: { ...this.getAuthHeader() },
+      const response = await axiosInstance({
+        headers: { 'Content-Type': 'application/json', ...(config.headers || {}) },
+        ...config,
       });
-      return data;
+      return response.data;
     } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy wishlist');
+      const err = error as { response?: { data?: { message?: string } } };
+      throw new Error(err.response?.data?.message || 'Đã xảy ra lỗi với wishlist');
     }
+  }
+
+  async getWishlist(): Promise<WishlistResponse> {
+    return this.request<WishlistResponse>({
+      url: `${API_ENDPOINTS.WISHLIST.GET}`,
+      method: 'get',
+      headers: { ...this.getAuthHeader() },
+    });
   }
 
   async addToWishlist(productId: string): Promise<WishlistResponse> {
-    try {
-      const { data } = await axiosInstance.post(
-        `${API_URL}${API_ENDPOINTS.WISHLIST.ADD_ITEM}`,
-        { productId },
-        { headers: { 'Content-Type': 'application/json', ...this.getAuthHeader() } }
-      );
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể thêm vào wishlist');
-    }
+    return this.request<WishlistResponse>({
+      url: `${API_URL}${API_ENDPOINTS.WISHLIST.ADD_ITEM}`,
+      method: 'post',
+      data: { productId },
+      headers: { ...this.getAuthHeader() },
+    });
   }
 
   async removeFromWishlist(itemId: string): Promise<WishlistResponse> {
-    try {
-      const { data } = await axiosInstance.delete(`${API_URL}${API_ENDPOINTS.WISHLIST.REMOVE_ITEM}/${itemId}`, {
-        headers: { ...this.getAuthHeader() },
-      });
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể xóa khỏi wishlist');
-    }
+    return this.request<WishlistResponse>({
+      url: `${API_URL}${API_ENDPOINTS.WISHLIST.REMOVE_ITEM}/${itemId}`,
+      method: 'delete',
+      headers: { ...this.getAuthHeader() },
+    });
   }
 
   async clearWishlist(): Promise<void> {
-    try {
-      await axiosInstance.delete(`${API_URL}${API_ENDPOINTS.WISHLIST.CLEAR}`, {
-        headers: { ...this.getAuthHeader() },
-      });
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể xóa wishlist');
-    }
+    await this.request<void>({
+      url: `${API_URL}${API_ENDPOINTS.WISHLIST.CLEAR}`,
+      method: 'delete',
+      headers: { ...this.getAuthHeader() },
+    });
   }
 
   // Helper method để kiểm tra sản phẩm có trong wishlist không

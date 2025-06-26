@@ -1,4 +1,3 @@
-import axiosInstance from "@/services/axiosInstance";
 
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -9,7 +8,7 @@ export const API_ENDPOINTS = {
     LOGOUT: 'auth/logout',
     GOOGLE: 'auth/google-login',
     ME: 'auth/me',
-    REFRESH_TOKEN: '/refresh-token',
+    REFRESH_TOKEN: 'auth/refresh-token',
     RESET_PASSWORD: 'auth/reset-password',
     FORGOT_PASSWORD: 'auth/forgot-password',
   },
@@ -51,16 +50,3 @@ export const API_ENDPOINTS = {
     REPLIES: 'replies'
   },
 } as const; 
-
-async function resetPassword(token: string, newPassword: string): Promise<any> {
-  try {
-    const { data } = await axiosInstance.post(
-      `${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
-      { token, newPassword }
-    );
-    return data;
-  } catch (error: unknown) {
-    const err = error as any;
-    throw new Error(err.response?.data?.message || 'Đổi mật khẩu thất bại');
-  }
-} 

@@ -12,115 +12,106 @@ interface ProductListResponse {
 type ProductQueryParams = Record<string, string | number>;
 
 class ProductService {
-  async getAll(params?: ProductQueryParams): Promise<ProductListResponse> {
+  private async request<T>(config: import('axios').AxiosRequestConfig): Promise<T> {
     try {
-      const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
-      const { data } = await axiosInstance.get(`${API_ENDPOINTS.PRODUCT.GET}${query}`);
-      return data.data;
+      const response = await axiosInstance({
+        headers: { 'Content-Type': 'application/json', ...(config.headers || {}) },
+        ...config,
+      });
+      return response.data;
     } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy danh sách sản phẩm');
+      const err = error as { response?: { data?: { message?: string } } };
+      throw new Error(err.response?.data?.message || 'Đã xảy ra lỗi với sản phẩm');
     }
+  }
+
+  async getAll(params?: ProductQueryParams): Promise<ProductListResponse> {
+    const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
+    const data = await this.request<{ data: ProductListResponse }>({
+      url: `${API_ENDPOINTS.PRODUCT.GET}${query}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getById(id: number): Promise<Product> {
-    try {
-      const  {data} = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_ID}/${id}`);      
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy chi tiết sản phẩm');
-    }
+    const data = await this.request<{ data: Product }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.BY_ID}/${id}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getBySlug(slug: string): Promise<Product> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_SLUG}/${slug}`);
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm theo slug');
-    }
+    const data = await this.request<{ data: Product }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.BY_SLUG}/${slug}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getHot(): Promise<Product[]> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.HOT}`);
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm hot');
-    }
+    const data = await this.request<{ data: Product[] }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.HOT}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getSale(): Promise<Product[]> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.SALE}`);
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm giảm giá');
-    }
+    const data = await this.request<{ data: Product[] }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.SALE}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getNew(): Promise<Product[]> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.NEW}`);
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm mới');
-    }
+    const data = await this.request<{ data: Product[] }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.NEW}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getByCategory(categoryId: number): Promise<Product[]> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.BY_CATEGORY}/${categoryId}`);
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy sản phẩm theo danh mục');
-    }
+    const data = await this.request<{ data: Product[] }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.BY_CATEGORY}/${categoryId}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getAllVariants(): Promise<ProductVariant[]> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANTS}`);
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy danh sách biến thể sản phẩm');
-    }
+    const data = await this.request<{ data: ProductVariant[] }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANTS}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getVariantsByProductId(productId: number): Promise<ProductVariant[]> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.VARIANTS_BY_PRODUCT_ID}/${productId}/variants`);
+    const data = await this.request<{ data: ProductVariant[] }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.VARIANTS_BY_PRODUCT_ID}/${productId}/variants`,
+      method: 'get',
+    });
     return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo sản phẩm');
-    }
   }
 
   async getVariantById(id: number): Promise<ProductVariant> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_ID}/${id}`);
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo id');
-    }
+    const data = await this.request<{ data: ProductVariant }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_ID}/${id}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getVariantBySku(sku: string): Promise<ProductVariant> {
-    try {
-      const { data } = await axiosInstance.get(`${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_SKU}/${sku}`);
-      return data.data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy biến thể theo sku');
-    }
+    const data = await this.request<{ data: ProductVariant }>({
+      url: `${API_URL}${API_ENDPOINTS.PRODUCT.PRODUCT_VARIANT_BY_SKU}/${sku}`,
+      method: 'get',
+    });
+    return data.data;
   }
 }
 

@@ -1,9 +1,15 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingCart, Loader2 } from "lucide-react";
-import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
-import { useAuth } from "@/context/AuthContext";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "@/store";
+import { addToCart } from "@/store/slices/cartSlice";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  getWishlistItem,
+  isInWishlist as isInWishlistSelector,
+} from "@/store/slices/wishlistSlice";
 
 interface ProductActionsProps {
   productId: string;
@@ -18,21 +24,37 @@ export const ProductActions: React.FC<ProductActionsProps> = ({
   price,
   inStock,
 }) => {
-  const { addToCart, isInCart, isLoading: cartLoading } = useCart();
-  const {
-    addToWishlist,
-    removeFromWishlist,
-    isInWishlist,
-    isLoading: wishlistLoading,
-  } = useWishlist();
-  const { isAuthenticated } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
+  // Cart state
+  const cart = useSelector((state: RootState) => state.cart.cart);
+  const cartLoading = useSelector((state: RootState) => state.cart.isLoading);
+  // Wishlist state
+  const wishlist = useSelector((state: RootState) =>
+    state.wishlist && "wishlist" in state.wishlist
+      ? state.wishlist.wishlist
+      : []
+  );
+  const wishlistLoading = useSelector((state: RootState) =>
+    state.wishlist && "isLoading" in state.wishlist
+      ? state.wishlist.isLoading
+      : false
+  );
+
+  // Selector util
+  const isInCartProduct = cart?.cart_items?.some(
+    (item) => String(item.product_id) === String(productId)
+  );
+  const isInWishlistProduct = isInWishlistSelector(wishlist, productId);
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
       // Redirect to login hoặc hiển thị modal đăng nhập
       return;
     }
-    await addToCart(productId, 1);
+    await dispatch(addToCart({ productId, quantity: 1 }));
   };
 
   const handleToggleWishlist = async () => {
@@ -40,20 +62,16 @@ export const ProductActions: React.FC<ProductActionsProps> = ({
       // Redirect to login hoặc hiển thị modal đăng nhập
       return;
     }
-
-    if (isInWishlist(productId)) {
+    if (isInWishlistProduct) {
       // Tìm itemId để xóa
-      const wishlistItem = useWishlist().getWishlistItem(productId);
+      const wishlistItem = getWishlistItem(wishlist, productId);
       if (wishlistItem) {
-        await removeFromWishlist(wishlistItem.id);
+        await dispatch(removeFromWishlist(String(wishlistItem.id)));
       }
     } else {
-      await addToWishlist(productId);
+      await dispatch(addToWishlist(productId));
     }
   };
-
-  const isInCartProduct = isInCart(productId);
-  const isInWishlistProduct = isInWishlist(productId);
 
   return (
     <div className="flex gap-2 mt-4">

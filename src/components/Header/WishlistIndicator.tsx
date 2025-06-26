@@ -1,32 +1,13 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { useWishlist } from "@/context/WishlistContext";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 export const WishlistIndicator = () => {
-  const [count, setCount] = useState(0);
-  const { wishlist } = useWishlist();
-  const wishlistItems = wishlist || [];
-
-  useEffect(() => {
-    // Set initial count
-    updateWishlistCount();
-
-    // Update count when wishlist changes
-    const handleWishlistUpdate = () => {
-      updateWishlistCount();
-    };
-
-    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
-    return () => {
-      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
-    };
-  }, []);
-
-  const updateWishlistCount = () => {
-    setCount(wishlistItems.length);
-  };
+  const wishlist =
+    useSelector((state: RootState) => state.wishlist.wishlist) || [];
+  const count = wishlist.length;
 
   return (
     <Link to="/wishlist">

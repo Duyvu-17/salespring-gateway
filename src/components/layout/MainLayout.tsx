@@ -3,12 +3,15 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
 import { useEffect } from "react";
-import { useTheme } from "@/context/ThemeContext";
+// import { useTheme } from "@/context/ThemeContext";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 import { RealTimeInfo } from "@/components/notifications/RealTimeInfo";
 import { LiveChatSupport } from "@/components/customer/LiveChatSupport";
 
 export const MainLayout = () => {
-  const { theme } = useTheme();
+  // const { theme } = useTheme();
+  const theme = useSelector((state: RootState) => state.theme.theme);
   const navigate = useNavigate();
   const location = useLocation();
 

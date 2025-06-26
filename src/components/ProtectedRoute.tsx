@@ -1,14 +1,17 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/store';
 
 export const ProtectedRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const location = useLocation();
 
   const [shouldRedirect, setShouldRedirect] = useState(false);
+
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const isLoading = useSelector((state: RootState) => state.auth.isLoading);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

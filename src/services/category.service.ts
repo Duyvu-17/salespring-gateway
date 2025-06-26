@@ -5,61 +5,55 @@ import { API_URL, API_ENDPOINTS } from '@/config/api';
 class CategoryService {
   private endpoint = API_ENDPOINTS.CATEGORY.GET;
 
-  async getAll(): Promise<Category[]> {
+  private async request<T>(config: import('axios').AxiosRequestConfig): Promise<T> {
     try {
-      const { data } = await axiosInstance.get(`${this.endpoint}`);
-      return data.data;
+      const response = await axiosInstance({
+        headers: { 'Content-Type': 'application/json', ...(config.headers || {}) },
+        ...config,
+      });
+      return response.data;
     } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy danh sách danh mục');
+      const err = error as { response?: { data?: { message?: string } } };
+      throw new Error(err.response?.data?.message || 'Đã xảy ra lỗi với danh mục');
     }
+  }
+
+  async getAll(): Promise<Category[]> {
+    const data = await this.request<{ data: Category[] }>({
+      url: `${this.endpoint}`,
+      method: 'get',
+    });
+    return data.data;
   }
 
   async getById(id: number): Promise<Category> {
-    try {
-      const { data } = await axiosInstance.get(`${this.endpoint}/${id}`);
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể lấy chi tiết danh mục');
-    }
+    return this.request<Category>({
+      url: `${this.endpoint}/${id}`,
+      method: 'get',
+    });
   }
 
   async create(dataInput: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>): Promise<Category> {
-    try {
-      const { data } = await axiosInstance.post(
-        `${API_URL}${API_ENDPOINTS.CATEGORY.CREATE}`,
-        dataInput,
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể tạo danh mục');
-    }
+    return this.request<Category>({
+      url: `${API_URL}${API_ENDPOINTS.CATEGORY.CREATE}`,
+      method: 'post',
+      data: dataInput,
+    });
   }
 
   async update(id: number, dataInput: Partial<Omit<Category, 'id'>>): Promise<Category> {
-    try {
-      const { data } = await axiosInstance.put(
-        `${API_URL}${API_ENDPOINTS.CATEGORY.UPDATE}/${id}`,
-        dataInput,
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể cập nhật danh mục');
-    }
+    return this.request<Category>({
+      url: `${API_URL}${API_ENDPOINTS.CATEGORY.UPDATE}/${id}`,
+      method: 'put',
+      data: dataInput,
+    });
   }
 
   async delete(id: number): Promise<void> {
-    try {
-      await axiosInstance.delete(`${API_URL}${API_ENDPOINTS.CATEGORY.DELETE}/${id}`);
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Không thể xóa danh mục');
-    }
+    await this.request<void>({
+      url: `${API_URL}${API_ENDPOINTS.CATEGORY.DELETE}/${id}`,
+      method: 'delete',
+    });
   }
 }
 

@@ -8,93 +8,66 @@ class CartService {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  async getCart(): Promise<Cart> {
+  private async request<T>(config: import('axios').AxiosRequestConfig): Promise<T> {
     try {
-      const { data } = await axiosInstance.get(`cart`, {
+      const response = await axiosInstance({
         withCredentials: true,
-        headers: { ...this.getAuthHeader() },
+        headers: { ...this.getAuthHeader(), ...(config.headers || {}) },
+        ...config,
       });
-      return data;
+      return response.data;
     } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Lỗi khi lấy giỏ hàng');
+      const err = error as { response?: { data?: { message?: string } } };
+      throw new Error(err.response?.data?.message || 'Đã xảy ra lỗi với giỏ hàng');
     }
+  }
+
+  async getCart(): Promise<Cart> {
+    return this.request<Cart>({
+      url: 'cart',
+      method: 'get',
+    });
   }
 
   async addToCart(productId: string, quantity: number = 1): Promise<Cart> {
-    try {
-      const { data } = await axiosInstance.post(
-        `${API_URL}/cart/add`,
-        { productId, quantity },
-        {
-          withCredentials: true,
-          headers: { 'Content-Type': 'application/json', ...this.getAuthHeader() },
-        }
-      );
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Lỗi khi thêm vào giỏ hàng');
-    }
+    return this.request<Cart>({
+      url: `${API_URL}/cart/add`,
+      method: 'post',
+      data: { productId, quantity },
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   async updateCartItem(itemId: string, quantity: number): Promise<Cart> {
-    try {
-      const { data } = await axiosInstance.put(
-        `${API_URL}/cart/${itemId}`,
-        { quantity },
-        {
-          withCredentials: true,
-          headers: { 'Content-Type': 'application/json', ...this.getAuthHeader() },
-        }
-      );
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Lỗi khi cập nhật giỏ hàng');
-    }
+    return this.request<Cart>({
+      url: `${API_URL}/cart/${itemId}`,
+      method: 'put',
+      data: { quantity },
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   async removeFromCart(itemId: string): Promise<Cart> {
-    try {
-      const { data } = await axiosInstance.delete(`${API_URL}/cart/${itemId}`, {
-        withCredentials: true,
-        headers: { ...this.getAuthHeader() },
-      });
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Lỗi khi xóa sản phẩm khỏi giỏ hàng');
-    }
+    return this.request<Cart>({
+      url: `${API_URL}/cart/${itemId}`,
+      method: 'delete',
+    });
   }
 
   async clearCart(): Promise<void> {
-    try {
-      await axiosInstance.delete(`${API_URL}/cart`, {
-        withCredentials: true,
-        headers: { ...this.getAuthHeader() },
-      });
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Lỗi khi xóa toàn bộ giỏ hàng');
-    }
+    await this.request<void>({
+      url: `${API_URL}/cart`,
+      method: 'delete',
+    });
   }
 
   async toggleCartItemSelection(itemId: string, selected: boolean): Promise<Cart> {
-    try {
-      const { data } = await axiosInstance.patch(
-        `${API_URL}/cart/${itemId}/toggle`,
-        { selected },
-        {
-          withCredentials: true,
-          headers: { 'Content-Type': 'application/json', ...this.getAuthHeader() },
-        }
-      );
-      return data;
-    } catch (error: unknown) {
-      const err = error as any;
-      throw new Error(err.response?.data?.message || 'Lỗi khi chọn/bỏ chọn sản phẩm');
-    }
+    return this.request<Cart>({
+      url: `${API_URL}/cart/${itemId}/toggle`,
+      method: 'patch',
+      data: { selected },
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   // Helper method để tính toán cart totals
