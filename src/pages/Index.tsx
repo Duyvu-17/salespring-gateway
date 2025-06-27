@@ -23,7 +23,6 @@ import HeroSlider from "./HeroSlider";
 import Newsletter from "./Newsletter";
 import ShopByCategory from "./ShopByCategory";
 import TrendingProducts from "./TrendingProducts";
-import WishlistButton from "@/components/products/WishlistButton";
 import { useCartNotificationContext } from "../App";
 import { productService } from "@/services/product.service";
 import { useEffect, useState } from "react";
@@ -292,7 +291,7 @@ const Index = () => {
                       {product.name}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {product.category_id}
+                      {product.category.name}
                     </p>
                   </div>
                   <div className="text-right">

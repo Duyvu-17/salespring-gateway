@@ -34,13 +34,13 @@ const Cart = () => {
   };
 
   const getProductPrice = (product: ProductInCart) => {
-    return product.ProductPricing.sale_price
-      ? Number(product.ProductPricing.sale_price)
-      : Number(product.ProductPricing.base_price);
+    return product.ProductPricing?.sale_price
+      ? Number(product.ProductPricing?.sale_price)
+      : Number(product.ProductPricing?.base_price);
   };
 
   const hasDiscount = (product: ProductInCart) => {
-    return product.ProductPricing.sale_price !== null;
+    return product?.ProductPricing?.sale_price !== null;
   };
 
   const calculateSelectedSubtotal = () => {
@@ -128,7 +128,7 @@ const Cart = () => {
 
             <div className="max-h-[600px] overflow-y-auto">
               <div className="divide-y divide-muted/20">
-                {cart.cart_items.map((item) => (
+                {cart?.cart_items.map((item) => (
                   <div
                     key={item.id}
                     className={`flex items-center gap-4 p-6 transition-all duration-200 ${
@@ -183,7 +183,7 @@ const Cart = () => {
                         {hasDiscount(item.Product) && (
                           <span className="text-muted-foreground line-through text-sm">
                             {Number(
-                              item.Product.ProductPricing.base_price
+                              item?.Product?.ProductPricing?.base_price
                             ).toLocaleString()}
                             ₫
                           </span>
@@ -212,14 +212,14 @@ const Cart = () => {
                             type="number"
                             value={item.quantity}
                             min={1}
-                            max={item.Product.ProductInventory.quantity}
+                            max={item?.Product?.ProductInventory?.quantity}
                             onChange={(e) =>
                               handleUpdateQuantity(
                                 item.id,
                                 Math.max(
                                   1,
                                   Math.min(
-                                    item.Product.ProductInventory.quantity,
+                                    item?.Product?.ProductInventory?.quantity,
                                     Number(e.target.value)
                                   )
                                 )
@@ -236,7 +236,7 @@ const Cart = () => {
                             }
                             disabled={
                               item.quantity >=
-                              item.Product.ProductInventory.quantity
+                              item?.Product?.ProductInventory?.quantity
                             }
                           >
                             <Plus className="h-3 w-3" />
@@ -244,7 +244,7 @@ const Cart = () => {
                         </div>
 
                         <Badge variant="outline" className="text-xs">
-                          Còn {item.Product.ProductInventory.quantity}
+                          Còn {item?.Product?.ProductInventory?.quantity}
                         </Badge>
                       </div>
                     </div>

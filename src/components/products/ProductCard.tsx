@@ -16,6 +16,7 @@ import {
   isInWishlist as isInWishlistSelector,
 } from "@/store/slices/wishlistSlice";
 import { createSelector } from "@reduxjs/toolkit";
+import { addToCart } from "@/store/slices/cartSlice";
 
 // Memoized selector cho wishlist
 const selectWishlist = (state: RootState) => state.wishlist.wishlist;
@@ -38,8 +39,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     (state: RootState) => state.wishlist.isLoading
   );
   const inWishlist = isInWishlistSelector(wishlist, String(product.id));
-  console.log('product', product);
-  
+  console.log("product", product);
+
   // Lấy hình ảnh chính và hình ảnh thứ 2 từ BE
   const mainImage =
     product.images && product.images.length > 0
@@ -59,7 +60,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   // Component hiển thị rating stars
   const renderRating = () => {
     if (!product.rating_avg || !product.rating_count) return null;
-    
+
     const rating = parseFloat(product.rating_avg);
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
@@ -115,26 +116,27 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     }
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
+    await dispatch(addToCart({ product_id: String(product.id), quantity: 1 }));
     toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart`,
+      title: "Đã thêm vào giỏ hàng",
+      description: `${product.name} đã được thêm vào giỏ hàng của bạn`,
     });
   };
 
-  const handleQuickBuy = (e: React.MouseEvent) => {
+  const handleQuickBuy = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
+    await dispatch(addToCart({ product_id: String(product.id), quantity: 1 }));
     toast({
       title: "Mua nhanh",
       description: `${product.name} đã được thêm vào giỏ hàng. Đang chuyển đến trang thanh toán...`,
     });
 
-    // Thực tế nên thêm sản phẩm vào giỏ trước khi chuyển trang
     setTimeout(() => {
       navigate("/checkout");
     }, 1000);

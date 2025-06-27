@@ -28,10 +28,12 @@ import Terms from "./pages/Terms";
 import Returns from "./pages/Returns";
 import FAQ from "./pages/FAQ";
 import TrendingProducts from "./pages/TrendingProducts";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { useEffect } from "react";
 import { ThemeType } from "@/store/slices/themeSlice";
+import { getCurrentUser } from "@/store/slices/authSlice";
+import type { AppDispatch } from "@/store";
 
 const queryClient = new QueryClient();
 
@@ -87,10 +89,12 @@ function updateHtmlTheme(theme: ThemeType) {
 
 const App = () => {
   const theme = useSelector((state: RootState) => state.theme.theme);
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
+    dispatch(getCurrentUser());
     updateHtmlTheme(theme);
-  }, [theme]);
+  }, [dispatch, theme]);
 
   return (
     <QueryClientProvider client={queryClient}>

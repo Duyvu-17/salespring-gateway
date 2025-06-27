@@ -60,6 +60,8 @@ export interface Product {
   price: string;
   sale_price: string | null;
   stock_quantity: number;
+  rating_count: number;
+  rating_avg: number;
   image_url: string | null;
   category: Category;
   status: string;

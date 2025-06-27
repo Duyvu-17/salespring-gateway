@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { authService } from '@/services/auth.service';
-import type { User } from '@/types/auth';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth, googleProvider } from '@/config/firebase';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { authService } from "@/services/auth.service";
+import type { User } from "@/types/auth";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth, googleProvider } from "@/config/firebase";
 
 interface AuthState {
   user: User | null;
@@ -14,13 +14,13 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 };
 
 // Async thunk cho login
 export const login = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (
     { email, password }: { email: string; password: string },
     { rejectWithValue }
@@ -29,96 +29,108 @@ export const login = createAsyncThunk(
       const user = await authService.login(email, password);
       return user;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Đăng nhập thất bại');
+      return rejectWithValue(error.message || "Đăng nhập thất bại");
     }
   }
 );
 
 // Async thunk cho logout
-export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
-  try {
-    await authService.logout();
-    return;
-  } catch (error: any) {
-    return rejectWithValue(error.message || 'Đăng xuất thất bại');
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      await authService.logout();
+      return;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Đăng xuất thất bại");
+    }
   }
-});
+);
 
 // Async thunk cho register
 export const register = createAsyncThunk(
-  'auth/register',
+  "auth/register",
   async (
-    { full_name, email, password }: { full_name: string; email: string; password: string },
+    {
+      full_name,
+      email,
+      password,
+    }: { full_name: string; email: string; password: string },
     { rejectWithValue }
   ) => {
     try {
       const user = await authService.register(full_name, email, password);
       return user;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Đăng ký thất bại');
+      return rejectWithValue(error.message || "Đăng ký thất bại");
     }
   }
 );
 
 // Async thunk cho refreshToken
 export const refreshToken = createAsyncThunk(
-  'auth/refreshToken',
+  "auth/refreshToken",
   async (_, { rejectWithValue }) => {
     try {
       const token = await authService.refreshToken();
       return token;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Làm mới token thất bại');
+      return rejectWithValue(error.message || "Làm mới token thất bại");
     }
   }
 );
 
 // Async thunk cho getCurrentUser
 export const getCurrentUser = createAsyncThunk(
-  'auth/getCurrentUser',
+  "auth/getCurrentUser",
   async (_, { rejectWithValue }) => {
     try {
       const user = await authService.getCurrentUser();
+      console.log(user);
       return user;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Không thể lấy thông tin người dùng');
+      return rejectWithValue(
+        error.message || "Không thể lấy thông tin người dùng"
+      );
     }
   }
 );
 
 // Async thunk cho loginWithGoogle
 export const loginWithGoogle = createAsyncThunk(
-  'auth/loginWithGoogle',
+  "auth/loginWithGoogle",
   async (_, { rejectWithValue }) => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (!credential) {
-        throw new Error('Failed to get credential from Google sign in');
+        throw new Error("Failed to get credential from Google sign in");
       }
       const idToken = await result.user.getIdToken();
       const user = await authService.loginWithGoogle(idToken);
       return user;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Đăng nhập Google thất bại');
+      return rejectWithValue(error.message || "Đăng nhập Google thất bại");
     }
   }
 );
 
 export const forgotPassword = createAsyncThunk(
-  'auth/forgotPassword',
+  "auth/forgotPassword",
   async (email: string, { rejectWithValue }) => {
     try {
       await authService.forgotPassword(email);
       return;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Không thể gửi email quên mật khẩu');
+      return rejectWithValue(
+        error.message || "Không thể gửi email quên mật khẩu"
+      );
     }
   }
 );
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setUser(state, action: PayloadAction<User | null>) {
@@ -205,6 +217,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
+        console.log("getCurrentUser fulfilled", action.payload);
         state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = !!action.payload;

@@ -27,7 +27,19 @@ const Wishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
   const wishlist = useSelector(selectWishlistMemo);
   const isLoading = useSelector((state: RootState) => state.wishlist.isLoading);
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
+  const authLoading = useSelector((state: RootState) => state.auth.isLoading);
   const { toast } = useToast();
+  console.log(
+    "Wishlist render | isLoading:",
+    isLoading,
+    "isAuthenticated:",
+    isAuthenticated,
+    "authLoading:",
+    authLoading
+  );
 
   // Nếu wishlist là mảng (theo BE), còn nếu là object thì sửa lại cho phù hợp
   const items: WishlistItem[] = Array.isArray(wishlist) ? wishlist : [];

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -117,6 +117,12 @@ const Register = () => {
       });
     }
   };
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isLoading, isAuthenticated, navigate]);
 
   return (
     <div className="container mx-auto px-4 py-16 min-h-[70vh] flex items-center justify-center">

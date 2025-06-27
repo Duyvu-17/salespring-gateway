@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const ReviewItem = ({
   review,
@@ -13,7 +14,30 @@ const ReviewItem = ({
   newReply,
   setNewReply,
   handleSubmitReply,
+  handleLikeReview,
 }) => {
+  const [liking, setLiking] = React.useState(false);
+  const [helpfulCount, setHelpfulCount] = React.useState(
+    review.helpful_count || 0
+  );
+  const { toast } = useToast();
+
+  const onLike = async () => {
+    if (liking) return;
+    setLiking(true);
+    try {
+      await handleLikeReview?.(review.review_id);
+      setHelpfulCount((c) => c + 1);
+    } catch (err) {
+      toast({
+        title: "Không thể gửi đánh giá hữu ích",
+        variant: "destructive",
+      });
+    } finally {
+      setLiking(false);
+    }
+  };
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-6">
@@ -69,15 +93,17 @@ const ReviewItem = ({
         )}
         {review.images && review.images.length > 0 && (
           <div className="flex space-x-2 mt-4 overflow-x-auto pb-2">
-            {review.images.map((img: any, index: number) => (
-              <img
-                key={img.id || index}
-                src={img.image_url}
-                alt={`Review ${index + 1}`}
-                className="h-24 w-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => window.open(img.image_url, "_blank")}
-              />
-            ))}
+            {review.images.map(
+              (img: { id: number; image_url: string }, index: number) => (
+                <img
+                  key={img.id || index}
+                  src={img.image_url}
+                  alt={`Review ${index + 1}`}
+                  className="h-24 w-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => window.open(img.image_url, "_blank")}
+                />
+              )
+            )}
           </div>
         )}
         <div className="flex items-center justify-between mt-4">
@@ -96,9 +122,33 @@ const ReviewItem = ({
             <Reply className="mr-1 h-4 w-4" />
             Trả lời
           </Button>
-          <Button variant="ghost" size="sm">
-            <ThumbsUp className="mr-1 h-4 w-4" />
-            Hữu ích
+          <Button variant="ghost" size="sm" onClick={onLike} disabled={liking}>
+            {liking ? (
+              <span className="mr-1">
+                <svg
+                  className="animate-spin h-4 w-4 inline"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  />
+                </svg>
+              </span>
+            ) : (
+              <ThumbsUp className="mr-1 h-4 w-4" />
+            )}
+            Hữu ích ({helpfulCount})
           </Button>
         </div>
         {/* Chỉ review có replyingTo === review.review_id mới hiển thị form trả lời */}
@@ -126,7 +176,10 @@ const ReviewItem = ({
                 >
                   Hủy
                 </Button>
-                <Button size="sm" onClick={() => handleSubmitReply(review.review_id)}>
+                <Button
+                  size="sm"
+                  onClick={() => handleSubmitReply(review.review_id)}
+                >
                   <Send className="mr-1 h-3 w-3" />
                   Trả lời
                 </Button>
@@ -139,33 +192,41 @@ const ReviewItem = ({
           <div className="mt-4 space-y-4">
             <Separator />
             <div className="space-y-4 pl-6 border-l-2 border-muted mt-2">
-              {review.replies.map((reply: any) => (
-                <div key={reply.id} className="mt-2">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-6 w-6">
-                      {reply.userAvatar ? (
-                        <AvatarImage
-                          src={reply.userAvatar}
-                          alt={reply.userName}
-                        />
-                      ) : (
-                        <AvatarFallback>
-                          <User className="h-3 w-3" />
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div>
-                      <h5 className="font-semibold text-sm">
-                        {reply.userName}
-                      </h5>
-                      <div className="text-xs text-muted-foreground">
-                        {reply.date}
+              {review.replies.map(
+                (reply: {
+                  id?: number;
+                  userAvatar?: string;
+                  userName: string;
+                  date: string;
+                  comment: string;
+                }) => (
+                  <div key={reply.id} className="mt-2">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-6 w-6">
+                        {reply.userAvatar ? (
+                          <AvatarImage
+                            src={reply.userAvatar}
+                            alt={reply.userName}
+                          />
+                        ) : (
+                          <AvatarFallback>
+                            <User className="h-3 w-3" />
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div>
+                        <h5 className="font-semibold text-sm">
+                          {reply.userName}
+                        </h5>
+                        <div className="text-xs text-muted-foreground">
+                          {reply.date}
+                        </div>
                       </div>
                     </div>
+                    <p className="mt-1 text-sm pl-9">{reply.comment}</p>
                   </div>
-                  <p className="mt-1 text-sm pl-9">{reply.comment}</p>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         )}

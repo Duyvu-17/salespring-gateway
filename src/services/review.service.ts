@@ -1,67 +1,114 @@
-import axiosInstance from './axiosInstance';
-import { API_URL, API_ENDPOINTS } from '@/config/api';
-import type { UserReview, Reply } from '@/data/products';
+import axiosInstance from "./axiosInstance";
+import { API_URL, API_ENDPOINTS } from "@/config/api";
+import type { UserReview, Reply } from "@/data/products";
 
 class ReviewService {
   private getAuthHeader(): Record<string, string> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  private async request<T>(config: import('axios').AxiosRequestConfig): Promise<T> {
+  private async request<T>(
+    config: import("axios").AxiosRequestConfig
+  ): Promise<T> {
     try {
       const response = await axiosInstance({
-        headers: { 'Content-Type': 'application/json', ...(config.headers || {}) },
+        headers: {
+          "Content-Type": "application/json",
+          ...(config.headers || {}),
+        },
         ...config,
       });
       return response.data;
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      throw new Error(err.response?.data?.message || 'Đã xảy ra lỗi với đánh giá sản phẩm');
+      throw new Error(
+        err.response?.data?.message || "Đã xảy ra lỗi với đánh giá sản phẩm"
+      );
     }
   }
 
   async getReviews(productId: string | number): Promise<UserReview[]> {
     const data = await this.request<{ data: { reviews: UserReview[] } }>({
       url: `${API_URL}product-reviews/${productId}/reviews`,
-      method: 'get',
+      method: "get",
     });
     return data.data.reviews;
   }
 
-  async addReview(productId: string | number, review: Omit<UserReview, 'id'>): Promise<UserReview> {
+  async addReview(
+    productId: string | number,
+    review: Omit<UserReview, "id">
+  ): Promise<UserReview> {
     return this.request<UserReview>({
       url: `${API_URL}product-reviews/${productId}/reviews`,
-      method: 'post',
+      method: "post",
       data: review,
       headers: { ...this.getAuthHeader() },
     });
   }
 
-  async addReply(productId: string | number, reviewId: string | number, reply: Omit<Reply, 'id'>): Promise<Reply> {
+  async addReply(
+    productId: string | number,
+    reviewId: string | number,
+    reply: Omit<Reply, "id">
+  ): Promise<Reply> {
     return this.request<Reply>({
       url: `${API_URL}product-reviews/${productId}/reviews/${reviewId}/replies`,
-      method: 'post',
+      method: "post",
       data: reply,
       headers: { ...this.getAuthHeader() },
     });
   }
 
-  async deleteReview(productId: string | number, reviewId: string | number): Promise<void> {
+  async deleteReview(
+    productId: string | number,
+    reviewId: string | number
+  ): Promise<void> {
     await this.request<void>({
       url: `${API_URL}/product-reviews/${productId}/reviews/${reviewId}`,
-      method: 'delete',
+      method: "delete",
       headers: { ...this.getAuthHeader() },
     });
   }
 
-  async deleteReply(productId: string | number, reviewId: string | number, replyId: string | number): Promise<void> {
+  async deleteReply(
+    productId: string | number,
+    reviewId: string | number,
+    replyId: string | number
+  ): Promise<void> {
     await this.request<void>({
       url: `${API_URL}/product-reviews/${productId}/reviews/${reviewId}/replies/${replyId}`,
-      method: 'delete',
+      method: "delete",
+      headers: { ...this.getAuthHeader() },
+    });
+  }
+
+  async likeReview(reviewId: string | number): Promise<void> {
+    await this.request<void>({
+      url: `${API_URL}reviews/${reviewId}/like`,
+      method: "post",
+      headers: { ...this.getAuthHeader() },
+    });
+  }
+
+  async unlikeReview(reviewId: string | number): Promise<void> {
+    await this.request<void>({
+      url: `${API_URL}reviews/${reviewId}/like`,
+      method: "delete",
+      headers: { ...this.getAuthHeader() },
+    });
+  }
+
+  async checkReviewLiked(
+    reviewId: string | number
+  ): Promise<{ liked: boolean }> {
+    return this.request<{ liked: boolean }>({
+      url: `${API_URL}reviews/${reviewId}/like`,
+      method: "get",
       headers: { ...this.getAuthHeader() },
     });
   }
 }
 
-export const reviewService = new ReviewService(); 
+export const reviewService = new ReviewService();

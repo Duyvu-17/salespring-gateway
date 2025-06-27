@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,13 @@ const Login = () => {
 
   // Get the redirect path from location state, or default to '/'
   const from = location.state?.from || "/";
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      // Nếu đã đăng nhập, chuyển về trang chủ hoặc trang trước đó
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const validateEmail = (emailToValidate: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

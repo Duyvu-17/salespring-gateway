@@ -29,18 +29,18 @@ class CartService {
     });
   }
 
-  async addToCart(productId: string, quantity: number = 1): Promise<Cart> {
+  async addToCart(product_id: string, quantity: number = 1): Promise<Cart> {
     return this.request<Cart>({
-      url: `${API_URL}/cart/add`,
+      url: `${API_URL}cart/add`,
       method: 'post',
-      data: { productId, quantity },
+      data: { product_id, quantity },
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
   async updateCartItem(itemId: string, quantity: number): Promise<Cart> {
     return this.request<Cart>({
-      url: `${API_URL}/cart/${itemId}`,
+      url: `${API_URL}cart/${itemId}`,
       method: 'put',
       data: { quantity },
       headers: { 'Content-Type': 'application/json' },
@@ -49,21 +49,21 @@ class CartService {
 
   async removeFromCart(itemId: string): Promise<Cart> {
     return this.request<Cart>({
-      url: `${API_URL}/cart/${itemId}`,
+      url: `${API_URL}cart/${itemId}`,
       method: 'delete',
     });
   }
 
   async clearCart(): Promise<void> {
     await this.request<void>({
-      url: `${API_URL}/cart`,
+      url: `${API_URL}cart`,
       method: 'delete',
     });
   }
 
   async toggleCartItemSelection(itemId: string, selected: boolean): Promise<Cart> {
     return this.request<Cart>({
-      url: `${API_URL}/cart/${itemId}/toggle`,
+      url: `${API_URL}cart/${itemId}/toggle`,
       method: 'patch',
       data: { selected },
       headers: { 'Content-Type': 'application/json' },

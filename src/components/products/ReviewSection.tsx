@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import ReviewItem from "./ReviewItem";
+import { reviewService } from "@/services/review.service";
 
 interface ReviewSectionProps {
   productId: number;
@@ -121,6 +122,21 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     setReplyingTo(null);
   };
 
+  // Thêm hàm xử lý like review
+  const handleLikeReview = async (reviewId: number) => {
+    try {
+      await reviewService.likeReview(reviewId);
+      toast({ title: "Cảm ơn bạn đã đánh giá hữu ích!" });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Đã xảy ra lỗi";
+      toast({
+        title: "Không thể gửi đánh giá hữu ích",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Đánh giá của khách hàng</h2>
@@ -178,9 +194,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     onChange={handleImageChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     size="sm"
                     className="flex items-center gap-2 h-9 px-3 border-dashed hover:bg-gray-50"
                   >
@@ -251,6 +267,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               newReply={newReply}
               setNewReply={setNewReply}
               handleSubmitReply={handleSubmitReply}
+              handleLikeReview={handleLikeReview}
             />
           ))
         )}

@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
-import { useWishlist, isInWishlist, WishlistProduct } from "@/utils/wishlist";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  selectWishlist,
+  addToWishlist,
+  removeFromWishlist,
+  isInWishlist,
+} from "@/store/slices/wishlistSlice";
 import { WishlistItem } from "@/types/wishlist";
+import { AppDispatch } from "@/store";
 
 interface WishlistButtonProps {
   item: WishlistItem;
@@ -17,25 +24,22 @@ export const WishlistButton = ({
   size = "default",
   showText = true,
 }: WishlistButtonProps) => {
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const wishlist = useSelector(selectWishlist);
+  const dispatch = useDispatch<AppDispatch>();
   const [inWishlist, setInWishlist] = useState<boolean>(
-    isInWishlist(item.product_id)
+    isInWishlist(wishlist, String(item.product_id))
   );
 
   useEffect(() => {
-    setInWishlist(isInWishlist(item.product_id));
-  }, [item.product_id, isInWishlist]);
+    setInWishlist(isInWishlist(wishlist, String(item.product_id)));
+  }, [item.product_id, wishlist]);
 
-  const handleToggleWishlist = async (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleToggleWishlist = () => {
     if (inWishlist) {
-      await removeFromWishlist(String(item.id));
+      dispatch(removeFromWishlist(String(item.id)));
       setInWishlist(false);
     } else {
-      await addToWishlist(String(item.product_id));
+      dispatch(addToWishlist(String(item.product_id)));
       setInWishlist(true);
     }
   };

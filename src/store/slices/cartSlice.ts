@@ -31,8 +31,8 @@ export const fetchCart = createAsyncThunk("cart/fetchCart", async () => {
 
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async ({ productId, quantity }: { productId: string; quantity?: number }) => {
-    const updatedCart = await cartService.addToCart(productId, quantity || 1);
+  async ({ product_id, quantity }: { product_id: string; quantity?: number }) => {
+    const updatedCart = await cartService.addToCart(product_id, quantity || 1);
     return updatedCart;
   }
 );
