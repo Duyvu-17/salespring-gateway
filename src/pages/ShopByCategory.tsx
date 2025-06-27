@@ -1,22 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { ChevronRight, Loader2 } from "lucide-react"; // Biểu tượng spinner
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchCategories } from "@/store/slices/categorySlice";
-import type { RootState, AppDispatch } from "@/store";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 
 const ShopByCategory = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { categories, isLoading } = useSelector((state: RootState) => ({
     categories: state.category.categories,
     isLoading: state.category.isLoading,
   }));
-
-  useEffect(() => {
-    if (!categories.length) {
-      dispatch(fetchCategories());
-    }
-  }, [dispatch, categories.length]);
 
   return (
     <section className="container mx-auto px-4">

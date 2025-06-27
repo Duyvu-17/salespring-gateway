@@ -86,7 +86,6 @@ export const getCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const user = await authService.getCurrentUser();
-      console.log(user);
       return user;
     } catch (error: any) {
       return rejectWithValue(
@@ -217,7 +216,6 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
-        console.log("getCurrentUser fulfilled", action.payload);
         state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = !!action.payload;

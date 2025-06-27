@@ -39,6 +39,7 @@ const queryClient = new QueryClient();
 
 // Create a context provider for cart notifications
 import { createContext, useContext } from "react";
+import { fetchCategories } from "./store/slices/categorySlice";
 
 export const CartNotifiCationContext = createContext<ReturnType<
   typeof useCartNotification
@@ -93,6 +94,7 @@ const App = () => {
 
   useEffect(() => {
     dispatch(getCurrentUser());
+    dispatch(fetchCategories());
     updateHtmlTheme(theme);
   }, [dispatch, theme]);
 

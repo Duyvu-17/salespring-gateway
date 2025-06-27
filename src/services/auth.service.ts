@@ -177,7 +177,6 @@ class AuthService {
       let userData = null;
       if (data && data.data.user) {
         userData = data.data.user;
-        console.log("User from getCurrentUser:", userData);
       } else {
         return null;
       }

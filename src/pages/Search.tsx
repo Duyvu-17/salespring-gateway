@@ -33,7 +33,6 @@ import { categoryService } from "@/services/category.service";
 import { Product } from "@/types/product";
 import { Category } from "@/types/category";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCategories } from "@/store/slices/categorySlice";
 import type { RootState, AppDispatch } from "@/store";
 import { string } from "zod";
 
@@ -64,13 +63,6 @@ const Search = () => {
   const [tempShowInStock, setTempShowInStock] = useState(showInStock);
   const [tempShowOnSale, setTempShowOnSale] = useState(showOnSale);
 
-  // Lấy danh mục từ redux store nếu chưa có thì fetch
-  useEffect(() => {
-    if (!categoriesRedux.length) {
-      dispatch(fetchCategories());
-    }
-  }, [dispatch, categoriesRedux.length]);
-
   // Lấy sản phẩm từ BE theo filter/search - Fixed version
   useEffect(() => {
     setIsLoading(true);
@@ -95,7 +87,7 @@ const Search = () => {
       .getAll(params)
       .then((res) => {
         // Fixed: Handle different response structures
-        const products = res.products  || res;
+        const products = res.products || res;
         const productsArray = Array.isArray(products) ? products : [];
 
         setFilteredProducts(productsArray);
