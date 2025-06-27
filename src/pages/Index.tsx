@@ -82,7 +82,7 @@ const Index = () => {
     const fetchHot = async () => {
       setLoading((prev) => ({ ...prev, hot: true }));
       try {
-        const res = await productService.getHot();
+        const res = await productService.getAll({ type: 'hot' });
         setHotProducts(Array.isArray(res) ? res : []);
         setError((prev) => ({ ...prev, hot: null }));
       } catch (err) {
@@ -100,7 +100,7 @@ const Index = () => {
     const fetchNew = async () => {
       setLoading((prev) => ({ ...prev, new: true }));
       try {
-        const res = await productService.getNew();
+        const res = await productService.getAll({ type: 'new' });
         if (Array.isArray(res)) {
           setNewProducts(res);
         } else if (
@@ -127,7 +127,7 @@ const Index = () => {
     const fetchSale = async () => {
       setLoading((prev) => ({ ...prev, sale: true }));
       try {
-        const res = await productService.getSale();
+        const res = await productService.getAll({ type: 'sale' });
         if (Array.isArray(res)) {
           setSaleProducts(res);
         } else if (

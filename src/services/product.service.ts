@@ -50,29 +50,6 @@ class ProductService {
     return data.data;
   }
 
-  async getHot(): Promise<Product[]> {
-    const data = await this.request<{ data: Product[] }>({
-      url: `${API_URL}${API_ENDPOINTS.PRODUCT.HOT}`,
-      method: 'get',
-    });
-    return data.data;
-  }
-
-  async getSale(): Promise<Product[]> {
-    const data = await this.request<{ data: Product[] }>({
-      url: `${API_URL}${API_ENDPOINTS.PRODUCT.SALE}`,
-      method: 'get',
-    });
-    return data.data;
-  }
-
-  async getNew(): Promise<Product[]> {
-    const data = await this.request<{ data: Product[] }>({
-      url: `${API_URL}${API_ENDPOINTS.PRODUCT.NEW}`,
-      method: 'get',
-    });
-    return data.data;
-  }
 
   async getByCategory(categoryId: number): Promise<Product[]> {
     const data = await this.request<{ data: Product[] }>({
