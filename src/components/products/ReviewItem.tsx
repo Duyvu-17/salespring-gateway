@@ -85,10 +85,10 @@ const ReviewItem = ({
             variant="ghost"
             size="sm"
             onClick={() => {
-              if (replyingTo === review.id) {
+              if (replyingTo === review.review_id) {
                 setReplyingTo(null);
               } else {
-                setReplyingTo(review.id);
+                setReplyingTo(review.review_id);
                 setNewReply("");
               }
             }}
@@ -101,8 +101,8 @@ const ReviewItem = ({
             Hữu ích
           </Button>
         </div>
-        {/* Chỉ review có replyingTo === review.id mới hiển thị form trả lời */}
-        {replyingTo === review.id && (
+        {/* Chỉ review có replyingTo === review.review_id mới hiển thị form trả lời */}
+        {replyingTo === review.review_id && (
           <div className="mt-4 flex items-start space-x-2">
             <Avatar className="h-8 w-8">
               <AvatarImage src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&q=80" />
@@ -126,7 +126,7 @@ const ReviewItem = ({
                 >
                   Hủy
                 </Button>
-                <Button size="sm" onClick={() => handleSubmitReply(review.id)}>
+                <Button size="sm" onClick={() => handleSubmitReply(review.review_id)}>
                   <Send className="mr-1 h-3 w-3" />
                   Trả lời
                 </Button>

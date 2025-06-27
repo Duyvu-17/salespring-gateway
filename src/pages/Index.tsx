@@ -57,99 +57,41 @@ const Index = () => {
   const { showCartNotification } = useCartNotificationContext();
 
   useEffect(() => {
-    // Lấy featured products (getAll)
-    const fetchFeatured = async () => {
-      setLoading((prev) => ({ ...prev, featured: true }));
-      try {
-        const res = await productService.getAll();
-        setAllProducts(res);
-        setError((prev) => ({ ...prev, featured: null }));
-      } catch (err) {
-        setAllProducts([]);
-        setError((prev) => ({
-          ...prev,
+    setLoading({ featured: true, hot: true, new: true, sale: true });
+    Promise.all([
+      productService.getAll(), // featured
+      productService.getAll({ type: "hot" }),
+      productService.getAll({ type: "new" }),
+      productService.getAll({ type: "sale" }),
+    ])
+      .then(([featured, hot, news, sale]) => {
+        setAllProducts(
+          featured && Array.isArray(featured) ? featured : []
+        );
+        setHotProducts(hot && Array.isArray(hot) ? hot : []);
+        setNewProducts(
+          news && Array.isArray(news) ? news : []
+        );
+        setSaleProducts(
+          sale && Array.isArray(sale) ? sale : []
+        );
+        setError({ featured: null, hot: null, new: null, sale: null });
+      })
+      .catch((err) => {
+        setError({
           featured: "Không thể tải sản phẩm nổi bật",
-        }));
-      } finally {
-        setLoading((prev) => ({ ...prev, featured: false }));
-      }
-    };
-    fetchFeatured();
-  }, []);
-
-  useEffect(() => {
-    // Lấy sản phẩm hot
-    const fetchHot = async () => {
-      setLoading((prev) => ({ ...prev, hot: true }));
-      try {
-        const res = await productService.getAll({ type: 'hot' });
-        setHotProducts(Array.isArray(res) ? res : []);
-        setError((prev) => ({ ...prev, hot: null }));
-      } catch (err) {
-        setHotProducts([]);
-        setError((prev) => ({ ...prev, hot: "Không thể tải sản phẩm hot" }));
-      } finally {
-        setLoading((prev) => ({ ...prev, hot: false }));
-      }
-    };
-    fetchHot();
-  }, []);
-
-  useEffect(() => {
-    // Lấy sản phẩm mới
-    const fetchNew = async () => {
-      setLoading((prev) => ({ ...prev, new: true }));
-      try {
-        const res = await productService.getAll({ type: 'new' });
-        if (Array.isArray(res)) {
-          setNewProducts(res);
-        } else if (
-          res &&
-          Array.isArray((res as ProductListResponse).products)
-        ) {
-          setNewProducts((res as ProductListResponse).products);
-        } else {
-          setNewProducts([]);
-        }
-        setError((prev) => ({ ...prev, new: null }));
-      } catch (err) {
-        setNewProducts([]);
-        setError((prev) => ({ ...prev, new: "Không thể tải sản phẩm mới" }));
-      } finally {
-        setLoading((prev) => ({ ...prev, new: false }));
-      }
-    };
-    fetchNew();
-  }, []);
-
-  useEffect(() => {
-    // Lấy sản phẩm giảm giá
-    const fetchSale = async () => {
-      setLoading((prev) => ({ ...prev, sale: true }));
-      try {
-        const res = await productService.getAll({ type: 'sale' });
-        if (Array.isArray(res)) {
-          setSaleProducts(res);
-        } else if (
-          res &&
-          Array.isArray((res as ProductListResponse).products)
-        ) {
-          setSaleProducts((res as ProductListResponse).products);
-        } else {
-          setSaleProducts([]);
-        }
-        setError((prev) => ({ ...prev, sale: null }));
-      } catch (err) {
-        setSaleProducts([]);
-        setError((prev) => ({
-          ...prev,
+          hot: "Không thể tải sản phẩm hot",
+          new: "Không thể tải sản phẩm mới",
           sale: "Không thể tải sản phẩm giảm giá",
-        }));
-      } finally {
-        setLoading((prev) => ({ ...prev, sale: false }));
-      }
-    };
-    fetchSale();
+        });
+        setAllProducts([]);
+        setHotProducts([]);
+        setNewProducts([]);
+        setSaleProducts([]);
+      })
+      .finally(() => {
+        setLoading({ featured: false, hot: false, new: false, sale: false });
+      });
   }, []);
 
   const handleQuickAddToCart = (product) => {

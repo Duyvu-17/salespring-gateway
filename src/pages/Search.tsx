@@ -35,6 +35,7 @@ import { Category } from "@/types/category";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCategories } from "@/store/slices/categorySlice";
 import type { RootState, AppDispatch } from "@/store";
+import { string } from "zod";
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,6 +56,14 @@ const Search = () => {
     (state: RootState) => state.category.categories
   );
 
+  // Thêm state tạm cho filter trong Sheet
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [tempCategory, setTempCategory] = useState(selectedCategory);
+  const [tempPriceRange, setTempPriceRange] =
+    useState<[number, number]>(priceRange);
+  const [tempShowInStock, setTempShowInStock] = useState(showInStock);
+  const [tempShowOnSale, setTempShowOnSale] = useState(showOnSale);
+
   // Lấy danh mục từ redux store nếu chưa có thì fetch
   useEffect(() => {
     if (!categoriesRedux.length) {
@@ -65,17 +74,18 @@ const Search = () => {
   // Lấy sản phẩm từ BE theo filter/search - Fixed version
   useEffect(() => {
     setIsLoading(true);
-    const params: Record<string, string | number | boolean> = {};
+    const params: Record<string, string | number> = {};
+    if (showOnSale) params.sale = "true";
 
     // Fixed: Đồng bộ parameter names với BE
     if (searchTerm) params.q = searchTerm;
     if (selectedCategory) params.category = selectedCategory;
 
     // Fixed: Gửi đúng parameter name mà BE expect
-    if (showOnSale) params.sale = true;
+    if (showOnSale) params.sale = "true";
 
-    if (searchParams.get("new") === "true") params.new = true;
-    if (showInStock) params.inStock = true;
+    if (searchParams.get("new") === "true") params.new = "true";
+    if (showInStock) params.inStock = "true";
 
     // Fixed: Sử dụng consistent parameter names
     if (priceRange[0] > 0) params.min_price = priceRange[0];
@@ -85,7 +95,7 @@ const Search = () => {
       .getAll(params)
       .then((res) => {
         // Fixed: Handle different response structures
-        const products = res.products || res.data || res;
+        const products = res.products  || res;
         const productsArray = Array.isArray(products) ? products : [];
 
         setFilteredProducts(productsArray);
@@ -95,7 +105,7 @@ const Search = () => {
           const maxP = Math.max(
             ...productsArray.map((p) => {
               // Handle both direct price and nested pricing
-              const price = p.price || p.ProductPricing?.base_price || 0;
+              const price = p.price || p.pricing?.base_price || 0;
               return Number(price);
             })
           );
@@ -186,6 +196,46 @@ const Search = () => {
     setSearchParams(params);
   };
 
+  // Khi mở Sheet, đồng bộ state tạm với state chính
+  const handleOpenSheet = () => {
+    setTempCategory(selectedCategory);
+    setTempPriceRange(priceRange);
+    setTempShowInStock(showInStock);
+    setTempShowOnSale(showOnSale);
+    setIsSheetOpen(true);
+  };
+
+  const handleCloseSheet = () => {
+    setIsSheetOpen(false);
+  };
+
+  const handleApplyFilters = () => {
+    setSelectedCategory(tempCategory);
+    setPriceRange(tempPriceRange);
+    setShowInStock(tempShowInStock);
+    setShowOnSale(tempShowOnSale);
+
+    // Cập nhật URL/searchParams nếu cần
+    const params = new URLSearchParams();
+    if (tempCategory) params.set("category", tempCategory);
+    if (tempShowOnSale) params.set("sale", "true");
+    if (tempShowInStock) params.set("inStock", "true");
+    if (searchTerm) params.set("q", searchTerm);
+    if (tempPriceRange[0] > 0)
+      params.set("min_price", tempPriceRange[0].toString());
+    if (tempPriceRange[1] < maxPrice)
+      params.set("max_price", tempPriceRange[1].toString());
+    setSearchParams(params);
+    setIsSheetOpen(false);
+  };
+
+  const handleClearTempFilters = () => {
+    setTempCategory(null);
+    setTempPriceRange([0, maxPrice]);
+    setTempShowInStock(true);
+    setTempShowOnSale(false);
+  };
+
   return (
     <div className="container mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold mb-8">Search Products</h1>
@@ -212,11 +262,18 @@ const Search = () => {
           </form>
 
           {/* Filter Button - Sheet Trigger */}
-          <Sheet>
+          <Sheet
+            open={isSheetOpen}
+            onOpenChange={(open) => {
+              if (open) handleOpenSheet();
+              else handleCloseSheet();
+            }}
+          >
             <SheetTrigger asChild>
               <Button
                 variant="outline"
                 className="flex gap-2 whitespace-nowrap"
+                onClick={handleOpenSheet}
               >
                 <Filter className="h-4 w-4" />
                 Filters
@@ -238,15 +295,15 @@ const Search = () => {
                     {categoriesRedux.map((category) => (
                       <button
                         key={category.id}
-                        onClick={() => handleCategorySelect(category.name)}
+                        onClick={() => setTempCategory(category.name)}
                         className={`flex items-center justify-between p-2 rounded-md border ${
-                          selectedCategory === category.name
+                          tempCategory === category.name
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-card hover:bg-muted border-input"
                         }`}
                       >
                         <span className="text-sm">{category.name}</span>
-                        {selectedCategory === category.name && (
+                        {tempCategory === category.name && (
                           <Check className="h-4 w-4" />
                         )}
                       </button>
@@ -262,12 +319,14 @@ const Search = () => {
                     min={0}
                     max={maxPrice}
                     step={10}
-                    value={[priceRange[0], priceRange[1]]}
-                    onValueChange={handlePriceChange}
+                    value={tempPriceRange}
+                    onValueChange={(values) =>
+                      setTempPriceRange([values[0], values[1]])
+                    }
                   />
                   <div className="flex items-center justify-between text-sm">
-                    <span>₫{priceRange[0].toLocaleString()}</span>
-                    <span>₫{priceRange[1].toLocaleString()}</span>
+                    <span>₫{tempPriceRange[0].toLocaleString()}</span>
+                    <span>₫{tempPriceRange[1].toLocaleString()}</span>
                   </div>
                 </div>
 
@@ -278,10 +337,10 @@ const Search = () => {
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="in-stock-sheet"
-                        checked={showInStock}
-                        onCheckedChange={(checked) => {
-                          setShowInStock(checked as boolean);
-                        }}
+                        checked={tempShowInStock}
+                        onCheckedChange={(checked) =>
+                          setTempShowInStock(!!checked)
+                        }
                       />
                       <label
                         htmlFor="in-stock-sheet"
@@ -291,21 +350,13 @@ const Search = () => {
                       </label>
                     </div>
 
-                    {/* Fixed: Update onSale checkbox handler in Sheet */}
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="on-sale-sheet"
-                        checked={showOnSale}
-                        onCheckedChange={(checked) => {
-                          setShowOnSale(checked as boolean);
-                          const params = new URLSearchParams(searchParams);
-                          if (checked) {
-                            params.set("sale", "true"); // Fixed: use 'sale'
-                          } else {
-                            params.delete("sale");
-                          }
-                          setSearchParams(params);
-                        }}
+                        checked={tempShowOnSale}
+                        onCheckedChange={(checked) =>
+                          setTempShowOnSale(!!checked)
+                        }
                       />
                       <label
                         htmlFor="on-sale-sheet"
@@ -322,13 +373,13 @@ const Search = () => {
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={handleClearFilters}
+                    onClick={handleClearTempFilters}
                   >
                     Clear All
                   </Button>
-                  <SheetTrigger asChild>
-                    <Button className="flex-1">Apply Filters</Button>
-                  </SheetTrigger>
+                  <Button className="flex-1" onClick={handleApplyFilters}>
+                    Apply Filters
+                  </Button>
                 </div>
               </div>
             </SheetContent>
@@ -432,7 +483,7 @@ const Search = () => {
                           SALE
                         </Badge>
                       )}
-                      {product.has_sale && (
+                      {product.discounts && (
                         <Badge className="absolute top-2 left-2 bg-green-500">
                           NEW
                         </Badge>
@@ -443,29 +494,24 @@ const Search = () => {
                         {product.name}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-2">
-                        {product.Category?.name ||
-                          product.category_name ||
-                          categoriesRedux.find(
-                            (c) => c.id === product.category_id
-                          )?.name ||
-                          "Uncategorized"}
+                        {product?.category?.name || "Uncategorized"}
                       </p>
 
                       {/* Brand info if available */}
-                      {(product.Brand?.name || product.brand_name) && (
+                      {(product.Brand?.name || product.Brand) && (
                         <p className="text-xs text-muted-foreground mb-2">
-                          Brand: {product.Brand?.name || product.brand_name}
+                          Brand: {product.Brand?.name}
                         </p>
                       )}
 
                       {/* Stock status */}
                       <div className="flex items-center gap-2 mb-2">
-                        {product.in_stock !== undefined ? (
+                        {product.status !== undefined ? (
                           <Badge
-                            variant={product.in_stock ? "default" : "secondary"}
+                            variant={product.status ? "default" : "secondary"}
                             className="text-xs"
                           >
-                            {product.in_stock ? "In Stock" : "Out of Stock"}
+                            {product.status ? "In Stock" : "Out of Stock"}
                           </Badge>
                         ) : (
                           <Badge variant="secondary" className="text-xs">

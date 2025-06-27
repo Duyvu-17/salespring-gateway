@@ -352,17 +352,14 @@ const ProductDetail = () => {
   const totalViews = Math.floor(Math.random() * 5000) + 500;
 
   // Calculate total review pages
-  const totalReviews = (product)?.userReviews?.length || 0;
+  const totalReviews = product?.userReviews?.length || 0;
   const totalReviewPages = Math.ceil(totalReviews / reviewsPerPage);
 
   // Get current page reviews
   const getCurrentReviews = () => {
-    if (!(product)?.userReviews) return [];
+    if (!product?.userReviews) return [];
     const startIndex = (reviewPage - 1) * reviewsPerPage;
-    return (product).userReviews.slice(
-      startIndex,
-      startIndex + reviewsPerPage
-    );
+    return product.userReviews.slice(startIndex, startIndex + reviewsPerPage);
   };
 
   const currentReviews = getCurrentReviews();
@@ -540,8 +537,8 @@ const ProductDetail = () => {
             {((selectedVariant && selectedVariant.images?.length > 1) ||
               additionalImages.length > 0) && (
               <div className="flex gap-2 mt-4">
-                {(selectedVariant?.images || additionalImages).map(
-                  (img) => (
+                {(selectedVariant?.images || additionalImages).map((img) =>
+                  img.image_url ? (
                     <img
                       key={img.id}
                       src={img.image_url}
@@ -553,6 +550,13 @@ const ProductDetail = () => {
                           : "border-border hover:border-primary/50"
                       }`}
                     />
+                  ) : (
+                    <div
+                      key={img.id}
+                      className="w-16 h-16 flex items-center justify-center bg-muted rounded-lg border border-dashed text-muted-foreground cursor-default"
+                    >
+                      No Image
+                    </div>
                   )
                 )}
               </div>

@@ -1,3 +1,5 @@
+import { Category } from "./category";
+
 export interface ProductVariant {
   id: number;
   sku: string;
@@ -30,6 +32,26 @@ export interface ProductMetadatum {
   meta_keywords: string;
 }
 
+export interface ProductDiscount {
+  id: number;
+  name: string;
+  type: string;
+  value: string;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+}
+export interface ProductBrand {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface ProductInventory {
+  quantity: number;
+  low_stock_threshold: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -37,12 +59,13 @@ export interface Product {
   description: string;
   price: string;
   sale_price: string | null;
-  stock: number;
+  stock_quantity: number;
   image_url: string | null;
-  category_id: number;
+  category: Category;
   status: string;
-  brand_id: number | null;
+  Brand: ProductBrand;
   supplier_id: number | null;
+  in_stock: boolean;
   createdAt: string;
   updatedAt: string;
   images?: {
@@ -52,8 +75,10 @@ export interface Product {
     image_url: string;
   }[];
   ProductInventory?: ProductInventory;
+  inventory?: ProductInventory;
   pricing?: ProductPricing;
   ProductIdentifier?: ProductIdentifier;
   ProductMetadatum?: ProductMetadatum;
   ProductVariants?: ProductVariant[];
-} 
+  discounts?: ProductDiscount[];
+}
