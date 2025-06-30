@@ -191,8 +191,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               </Button>
               <Button
                 size="sm"
-                variant="secondary"
-                className="bg-primary/90 hover:bg-primary text-white"
+                variant="default"
+                className="shadow"
                 onClick={handleQuickBuy}
               >
                 <Zap className="h-4 w-4 mr-1" /> Mua nhanh
