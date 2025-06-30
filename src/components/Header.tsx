@@ -18,7 +18,6 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/store";
 import { setTheme, toggleTheme } from "@/store/slices/themeSlice";
 import { Badge } from "@/components/ui/badge";
-import { LogoutConfirmDialog } from "./LogoutConfirmDialog";
 import { MainNavigationMenu } from "./NavigationMenu";
 import { fetchCart } from "@/store/slices/cartSlice";
 import { fetchWishlist } from "@/store/slices/wishlistSlice";

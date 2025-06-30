@@ -727,15 +727,30 @@ const ProductDetail = () => {
               >
                 Thêm vào giỏ hàng
               </button>
-              <button
-                className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:from-orange-600 hover:to-yellow-500 transition text-lg flex items-center gap-2"
-                onClick={handleBuyNow}
-                disabled={selectedVariant?.stock <= 0}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleAddToWishlist}
+                className={isInWishlistState ? "bg-primary/10" : ""}
               >
-                <Zap className="w-5 h-5" />
-                Mua ngay
-              </button>
+                <Heart
+                  className={`h-5 w-5 ${
+                    isInWishlistState
+                      ? "fill-red-500 text-red-500 animate-heartbeat"
+                      : ""
+                  }`}
+                />
+              </Button>
             </div>
+            {/* Buy Now Button */}
+            <Button
+              className="w-full flex gap-2 items-center justify-center mt-4"
+              onClick={handleBuyNow}
+              disabled={selectedVariant?.stock <= 0}
+            >
+              <CreditCard className="h-5 w-5" />
+              Mua ngay
+            </Button>
           </div>
         </div>
 

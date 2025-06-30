@@ -92,11 +92,16 @@ const App = () => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const dispatch = useDispatch<AppDispatch>();
 
+  // Chỉ fetch user và categories khi app mount
   useEffect(() => {
     dispatch(getCurrentUser());
     dispatch(fetchCategories());
+  }, [dispatch]);
+
+  // Chỉ update theme khi theme đổi
+  useEffect(() => {
     updateHtmlTheme(theme);
-  }, [dispatch, theme]);
+  }, [theme]);
 
   return (
     <QueryClientProvider client={queryClient}>
