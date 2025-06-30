@@ -1,8 +1,9 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Package, Info, ShieldCheck, Zap } from "lucide-react";
+import { Product } from "@/types/product";
 
-const ProductBoxContent = ({ product }: any) => (
+const ProductBoxContent = ({ product }) => (
   <Card className="p-8 mb-16">
     <div className="text-center mb-8">
       <Package className="h-8 w-8 text-primary mx-auto mb-3" />

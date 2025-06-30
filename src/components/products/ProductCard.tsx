@@ -39,7 +39,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     (state: RootState) => state.wishlist.isLoading
   );
   const inWishlist = product.is_in_wishlist;
-  
 
   // Lấy hình ảnh chính và hình ảnh thứ 2 từ BE
   const mainImage =
@@ -61,7 +60,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const renderRating = () => {
     if (!product.rating_avg || !product.rating_count) return null;
 
-    const rating = parseFloat(product.rating_avg);
+    const rating =
+      typeof product.rating_avg === "number"
+        ? product.rating_avg
+        : parseFloat(product.rating_avg);
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);

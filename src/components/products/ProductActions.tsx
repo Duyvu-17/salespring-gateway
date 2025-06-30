@@ -54,7 +54,7 @@ export const ProductActions: React.FC<ProductActionsProps> = ({
       // Redirect to login hoặc hiển thị modal đăng nhập
       return;
     }
-    await dispatch(addToCart({ productId, quantity: 1 }));
+    await dispatch(addToCart({ product_id: productId, quantity: 1 }));
   };
 
   const handleToggleWishlist = async () => {
