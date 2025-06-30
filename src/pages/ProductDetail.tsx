@@ -60,6 +60,7 @@ import RecentlyViewedProducts from "@/components/products/RecentlyViewedProducts
 import ProductFeatures from "@/components/products/ProductFeatures";
 import { Product } from "@/types/product";
 import type { ProductModel, ProductColor, UserReview } from "@/data/products";
+import { cartService } from "@/services/cart.service";
 
 const EMPTY_ARRAY: any[] = [];
 const selectWishlist = (state: RootState) =>
@@ -201,19 +202,38 @@ const ProductDetail = () => {
     : salePrice || price;
   const currentStock = selectedVariant ? selectedVariant.stock : stock;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Bạn cần đăng nhập",
+        description: "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { from: `/product/${product.id}` } });
+      return;
+    }
     if (!selectedVariant) {
       toast({
-        title: "Selection required",
-        description: "Please select a variant before adding to cart",
+        title: "Bạn cần chọn phiên bản",
+        description: "Vui lòng chọn phiên bản trước khi thêm vào giỏ hàng",
         variant: "destructive",
       });
       return;
     }
-    toast({
-      title: "Added to cart",
-      description: `${product.name} - ${selectedVariant.name} x${quantity} has been added to your cart`,
-    });
+    try {
+      await cartService.addToCart(selectedVariant.id, quantity);
+      toast({
+        title: "Đã thêm vào giỏ hàng",
+        description: `${product.name} - ${selectedVariant.name} x${quantity} đã được thêm vào giỏ hàng`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Lỗi",
+        description:
+          error.message || "Không thể thêm vào giỏ hàng. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleBuyNow = () => {
@@ -706,6 +726,14 @@ const ProductDetail = () => {
                 disabled={selectedVariant?.stock <= 0}
               >
                 Thêm vào giỏ hàng
+              </button>
+              <button
+                className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:from-orange-600 hover:to-yellow-500 transition text-lg flex items-center gap-2"
+                onClick={handleBuyNow}
+                disabled={selectedVariant?.stock <= 0}
+              >
+                <Zap className="w-5 h-5" />
+                Mua ngay
               </button>
             </div>
           </div>

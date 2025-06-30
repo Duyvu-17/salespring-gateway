@@ -23,7 +23,9 @@ export const fetchWishlist = createAsyncThunk(
       return Array.isArray(data.wishlist) ? data.wishlist : [];
     } catch (err: unknown) {
       const error = err as { message?: string };
-      return rejectWithValue(error.message || "Lỗi khi tải danh sách yêu thích");
+      return rejectWithValue(
+        error.message || "Lỗi khi tải danh sách yêu thích"
+      );
     }
   }
 );
@@ -37,7 +39,9 @@ export const addToWishlist = createAsyncThunk(
       return Array.isArray(data.wishlist) ? data.wishlist : [];
     } catch (err: unknown) {
       const error = err as { message?: string };
-      return rejectWithValue(error.message || "Lỗi thêm vào danh sách yêu thích");
+      return rejectWithValue(
+        error.message || "Lỗi thêm vào danh sách yêu thích"
+      );
     }
   }
 );
@@ -51,7 +55,9 @@ export const removeFromWishlist = createAsyncThunk(
       return Array.isArray(data.wishlist) ? data.wishlist : [];
     } catch (err: unknown) {
       const error = err as { message?: string };
-      return rejectWithValue(error.message || "Lỗi xóa sản phẩm khỏi danh sách yêu thích");
+      return rejectWithValue(
+        error.message || "Lỗi xóa sản phẩm khỏi danh sách yêu thích"
+      );
     }
   }
 );
@@ -74,7 +80,11 @@ const wishlistSlice = createSlice({
   name: "wishlist",
   initialState,
   reducers: {
-    // Các hàm sync nếu cần
+    resetWishlist: (state) => {
+      state.wishlist = [];
+      state.isLoading = false;
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -83,10 +93,13 @@ const wishlistSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchWishlist.fulfilled, (state, action: PayloadAction<WishlistItem[]>) => {
-        state.wishlist = action.payload;
-        state.isLoading = false;
-      })
+      .addCase(
+        fetchWishlist.fulfilled,
+        (state, action: PayloadAction<WishlistItem[]>) => {
+          state.wishlist = action.payload;
+          state.isLoading = false;
+        }
+      )
       .addCase(fetchWishlist.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
@@ -97,10 +110,13 @@ const wishlistSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(addToWishlist.fulfilled, (state, action: PayloadAction<WishlistItem[]>) => {
-        state.wishlist = action.payload;
-        state.isLoading = false;
-      })
+      .addCase(
+        addToWishlist.fulfilled,
+        (state, action: PayloadAction<WishlistItem[]>) => {
+          state.wishlist = action.payload;
+          state.isLoading = false;
+        }
+      )
       .addCase(addToWishlist.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
@@ -110,10 +126,13 @@ const wishlistSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(removeFromWishlist.fulfilled, (state, action: PayloadAction<WishlistItem[]>) => {
-        state.wishlist = action.payload;
-        state.isLoading = false;
-      })
+      .addCase(
+        removeFromWishlist.fulfilled,
+        (state, action: PayloadAction<WishlistItem[]>) => {
+          state.wishlist = action.payload;
+          state.isLoading = false;
+        }
+      )
       .addCase(removeFromWishlist.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
@@ -137,12 +156,22 @@ const wishlistSlice = createSlice({
 export default wishlistSlice.reducer;
 
 // Selector tiện ích
-export const selectWishlist = (state: { wishlist: WishlistState }) => state.wishlist.wishlist;
-export const selectWishlistLoading = (state: { wishlist: WishlistState }) => state.wishlist.isLoading;
+export const selectWishlist = (state: { wishlist: WishlistState }) =>
+  state.wishlist.wishlist;
+export const selectWishlistLoading = (state: { wishlist: WishlistState }) =>
+  state.wishlist.isLoading;
 
 // Hàm tiện ích cho component
-export const getWishlistItem = (wishlist: WishlistItem[] | null, productId: string) =>
-  wishlist?.find((item) => String(item.product_id) === String(productId));
+export const getWishlistItem = (
+  wishlist: WishlistItem[] | null,
+  productId: string
+) => wishlist?.find((item) => String(item.product_id) === String(productId));
 
-export const isInWishlist = (wishlist: WishlistItem[] | null | undefined, productId: string) =>
-  Array.isArray(wishlist) && wishlist.some((item) => String(item.product_id) === String(productId));
+export const isInWishlist = (
+  wishlist: WishlistItem[] | null | undefined,
+  productId: string
+) =>
+  Array.isArray(wishlist) &&
+  wishlist.some((item) => String(item.product_id) === String(productId));
+
+export const { resetWishlist } = wishlistSlice.actions;

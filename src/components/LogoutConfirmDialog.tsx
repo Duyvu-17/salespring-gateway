@@ -14,11 +14,16 @@ import { LogOut } from "lucide-react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/store";
 import { logout } from "@/store/slices/authSlice";
+import { resetCart } from "@/store/slices/cartSlice";
+import { resetWishlist } from "@/store/slices/wishlistSlice";
 
 export const LogoutConfirmDialog = () => {
   const dispatch = useDispatch<AppDispatch>();
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logout()).then(() => {
+      dispatch(resetCart());
+      dispatch(resetWishlist());
+    });
   };
 
   return (

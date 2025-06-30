@@ -22,16 +22,20 @@ export const fetchCart = createAsyncThunk("cart/fetchCart", async () => {
     cart_items: cartData.cart_items.map((item) => ({
       ...item,
       selected:
-        typeof selectedMap[item.id] === "boolean"
-          ? selectedMap[item.id]
-          : true,
+        typeof selectedMap[item.id] === "boolean" ? selectedMap[item.id] : true,
     })),
   };
 });
 
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async ({ product_id, quantity }: { product_id: string; quantity?: number }) => {
+  async ({
+    product_id,
+    quantity,
+  }: {
+    product_id: string;
+    quantity?: number;
+  }) => {
     const updatedCart = await cartService.addToCart(product_id, quantity || 1);
     return updatedCart;
   }
@@ -83,6 +87,10 @@ const cartSlice = createSlice({
       }));
       saveSelectedToLocalStorage(state.cart);
     },
+    resetCart: (state) => {
+      state.cart = null;
+      state.isLoading = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -133,5 +141,6 @@ function saveSelectedToLocalStorage(cart: Cart) {
   localStorage.setItem("cart_selected", JSON.stringify(selectedMap));
 }
 
-export const { toggleItemSelection, selectAllItems } = cartSlice.actions;
+export const { toggleItemSelection, selectAllItems, resetCart } =
+  cartSlice.actions;
 export default cartSlice.reducer;

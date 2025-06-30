@@ -20,19 +20,26 @@ import { setTheme, toggleTheme } from "@/store/slices/themeSlice";
 import { Badge } from "@/components/ui/badge";
 import { LogoutConfirmDialog } from "./LogoutConfirmDialog";
 import { MainNavigationMenu } from "./NavigationMenu";
+import { fetchCart } from "@/store/slices/cartSlice";
+import { fetchWishlist } from "@/store/slices/wishlistSlice";
+import type { AppDispatch } from "@/store";
 
 export const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const theme = useSelector((state: RootState) => state.theme.theme);
   const themeLabel = theme.charAt(0).toUpperCase() + theme.slice(1);
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
+  );
+  const cartCount = useSelector(
+    (state: RootState) => state.cart.cart?.cart_items?.length || 0
+  );
+  const wishlistCount = useSelector(
+    (state: RootState) => state.wishlist.wishlist?.length || 0
   );
   const navigate = useNavigate();
 
@@ -42,33 +49,13 @@ export const Header = () => {
       setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
-
-    // Set cart count from local storage or initialize
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    setCartCount(cart.length);
-
-    // Set wishlist count from local storage
-    const wishlist = JSON.parse(localStorage.getItem("likedProducts") || "[]");
-    setWishlistCount(wishlist.length);
-
-    // Update counts when storage changes
-    const handleStorageChange = () => {
-      const updatedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      setCartCount(updatedCart.length);
-
-      const updatedWishlist = JSON.parse(
-        localStorage.getItem("likedProducts") || "[]"
-      );
-      setWishlistCount(updatedWishlist.length);
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
+    // Fetch cart & wishlist khi mount
+    dispatch(fetchCart());
+    dispatch(fetchWishlist());
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("storage", handleStorageChange);
     };
-  }, []);
+  }, [dispatch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
