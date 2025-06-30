@@ -38,7 +38,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const wishlistLoading = useSelector(
     (state: RootState) => state.wishlist.isLoading
   );
-  const inWishlist = isInWishlistSelector(wishlist, String(product.id));
+  const inWishlist = product.is_in_wishlist;
+  
 
   // Lấy hình ảnh chính và hình ảnh thứ 2 từ BE
   const mainImage =

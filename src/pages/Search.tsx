@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -35,6 +34,7 @@ import { Category } from "@/types/category";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "@/store";
 import { string } from "zod";
+import { ProductCard } from "@/components/products/ProductCard";
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -451,103 +451,7 @@ const Search = () => {
             {/* Fixed: Safe product rendering với fallback cho price structure */}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
-                <Card
-                  key={product.id}
-                  className="glass-card hover-scale overflow-hidden"
-                >
-                  <Link to={`/product/${product.id}`}>
-                    <div className="relative">
-                      <img
-                        src={
-                          product.image_url ||
-                          product.images?.[0]?.image_url ||
-                          "/placeholder-product.jpg"
-                        }
-                        alt={product.name}
-                        className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "/placeholder-product.jpg";
-                        }}
-                      />
-                      {(product.sale_price || product.pricing?.sale_price) && (
-                        <Badge className="absolute top-2 right-2 bg-red-500">
-                          SALE
-                        </Badge>
-                      )}
-                      {product.discounts && (
-                        <Badge className="absolute top-2 left-2 bg-green-500">
-                          NEW
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-lg font-semibold mb-1 line-clamp-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {product?.category?.name || "Uncategorized"}
-                      </p>
-
-                      {/* Brand info if available */}
-                      {(product.Brand?.name || product.Brand) && (
-                        <p className="text-xs text-muted-foreground mb-2">
-                          Brand: {product.Brand?.name}
-                        </p>
-                      )}
-
-                      {/* Stock status */}
-                      <div className="flex items-center gap-2 mb-2">
-                        {product.status !== undefined ? (
-                          <Badge
-                            variant={product.status ? "default" : "secondary"}
-                            className="text-xs"
-                          >
-                            {product.status ? "In Stock" : "Out of Stock"}
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-xs">
-                            Stock Unknown
-                          </Badge>
-                        )}
-
-                        {product.stock_quantity !== undefined &&
-                          product.stock_quantity > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                              ({product.stock_quantity} available)
-                            </span>
-                          )}
-                      </div>
-
-                      {/* Fixed: Handle different price structures */}
-                      {(() => {
-                        const salePrice =
-                          product.sale_price || product.pricing?.sale_price;
-                        const basePrice =
-                          product.price || product.pricing?.base_price;
-
-                        if (salePrice && parseInt(salePrice) > 0) {
-                          return (
-                            <div className="flex justify-between items-center">
-                              <p className="text-lg font-medium text-primary">
-                                ₫{Number(salePrice).toLocaleString()}
-                              </p>
-                              <p className="text-sm line-through text-muted-foreground">
-                                ₫{Number(basePrice).toLocaleString()}
-                              </p>
-                            </div>
-                          );
-                        } else {
-                          return (
-                            <p className="text-lg font-medium text-primary">
-                              ₫{Number(basePrice || 0).toLocaleString()}
-                            </p>
-                          );
-                        }
-                      })()}
-                    </div>
-                  </Link>
-                </Card>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </>

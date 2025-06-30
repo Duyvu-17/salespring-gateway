@@ -31,10 +31,7 @@ export const MainNavigationMenu = () => {
   );
 
   const categoryIcons = {
-    "Điện thoại": Laptop,
-    Laptop: Laptop,
-    "Phụ kiện": Gift,
-    // ...bổ sung mapping nếu muốn
+    default: Tag,
   };
 
   const quickLinks = [
@@ -59,8 +56,7 @@ export const MainNavigationMenu = () => {
                   </h4>
                   <div className="space-y-2">
                     {categories?.map((category) => {
-                      const IconComponent =
-                        categoryIcons[category.name] || Laptop;
+                      const IconComponent = categoryIcons.default;
                       return (
                         <NavigationMenuLink key={category.id} asChild>
                           <Link
@@ -69,9 +65,7 @@ export const MainNavigationMenu = () => {
                             )}`}
                             className="flex items-center space-x-3 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           >
-                            {IconComponent && (
-                              <IconComponent className="h-4 w-4 text-primary" />
-                            )}
+                            <IconComponent className="h-4 w-4 text-primary" />
                             <span className="text-sm font-medium">
                               {category.name}
                             </span>

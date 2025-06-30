@@ -83,4 +83,5 @@ export interface Product {
   ProductMetadatum?: ProductMetadatum;
   ProductVariants?: ProductVariant[];
   discounts?: ProductDiscount[];
+  is_in_wishlist?: boolean;
 }
