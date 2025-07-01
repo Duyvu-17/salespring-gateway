@@ -6,6 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const ReviewItem = ({
   review,
@@ -17,13 +20,21 @@ const ReviewItem = ({
   handleLikeReview,
 }) => {
   const [liking, setLiking] = React.useState(false);
+  const navigate = useNavigate();
   const [helpfulCount, setHelpfulCount] = React.useState(
     review.helpful_count || 0
   );
   const { toast } = useToast();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
   const onLike = async () => {
     if (liking) return;
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     setLiking(true);
     try {
       await handleLikeReview?.(review.review_id);

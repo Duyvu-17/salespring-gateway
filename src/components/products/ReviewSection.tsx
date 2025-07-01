@@ -22,6 +22,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import ReviewItem from "./ReviewItem";
 import { reviewService } from "@/services/review.service";
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 
 interface ReviewSectionProps {
   productId: number;
@@ -43,6 +46,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -77,6 +84,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
+    // Kiểm tra đăng nhập
+    if (!isAuthenticated) {
+      navigate("/login")
+      return;
+    }
     if (!newReview.trim()) return;
 
     // In a real app, we would upload the images first and get URLs
