@@ -31,23 +31,23 @@ export const AddressDisplay = ({ address, onEditClick }: AddressDisplayProps) =>
 
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <p className="font-medium text-gray-900">{address.name}</p>
+            <p className="font-medium text-gray-900">{address?.name}</p>
             <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1">
-              <AddressTypeIcon type={address.type} />
+              <AddressTypeIcon type={address?.type} />
               <span>
-                {address.type === "office" ? "Văn phòng" : "Nhà"}
+                {address?.type === "office" ? "Văn phòng" : "Nhà"}
               </span>
             </span>
           </div>
-          <p className="text-sm text-gray-700">{address.street}</p>
+          <p className="text-sm text-gray-700">{address?.street}</p>
           <p className="text-sm text-gray-700">
-            {address.district}, {address.city}
+            {address?.district}, {address?.city}
           </p>
           <p className="text-sm text-gray-700">
-            {address.country}, {address.postalCode}
+            {address?.country}, {address?.postalCode}
           </p>
           <p className="text-sm font-medium text-gray-700 mt-1">
-            {address.phone}
+            {address?.phone}
           </p>
         </div>
       </div>

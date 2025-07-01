@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ShippingInformation from "@/components/checkout/ShippingInformation";
@@ -6,7 +5,10 @@ import PaymentMethod from "@/components/checkout/PaymentMethod";
 import RewardPoints from "@/components/checkout/RewardPoints";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import SuccessDialog from "@/components/checkout/SuccessDialog";
-import { calculatePointsDiscount, calculateTotal } from "@/components/checkout/CheckoutCalculator";
+import {
+  calculatePointsDiscount,
+  calculateTotal,
+} from "@/components/checkout/CheckoutCalculator";
 import DiscountCode from "@/components/checkout/DiscountCode";
 import GiftWrap from "@/components/checkout/GiftWrap";
 import ShippingMethod from "@/components/checkout/ShippingMethod";
@@ -14,10 +16,21 @@ import OrderNotes from "@/components/checkout/OrderNotes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/store";
+import { createOrderAsync } from "@/store/slices/orderSlice";
+import type {
+  BillingInfo,
+  ShippingInfo,
+  OrderItem,
+} from "@/services/order.service";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const dispatch = useDispatch<AppDispatch>();
+  const orderState = useSelector((state: RootState) => state.order);
+  const cart = useSelector((state: RootState) => state.cart.cart);
   const [paymentMethod, setPaymentMethod] = useState("momo");
   const [showSuccess, setShowSuccess] = useState(false);
   const [rewardPoints, setRewardPoints] = useState(500); // Example points
@@ -30,88 +43,154 @@ const Checkout = () => {
   const [giftMessage, setGiftMessage] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
-  
-  const subtotal = 299.99;
+  const [billingInfo, setBillingInfo] = useState<BillingInfo | null>(null);
+  const [shippingInfo, setShippingInfo] = useState<ShippingInfo | null>(null);
+
+  // Lấy subtotal thực tế từ cart
+  const subtotal =
+    cart?.total_amount ||
+    cart?.cart_items?.reduce(
+      (sum, item) =>
+        sum +
+        (Number(item.Product?.ProductPricing?.base_price) || 0) * item.quantity,
+      0
+    ) ||
+    0;
   const giftWrapCost = isGiftWrap ? 5 : 0;
-  
+
   // Calculate the discount from reward points
-  const pointsDiscount = calculatePointsDiscount(useRewardPoints, rewardPoints, subtotal);
-  
+  const pointsDiscount = calculatePointsDiscount(
+    useRewardPoints,
+    rewardPoints,
+    subtotal
+  );
+
   // Calculate the final total
-  const total = calculateTotal(subtotal, shippingCost + giftWrapCost, pointsDiscount + discountAmount);
-  
+  const total = calculateTotal(
+    subtotal,
+    shippingCost + giftWrapCost,
+    pointsDiscount + discountAmount
+  );
+
   const handleApplyDiscount = (amount: number) => {
     setDiscountAmount(amount);
   };
-  
+
   const handleShippingMethodChange = (method: string, cost: number) => {
     setShippingMethod(method);
     setShippingCost(cost);
   };
-  
+
   const handleGiftWrapChange = (isChecked: boolean) => {
     setIsGiftWrap(isChecked);
   };
-  
+
   const handleGiftMessageChange = (message: string) => {
     setGiftMessage(message);
   };
-  
+
   const handleOrderNotesChange = (notes: string) => {
     setOrderNotes(notes);
   };
-  
-  const handlePlaceOrder = () => {
+
+  const handlePlaceOrder = async () => {
     setIsProcessing(true);
-    
-    // Generate a random order number
-    const generatedOrderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
-    setOrderNumber(generatedOrderNumber);
-    
-    // Simulate order processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      
-      // Show success toast notification
+    // Lấy orderItems từ cart thực tế
+    const orderItems: OrderItem[] = (cart?.cart_items || []).map((item) => ({
+      product_id: item.product_id,
+      product_name: item.Product?.name || "",
+      product_sku: undefined,
+      quantity: item.quantity,
+      unit_price: Number(item.Product?.ProductPricing?.base_price) || 0,
+      total_price:
+        (Number(item.Product?.ProductPricing?.base_price) || 0) * item.quantity,
+    }));
+
+    // Kiểm tra dữ liệu đã đủ chưa
+    if (!billingInfo || !shippingInfo || orderItems.length === 0) {
       toast({
-        title: "Order Placed Successfully!",
-        description: `Your order #${generatedOrderNumber} has been placed.`,
-        duration: 5000,
+        title: "Thiếu thông tin!",
+        description: "Vui lòng nhập đầy đủ thông tin và kiểm tra giỏ hàng.",
+        variant: "destructive",
       });
-      
-      // Show success dialog
-      setShowSuccess(true);
-      
-      // Reduce user's reward points if they used them
-      if (useRewardPoints) {
-        setRewardPoints(Math.max(0, rewardPoints - Math.floor(pointsDiscount * 10)));
+      setIsProcessing(false);
+      return;
+    }
+
+    const payload = {
+      billingInfo,
+      shippingInfo,
+      orderItems,
+      notes: orderNotes,
+      coupon_id: undefined, // hoặc lấy từ state nếu có
+      subtotal,
+      tax_amount: 0, // hoặc tính toán nếu có
+      shipping_amount: shippingCost,
+      discount_amount: discountAmount + pointsDiscount,
+      total_amount: total,
+      currency: "VND",
+    };
+    try {
+      const resultAction = await dispatch(createOrderAsync(payload));
+      if (createOrderAsync.fulfilled.match(resultAction)) {
+        setIsProcessing(false);
+        toast({
+          title: "Đặt hàng thành công!",
+          description: `Mã đơn hàng: ${
+            resultAction.payload.order_number || "(không xác định)"
+          }`,
+          duration: 5000,
+        });
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          navigate("/");
+        }, 5000);
+      } else {
+        setIsProcessing(false);
+        toast({
+          title: "Đặt hàng thất bại!",
+          description: orderState.error || "Có lỗi xảy ra khi đặt hàng.",
+          variant: "destructive",
+        });
       }
-      
-      // Simulate order completion and redirect
-      setTimeout(() => {
-        setShowSuccess(false);
-        navigate('/');
-      }, 5000); // Extended to 5 seconds to give users more time to see the dialog
-    }, 2000);
+    } catch (err) {
+      setIsProcessing(false);
+      toast({
+        title: "Đặt hàng thất bại!",
+        description: "Có lỗi xảy ra khi đặt hàng.",
+        variant: "destructive",
+      });
+    }
   };
-  
+
   const toggleRewardPoints = () => {
     setUseRewardPoints(!useRewardPoints);
   };
-  
+
   const savedPaymentMethods = {
-    momo: { phoneNumber: '0123456789' },
-    bank: { 
-      cardNumber: '1234567890', 
-      bankName: 'Vietcombank' 
+    momo: { phoneNumber: "0123456789" },
+    bank: {
+      cardNumber: "1234567890",
+      bankName: "Vietcombank",
     },
-    zalopay: { phoneNumber: '0987654321' }
+    zalopay: { phoneNumber: "0987654321" },
   };
-  
+
+  const orderItems: OrderItem[] = (cart?.cart_items || []).map((item) => ({
+    product_id: item.product_id,
+    product_name: item.Product?.name || "",
+    product_sku: undefined,
+    quantity: item.quantity,
+    unit_price: Number(item.Product?.ProductPricing?.base_price) || 0,
+    total_price:
+      (Number(item.Product?.ProductPricing?.base_price) || 0) * item.quantity,
+  }));
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-8">
           {/* Alert for estimated delivery */}
@@ -121,47 +200,49 @@ const Checkout = () => {
               Estimated delivery: 2-4 business days
             </AlertDescription>
           </Alert>
-          
+
           {/* Shipping Information Component */}
-          <ShippingInformation />
+          <ShippingInformation
+            onBillingChange={setBillingInfo}
+            onShippingChange={setShippingInfo}
+          />
           <ShippingMethod onShippingMethodChange={handleShippingMethodChange} />
-          
+
           {/* Payment Method Component */}
-          <PaymentMethod 
+          <PaymentMethod
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
             savedPaymentMethods={savedPaymentMethods}
           />
-          
+
           {/* Reward Points Component */}
-          <RewardPoints 
+          <RewardPoints
             rewardPoints={rewardPoints}
             useRewardPoints={useRewardPoints}
             toggleRewardPoints={toggleRewardPoints}
           />
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
             <h2 className="text-xl font-semibold mb-4">Discount Code</h2>
-            <DiscountCode 
+            <DiscountCode
               onApplyDiscount={handleApplyDiscount}
               subtotal={subtotal}
             />
           </div>
-          
+
           {/* Gift Wrap Component */}
-          <GiftWrap 
+          <GiftWrap
             onGiftWrapChange={handleGiftWrapChange}
             onGiftMessageChange={handleGiftMessageChange}
           />
-          
+
           {/* Order Notes Component */}
           <OrderNotes onNotesChange={handleOrderNotesChange} />
-          
+
           {/* Discount Code Component */}
-        
         </div>
-        
+
         {/* Order Summary Component */}
-        <OrderSummary 
+        <OrderSummary
           subtotal={subtotal}
           shipping={shippingCost}
           pointsDiscount={pointsDiscount}
@@ -171,13 +252,14 @@ const Checkout = () => {
           total={total}
           useRewardPoints={useRewardPoints}
           onPlaceOrder={handlePlaceOrder}
+          orderItems={orderItems}
           isProcessing={isProcessing}
         />
       </div>
-      
+
       {/* Success Dialog Component */}
-      <SuccessDialog 
-        open={showSuccess} 
+      <SuccessDialog
+        open={showSuccess}
         orderNumber={orderNumber}
         orderTotal={total}
       />

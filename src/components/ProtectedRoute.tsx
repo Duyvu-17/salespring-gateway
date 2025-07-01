@@ -23,7 +23,6 @@ export const ProtectedRoute = () => {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  console.log("ProtectedRoute:", { isLoading, isAuthenticated });
 
   if (isLoading) {
     return (

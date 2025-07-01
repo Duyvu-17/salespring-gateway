@@ -49,34 +49,34 @@ export const AddressSelection: React.FC<AddressSelectionProps> = ({
     >
       {savedAddresses.map((address) => (
         <div
-          key={address.id}
+          key={address?.id}
           className={`flex items-start space-x-3 border p-4 rounded-xl hover:bg-blue-50/30 transition-colors ${
-            selectedAddress === address.id
+            selectedAddress === address?.id
               ? "border-primary bg-blue-50/20"
               : "border-gray-200"
           }`}
         >
           <RadioGroupItem
-            value={address.id}
-            id={address.id}
+            value={address?.id}
+            id={address?.id}
             className="mt-1"
           />
           <div className="flex-1">
             <Label
-              htmlFor={address.id}
+              htmlFor={address?.id}
               className="flex flex-col space-y-1 cursor-pointer"
             >
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-medium text-gray-900">
-                  {address.name}
+                  {address?.name}
                 </span>
                 <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                  <AddressTypeIcon type={address.type} />
+                  <AddressTypeIcon type={address?.type} />
                   <span>
-                    {address.type === "office" ? "Văn phòng" : "Nhà"}
+                    {address?.type === "office" ? "Văn phòng" : "Nhà"}
                   </span>
                 </span>
-                {selectedAddress === address.id && (
+                {selectedAddress === address?.id && (
                   <span className="ml-auto text-primary text-sm flex items-center">
                     <Check className="h-4 w-4 mr-1" />
                     Đã chọn
@@ -84,16 +84,16 @@ export const AddressSelection: React.FC<AddressSelectionProps> = ({
                 )}
               </div>
               <span className="text-sm text-gray-700">
-                {address.street}
+                {address?.street}
               </span>
               <span className="text-sm text-gray-700">
-                {address.district}, {address.city}
+                {address?.district}, {address?.city}
               </span>
               <span className="text-sm text-gray-700">
-                {address.country}, {address.postalCode}
+                {address?.country}, {address?.postalCode}
               </span>
               <span className="text-sm font-medium text-gray-700 mt-1">
-                {address.phone}
+                {address?.phone}
               </span>
             </Label>
           </div>

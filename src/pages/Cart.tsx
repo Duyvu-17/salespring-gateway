@@ -14,9 +14,11 @@ import { Badge } from "@/components/ui/badge";
 import { Trash2, Minus, Plus, ShoppingBag, Tag } from "lucide-react";
 import type { Cart, CartItem, ProductInCart } from "@/types/cart";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const cart = useSelector((state: any) => state.cart?.cart);
   const isLoading = useSelector((state: any) => state.cart?.isLoading);
 
@@ -89,7 +91,9 @@ const Cart = () => {
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Thêm sản phẩm vào giỏ hàng để bắt đầu mua sắm.
           </p>
-          <Button className="px-8">Tiếp tục mua sắm</Button>
+          <Button onClick={() => navigate("/")} className="px-8">
+            Tiếp tục mua sắm
+          </Button>
         </div>
       </div>
     );
@@ -341,10 +345,15 @@ const Cart = () => {
               <Button
                 className="w-full h-12 text-base font-semibold"
                 disabled={selectedItems.length === 0}
+                onClick={() => navigate("/checkout")}
               >
                 Thanh toán ({selectedItems.length} sản phẩm)
               </Button>
-              <Button variant="outline" className="w-full h-12 text-base">
+              <Button
+                variant="outline"
+                className="w-full h-12 text-base"
+                onClick={() => navigate("/")}
+              >
                 Tiếp tục mua sắm
               </Button>
             </div>
