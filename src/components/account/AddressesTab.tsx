@@ -49,7 +49,7 @@ export const AddressesTab = () => {
   ]);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [currentAddress, setCurrentAddress] = useState<any>(null);
+  const [currentAddress, setCurrentAddress] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
   const handleOpenAddNew = () => {
@@ -68,7 +68,7 @@ export const AddressesTab = () => {
     setIsOpen(true);
   };
 
-  const handleOpenEdit = (address: any) => {
+  const handleOpenEdit = (address) => {
     setCurrentAddress(address);
     setIsEditing(true);
     setIsOpen(true);
@@ -76,7 +76,7 @@ export const AddressesTab = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCurrentAddress((prev: any) => ({
+    setCurrentAddress((prev) => ({
       ...prev,
       [name]: value,
     }));

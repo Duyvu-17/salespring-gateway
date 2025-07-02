@@ -39,7 +39,7 @@ const ShopByCategory = () => {
     : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4";
 
   // Category card component for better maintainability
-  const CategoryCard = ({ category, isCompact = false }: { category: any, isCompact?: boolean }) => {
+  const CategoryCard = ({ category, isCompact = false }: { category, isCompact?: boolean }) => {
     if (isCompact) {
       return (
         <Link

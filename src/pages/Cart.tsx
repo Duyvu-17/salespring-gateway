@@ -19,8 +19,8 @@ import { useNavigate } from "react-router-dom";
 const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const cart = useSelector((state: any) => state.cart?.cart);
-  const isLoading = useSelector((state: any) => state.cart?.isLoading);
+  const cart = useSelector((state: RootState) => state.cart?.cart);
+  const isLoading = useSelector((state: RootState) => state.cart?.isLoading);
 
   useEffect(() => {
     dispatch(fetchCart());

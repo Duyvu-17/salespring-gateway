@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllShippingMethods } from "@/store/slices/shippingMethodSlice";
-import type { RootState } from "@/store";
+import type { RootState, AppDispatch } from "@/store";
 
 interface ShippingMethodProps {
   onShippingMethodChange: (
@@ -23,14 +23,14 @@ interface ShippingMethodProps {
 export const ShippingMethod = ({
   onShippingMethodChange,
 }: ShippingMethodProps) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { list: shippingOptions, loading } = useSelector(
     (state: RootState) => state.shippingMethod
   );
   const [selectedShipping, setSelectedShipping] = useState<string>("");
 
   useEffect(() => {
-    dispatch(fetchAllShippingMethods() as any);
+    dispatch(fetchAllShippingMethods());
   }, [dispatch]);
 
   useEffect(() => {

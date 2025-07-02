@@ -112,7 +112,15 @@ const Search = () => {
         setMaxPrice(1500);
       })
       .finally(() => setIsLoading(false));
-  }, [searchParams, priceRange, showInStock, showOnSale]); // Added showOnSale dependency
+  }, [
+    searchParams,
+    priceRange,
+    showInStock,
+    showOnSale,
+    maxPrice,
+    searchTerm,
+    selectedCategory,
+  ]);
 
   useEffect(() => {
     // Calculate active filters

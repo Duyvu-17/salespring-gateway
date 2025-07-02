@@ -22,7 +22,7 @@ export const fetchCategories = createAsyncThunk(
     try {
       const data = await categoryService.getAll();
       return data;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message || 'Lỗi tải danh mục');
     }
   }
@@ -34,7 +34,7 @@ export const fetchCategoryById = createAsyncThunk(
     try {
       const data = await categoryService.getById(id);
       return data;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message || 'Lỗi tải chi tiết danh mục');
     }
   }
@@ -46,7 +46,7 @@ export const createCategory = createAsyncThunk(
     try {
       const data = await categoryService.create(dataInput);
       return data;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message || 'Lỗi tạo danh mục');
     }
   }
@@ -58,7 +58,7 @@ export const updateCategory = createAsyncThunk(
     try {
       const data = await categoryService.update(id, dataInput);
       return data;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message || 'Lỗi cập nhật danh mục');
     }
   }
@@ -70,7 +70,7 @@ export const deleteCategory = createAsyncThunk(
     try {
       await categoryService.delete(id);
       return id;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message || 'Lỗi xóa danh mục');
     }
   }

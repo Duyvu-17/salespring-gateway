@@ -43,7 +43,7 @@ const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [orderData, setOrderData] = useState<any>(null);
+  const [orderData, setOrderData] = useState(null);
   const { toast } = useToast();
 
   useEffect(() => {

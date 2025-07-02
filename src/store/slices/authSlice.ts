@@ -28,7 +28,7 @@ export const login = createAsyncThunk(
     try {
       const user = await authService.login(email, password);
       return user;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(error.message || "Đăng nhập thất bại");
     }
   }
@@ -41,7 +41,7 @@ export const logout = createAsyncThunk(
     try {
       await authService.logout();
       return;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(error.message || "Đăng xuất thất bại");
     }
   }
@@ -61,7 +61,7 @@ export const register = createAsyncThunk(
     try {
       const user = await authService.register(full_name, email, password);
       return user;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(error.message || "Đăng ký thất bại");
     }
   }
@@ -74,7 +74,7 @@ export const refreshToken = createAsyncThunk(
     try {
       const token = await authService.refreshToken();
       return token;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(error.message || "Làm mới token thất bại");
     }
   }
@@ -87,7 +87,7 @@ export const getCurrentUser = createAsyncThunk(
     try {
       const user = await authService.getCurrentUser();
       return user;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(
         error.message || "Không thể lấy thông tin người dùng"
       );
@@ -108,7 +108,7 @@ export const loginWithGoogle = createAsyncThunk(
       const idToken = await result.user.getIdToken();
       const user = await authService.loginWithGoogle(idToken);
       return user;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(error.message || "Đăng nhập Google thất bại");
     }
   }
@@ -120,7 +120,7 @@ export const forgotPassword = createAsyncThunk(
     try {
       await authService.forgotPassword(email);
       return;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(
         error.message || "Không thể gửi email quên mật khẩu"
       );

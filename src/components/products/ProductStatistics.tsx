@@ -1,7 +1,7 @@
 import React from "react";
 import { Package, ThumbsUp, Eye } from "lucide-react";
 
-const ProductStatistics = ({ totalPurchases, totalLikes, totalViews }: any) => (
+const ProductStatistics = ({ totalPurchases, totalLikes, totalViews }) => (
   <div className="grid grid-cols-3 gap-4 border-t border-b py-3">
     <div className="flex flex-col items-center justify-center text-center">
       <div className="flex items-center text-primary">

@@ -55,17 +55,11 @@ const Wishlist = () => {
     const fetchRecommended = async () => {
       setLoadingRecommended(true);
       try {
-        const [featuredRes, saleRes] = await Promise.all([
-          productService.getAll(),
-          productService.getSale(),
-        ]);
+        const featuredRes = await productService.getAll();
         const featured = Array.isArray(featuredRes)
           ? featuredRes
-          : (featuredRes as any).products || [];
-        const sale = Array.isArray(saleRes)
-          ? saleRes
-          : (saleRes as any).products || [];
-        setRecommendedProducts([...featured, ...sale].slice(0, 4));
+          : featuredRes.products || [];
+        setRecommendedProducts(featured.slice(0, 4));
       } catch (e) {
         setRecommendedProducts([]);
       } finally {

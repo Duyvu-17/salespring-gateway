@@ -162,7 +162,7 @@ const mockOrders = {
 
 const OrderDetails = () => {
   const { orderId } = useParams<{ orderId: string }>();
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -468,7 +468,7 @@ const OrderDetails = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {order.items.map((item: any) => (
+                      {order.items.map((item) => (
                         <TableRow key={item.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleProductClick(item.id)}>
                           <TableCell className="flex items-center space-x-3">
                             <div className="w-16 h-16 rounded border overflow-hidden flex-shrink-0">

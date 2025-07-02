@@ -21,8 +21,12 @@ export const fetchAllShippingMethods = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       return await shippingMethodService.getAllShippingMethods();
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+    } catch (err) {
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? (err as { message?: string }).message
+          : "Something went wrong";
+      return rejectWithValue(message);
     }
   }
 );
@@ -32,8 +36,12 @@ export const fetchShippingMethodById = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       return await shippingMethodService.getShippingMethodById(id);
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+    } catch (err) {
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? (err as { message?: string }).message
+          : "Something went wrong";
+      return rejectWithValue(message);
     }
   }
 );

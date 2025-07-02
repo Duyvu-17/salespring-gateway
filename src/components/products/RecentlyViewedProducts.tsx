@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 
-const RecentlyViewedProducts = ({ recentlyViewed, navigate }: any) =>
+const RecentlyViewedProducts = ({ recentlyViewed, navigate }) =>
   recentlyViewed.length > 0 && (
     <Card className="p-8">
       <h2 className="text-2xl font-bold mb-6 flex items-center">
@@ -10,7 +10,7 @@ const RecentlyViewedProducts = ({ recentlyViewed, navigate }: any) =>
         Recently Viewed
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {recentlyViewed.map((item: any) => (
+        {recentlyViewed.map((item) => (
           <Card
             key={item.id}
             className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"

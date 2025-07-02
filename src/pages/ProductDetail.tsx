@@ -62,7 +62,7 @@ import { Product } from "@/types/product";
 import type { ProductModel, ProductColor, UserReview } from "@/data/products";
 import { cartService } from "@/services/cart.service";
 
-const EMPTY_ARRAY: any[] = [];
+const EMPTY_ARRAY = [];
 const selectWishlist = (state: RootState) =>
   state.wishlist.wishlist || EMPTY_ARRAY;
 const selectRecentlyViewed = (state: RootState) =>
@@ -72,7 +72,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedModel, setSelectedModel] = useState<ProductModel | null>(null);
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState(null);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const wishlist = useSelector(selectWishlist);
@@ -91,7 +91,7 @@ const ProductDetail = () => {
   const [reviewPage, setReviewPage] = useState<number>(1);
   const reviewsPerPage = 3;
   const [reviews, setReviews] = useState<UserReview[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [activeTab, setActiveTab] = useState<"info" | "reviews" | "faq">(
     "info"
   );
@@ -110,7 +110,7 @@ const ProductDetail = () => {
         // Thêm vào recently viewed qua redux
         const mainImage =
           prod.image_url ||
-          prod.images?.find((img: any) => img.is_main)?.image_url;
+          prod.images?.find((img) => img.is_main)?.image_url;
         dispatch(
           addRecentlyViewed({
             id: prod.id,
@@ -140,7 +140,7 @@ const ProductDetail = () => {
   useEffect(() => {
     if (selectedVariant) {
       const main = selectedVariant.images?.find(
-        (img: any) => img.is_main
+        (img) => img.is_main
       )?.image_url;
       setSelectedImage(
         main || selectedVariant.images?.[0]?.image_url || product?.image_url
@@ -183,12 +183,12 @@ const ProductDetail = () => {
 
   // Lấy dữ liệu từ product chuẩn hóa
   const mainImage =
-    selectedVariant?.images?.find((img: any) => img.is_main)?.image_url ||
+    selectedVariant?.images?.find((img) => img.is_main)?.image_url ||
     product.image_url ||
-    product.images?.find((img: any) => img.is_main)?.image_url;
+    product.images?.find((img) => img.is_main)?.image_url;
   const additionalImages =
-    selectedVariant?.images?.filter((img: any) => !img.is_main) ||
-    product.images?.filter((img: any) => !img.is_main) ||
+    selectedVariant?.images?.filter((img) => !img.is_main) ||
+    product.images?.filter((img) => !img.is_main) ||
     [];
   const categoryName = product.category?.name || "";
   const brandName = product.brand?.name || "";
@@ -226,7 +226,7 @@ const ProductDetail = () => {
         title: "Đã thêm vào giỏ hàng",
         description: `${product.name} - ${selectedVariant.name} x${quantity} đã được thêm vào giỏ hàng`,
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Lỗi",
         description:

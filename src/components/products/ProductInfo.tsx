@@ -42,7 +42,7 @@ const ProductInfo = ({
   discountedPrice,
   categoryName,
   brandName,
-}: any) => {
+}) => {
   return (
     <div className="space-y-8">
       <div>
@@ -117,13 +117,13 @@ const ProductInfo = ({
             defaultValue={product.models[0].id.toString()}
             onValueChange={(value) => {
               const model = product.models?.find(
-                (m: any) => m.id.toString() === value
+                (m) => m.id.toString() === value
               );
               if (model) setSelectedModel(model);
             }}
             className="flex flex-wrap gap-2"
           >
-            {product.models.map((model: any) => (
+            {product.models.map((model) => (
               <div key={model.id} className="flex items-center space-x-2">
                 <RadioGroupItem
                   value={model.id.toString()}
@@ -151,7 +151,7 @@ const ProductInfo = ({
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Color</h3>
             <div className="flex flex-wrap gap-3">
-              {selectedModel.colors.map((color: any) => (
+              {selectedModel.colors.map((color) => (
                 <button
                   key={color.name}
                   type="button"

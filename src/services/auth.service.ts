@@ -192,7 +192,7 @@ class AuthService {
     }
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<any> {
+  async resetPassword(token: string, newPassword: string) {
     try {
       const data = await this.request(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
         method: "post",
@@ -205,7 +205,7 @@ class AuthService {
     }
   }
 
-  async forgotPassword(email: string): Promise<any> {
+  async forgotPassword(email: string) {
     try {
       const data = await this.request(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
         method: "post",
