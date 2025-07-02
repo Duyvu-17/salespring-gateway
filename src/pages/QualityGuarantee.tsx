@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -15,55 +14,55 @@ import {
   Phone,
   Mail
 } from "lucide-react";
-import { Link } from "react-router-dom";
+// Removed react-router-dom import - not available in this environment
 
 const QualityGuarantee = () => {
   const qualityStandards = [
     {
       icon: Shield,
-      title: "Premium Materials",
-      description: "We source only the highest quality materials from certified suppliers worldwide."
+      title: "Vật Liệu Cao Cấp",
+      description: "Chúng tôi chỉ sử dụng vật liệu chất lượng cao từ các nhà cung cấp uy tín trên toàn cầu."
     },
     {
       icon: CheckCircle,
-      title: "Rigorous Testing",
-      description: "Every product undergoes comprehensive quality control testing before shipping."
+      title: "Kiểm Tra Nghiêm Ngặt",
+      description: "Mọi sản phẩm đều trải qua kiểm tra chất lượng toàn diện trước khi giao hàng."
     },
     {
       icon: Star,
-      title: "Expert Craftsmanship",
-      description: "Our products are crafted by skilled professionals with years of experience."
+      title: "Tay Nghề Chuyên Môn",
+      description: "Sản phẩm được chế tác bởi các thợ lành nghề với nhiều năm kinh nghiệm."
     },
     {
       icon: Award,
-      title: "Industry Standards",
-      description: "All products meet or exceed international quality and safety standards."
+      title: "Tiêu Chuẩn Ngành",
+      description: "Tất cả sản phẩm đạt hoặc vượt tiêu chuẩn chất lượng và an toàn quốc tế."
     }
   ];
 
   const guaranteeFeatures = [
     {
       icon: Clock,
-      title: "2-Year Warranty",
-      description: "Comprehensive warranty coverage on all products",
-      highlight: "2 Years"
+      title: "Bảo Hành 2 Năm",
+      description: "Bảo hành toàn diện cho tất cả sản phẩm",
+      highlight: "2 Năm"
     },
     {
       icon: RefreshCw,
-      title: "30-Day Returns",
-      description: "Full refund or exchange within 30 days",
-      highlight: "30 Days"
+      title: "Đổi Trả 30 Ngày",
+      description: "Hoàn tiền đầy đủ hoặc đổi hàng trong 30 ngày",
+      highlight: "30 Ngày"
     },
     {
       icon: Zap,
-      title: "Quick Response",
-      description: "24-hour response time for quality issues",
-      highlight: "24 Hours"
+      title: "Phản Hồi Nhanh",
+      description: "Thời gian phản hồi 24 giờ cho vấn đề chất lượng",
+      highlight: "24 Giờ"
     },
     {
       icon: Users,
-      title: "Expert Support",
-      description: "Dedicated quality assurance team",
+      title: "Hỗ Trợ Chuyên Gia",
+      description: "Đội ngũ đảm bảo chất lượng chuyên dụng",
       highlight: "24/7"
     }
   ];
@@ -78,22 +77,22 @@ const QualityGuarantee = () => {
               <Shield className="h-12 w-12 text-primary" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold mb-4">Quality Guarantee</h1>
+          <h1 className="text-4xl font-bold mb-4">Cam Kết Chất Lượng</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            We stand behind every product we sell with our comprehensive quality guarantee. 
-            Your satisfaction is our top priority, and we're committed to delivering excellence in every purchase.
+            Chúng tôi cam kết đứng sau mỗi sản phẩm bán ra với chính sách bảo đảm chất lượng toàn diện. 
+            Sự hài lòng của bạn là ưu tiên hàng đầu của chúng tôi, và chúng tôi cam kết mang đến sự xuất sắc trong mỗi giao dịch mua bán.
           </p>
           <Badge variant="outline" className="text-lg px-4 py-2">
-            ISO 9001 Certified
+            Chứng Nhận ISO 9001 & TCVN
           </Badge>
         </div>
 
         {/* Quality Standards */}
         <section className="space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">Our Quality Standards</h2>
+            <h2 className="text-3xl font-bold mb-4">Tiêu Chuẩn Chất Lượng</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              We maintain the highest standards at every step of our process to ensure you receive products that exceed your expectations.
+              Chúng tôi duy trì các tiêu chuẩn cao nhất ở mọi bước của quy trình để đảm bảo bạn nhận được sản phẩm vượt mong đợi.
             </p>
           </div>
           
@@ -115,9 +114,9 @@ const QualityGuarantee = () => {
         {/* Guarantee Features */}
         <section className="space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">What We Guarantee</h2>
+            <h2 className="text-3xl font-bold mb-4">Những Gì Chúng Tôi Cam Kết</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Our comprehensive guarantee covers every aspect of your purchase experience.
+              Cam kết toàn diện của chúng tôi bao gồm mọi khía cạnh trong trải nghiệm mua sắm của bạn.
             </p>
           </div>
 
@@ -145,9 +144,9 @@ const QualityGuarantee = () => {
         <Card>
           <CardContent className="p-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-4">Our Quality Process</h2>
+              <h2 className="text-3xl font-bold mb-4">Quy Trình Chất Lượng</h2>
               <p className="text-muted-foreground">
-                Every product goes through our rigorous quality assurance process
+                Mỗi sản phẩm đều trải qua quy trình đảm bảo chất lượng nghiêm ngặt của chúng tôi
               </p>
             </div>
 
@@ -156,9 +155,9 @@ const QualityGuarantee = () => {
                 <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   1
                 </div>
-                <h3 className="font-semibold mb-2">Inspection</h3>
+                <h3 className="font-semibold mb-2">Kiểm Tra</h3>
                 <p className="text-sm text-muted-foreground">
-                  Initial quality check upon arrival at our warehouse
+                  Kiểm tra chất lượng ban đầu khi hàng về kho
                 </p>
               </div>
               
@@ -166,9 +165,9 @@ const QualityGuarantee = () => {
                 <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   2
                 </div>
-                <h3 className="font-semibold mb-2">Testing</h3>
+                <h3 className="font-semibold mb-2">Thử Nghiệm</h3>
                 <p className="text-sm text-muted-foreground">
-                  Comprehensive functionality and durability testing
+                  Thử nghiệm toàn diện về chức năng và độ bền
                 </p>
               </div>
               
@@ -176,9 +175,9 @@ const QualityGuarantee = () => {
                 <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   3
                 </div>
-                <h3 className="font-semibold mb-2">Certification</h3>
+                <h3 className="font-semibold mb-2">Chứng Nhận</h3>
                 <p className="text-sm text-muted-foreground">
-                  Final quality approval before packaging and shipping
+                  Phê duyệt chất lượng cuối cùng trước khi đóng gói và giao hàng
                 </p>
               </div>
             </div>
@@ -190,27 +189,27 @@ const QualityGuarantee = () => {
           <CardContent className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div>
-                <h2 className="text-2xl font-bold mb-4">Comprehensive Warranty Coverage</h2>
+                <h2 className="text-2xl font-bold mb-4">Bảo Hành Toàn Diện</h2>
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
                     <div>
-                      <p className="font-medium">Manufacturing Defects</p>
-                      <p className="text-sm text-muted-foreground">Full coverage for any manufacturing defects</p>
+                      <p className="font-medium">Lỗi Sản Xuất</p>
+                      <p className="text-sm text-muted-foreground">Bảo hành toàn bộ cho mọi lỗi sản xuất</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
                     <div>
-                      <p className="font-medium">Material Failures</p>
-                      <p className="text-sm text-muted-foreground">Protection against material degradation</p>
+                      <p className="font-medium">Hỏng Vật Liệu</p>
+                      <p className="text-sm text-muted-foreground">Bảo vệ chống lại sự xuống cấp của vật liệu</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
                     <div>
-                      <p className="font-medium">Performance Issues</p>
-                      <p className="text-sm text-muted-foreground">Guarantee on product performance standards</p>
+                      <p className="font-medium">Vấn Đề Hiệu Suất</p>
+                      <p className="text-sm text-muted-foreground">Đảm bảo về tiêu chuẩn hiệu suất sản phẩm</p>
                     </div>
                   </div>
                 </div>
@@ -219,9 +218,9 @@ const QualityGuarantee = () => {
               <div className="text-center lg:text-right">
                 <div className="bg-background p-6 rounded-lg shadow-sm">
                   <div className="text-4xl font-bold text-primary mb-2">2</div>
-                  <div className="text-xl font-semibold mb-1">Year Warranty</div>
+                  <div className="text-xl font-semibold mb-1">Năm Bảo Hành</div>
                   <p className="text-sm text-muted-foreground">
-                    On all products purchased
+                    Cho tất cả sản phẩm được mua
                   </p>
                 </div>
               </div>
@@ -232,9 +231,9 @@ const QualityGuarantee = () => {
         {/* Customer Support */}
         <section className="text-center space-y-8">
           <div>
-            <h2 className="text-3xl font-bold mb-4">Need Help?</h2>
+            <h2 className="text-3xl font-bold mb-4">Cần Hỗ Trợ?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Our quality assurance team is here to help with any questions or concerns about your purchase.
+              Đội ngũ đảm bảo chất lượng của chúng tôi luôn sẵn sàng hỗ trợ với mọi câu hỏi hoặc thắc mắc về giao dịch mua hàng của bạn.
             </p>
           </div>
 
@@ -242,34 +241,35 @@ const QualityGuarantee = () => {
             <Card>
               <CardContent className="p-6 text-center">
                 <Phone className="h-8 w-8 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Phone Support</h3>
+                <h3 className="font-semibold mb-2">Hỗ Trợ Điện Thoại</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Speak with our quality experts
+                  Trao đổi với chuyên gia chất lượng
                 </p>
-                <p className="font-medium">+1 (555) 123-4567</p>
+                <p className="font-medium">1800 1234 (miễn phí)</p>
+                <p className="text-sm text-muted-foreground">024 3456 7890</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardContent className="p-6 text-center">
                 <Mail className="h-8 w-8 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Email Support</h3>
+                <h3 className="font-semibold mb-2">Hỗ Trợ Email</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Get detailed assistance via email
+                  Nhận hỗ trợ chi tiết qua email
                 </p>
-                <p className="font-medium">quality@storex.com</p>
+                <p className="font-medium">hotro@storex.vn</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardContent className="p-6 text-center">
                 <Users className="h-8 w-8 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Live Chat</h3>
+                <h3 className="font-semibold mb-2">Chat Trực Tuyến</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Instant support when you need it
+                  Hỗ trợ tức thì khi bạn cần
                 </p>
                 <Button variant="outline" size="sm">
-                  Start Chat
+                  Bắt Đầu Chat
                 </Button>
               </CardContent>
             </Card>
@@ -279,22 +279,27 @@ const QualityGuarantee = () => {
         {/* Call to Action */}
         <Card className="bg-primary text-primary-foreground">
           <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Shop with Confidence</h2>
+            <h2 className="text-2xl font-bold mb-4">Mua Sắm An Tâm</h2>
             <p className="mb-6 opacity-90">
-              Every purchase is backed by our comprehensive quality guarantee. 
-              Experience the difference quality makes.
+              Mỗi giao dịch mua hàng đều được bảo đảm bởi cam kết chất lượng toàn diện của chúng tôi. 
+              Trải nghiệm sự khác biệt mà chất lượng mang lại.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/search">
-                <Button variant="secondary" size="lg">
-                  Browse Products
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button variant="outline" size="lg" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                  Contact Us
-                </Button>
-              </Link>
+              <Button 
+                variant="secondary" 
+                size="lg"
+                onClick={() => window.location.href = '/search'}
+              >
+                Xem Sản Phẩm
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                onClick={() => window.location.href = '/contact'}
+              >
+                Liên Hệ
+              </Button>
             </div>
           </CardContent>
         </Card>
