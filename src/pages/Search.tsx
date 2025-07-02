@@ -68,43 +68,30 @@ const Search = () => {
     setIsLoading(true);
     const params: Record<string, string | number> = {};
     if (showOnSale) params.sale = "true";
-
-    // Fixed: Đồng bộ parameter names với BE
     if (searchTerm) params.q = searchTerm;
     if (selectedCategory) params.category = selectedCategory;
-
-    // Fixed: Gửi đúng parameter name mà BE expect
-    if (showOnSale) params.sale = "true";
-
     if (searchParams.get("new") === "true") params.new = "true";
     if (showInStock) params.inStock = "true";
-
-    // Fixed: Sử dụng consistent parameter names
     if (priceRange[0] > 0) params.min_price = priceRange[0];
     if (priceRange[1] < maxPrice) params.max_price = priceRange[1];
 
     productService
       .getAll(params)
       .then((res) => {
-        // Fixed: Handle different response structures
         const products = res.products || res;
         const productsArray = Array.isArray(products) ? products : [];
-
         setFilteredProducts(productsArray);
 
-        // Fixed: Safe max price calculation
-        if (productsArray.length > 0) {
-          const maxP = Math.max(
-            ...productsArray.map((p) => {
-              // Handle both direct price and nested pricing
-              const price = p.price || p.pricing?.base_price || 0;
-              return Number(price);
-            })
-          );
-          setMaxPrice(maxP > 0 ? maxP : 1500);
-        } else {
-          setMaxPrice(1500);
-        }
+        // Chỉ set maxPrice nếu thực sự thay đổi
+        const newMax =
+          productsArray.length > 0
+            ? Math.max(
+                ...productsArray.map((p) =>
+                  Number(p.price || p.pricing?.base_price || 0)
+                )
+              )
+            : 1500;
+        if (newMax !== maxPrice) setMaxPrice(newMax);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
@@ -113,11 +100,11 @@ const Search = () => {
       })
       .finally(() => setIsLoading(false));
   }, [
-    searchParams,
-    priceRange,
+    searchParams.toString(),
+    priceRange[0],
+    priceRange[1],
     showInStock,
     showOnSale,
-    maxPrice,
     searchTerm,
     selectedCategory,
   ]);

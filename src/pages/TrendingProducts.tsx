@@ -24,7 +24,7 @@ const HotProductsSection = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await productService.getHot();
+        const res = await productService.getAll({ type: "hot" });
         setProducts(Array.isArray(res) ? res : []);
       } catch (err) {
         setError("Không thể tải sản phẩm hot.");
@@ -85,7 +85,7 @@ const SaleProductsSection = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await productService.getSale();
+        const res = await  productService.getAll({ type: "sale" });
         setProducts(Array.isArray(res) ? res : []);
       } catch (err) {
         setError("Không thể tải sản phẩm giảm giá.");
@@ -146,7 +146,7 @@ const NewProductsSection = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await productService.getNew();
+        const res = await productService.getAll({ type: "new" });
         setProducts(Array.isArray(res) ? res : []);
       } catch (err) {
         setError("Không thể tải sản phẩm mới.");
