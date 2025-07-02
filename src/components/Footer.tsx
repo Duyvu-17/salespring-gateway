@@ -88,6 +88,9 @@ export const Footer = () => {
                 <Link to="/returns" className="text-muted-foreground hover:text-primary transition-colors">Returns & Exchanges</Link>
               </li>
               <li>
+                <Link to="/quality-guarantee" className="text-muted-foreground hover:text-primary transition-colors">Quality Guarantee</Link>
+              </li>
+              <li>
                 <Link to="/shipping" className="text-muted-foreground hover:text-primary transition-colors">Shipping Info</Link>
               </li>
               <li>
@@ -138,6 +141,9 @@ export const Footer = () => {
             </Link>
             <Link to="/returns" className="text-muted-foreground hover:text-primary transition-colors">
               Returns
+            </Link>
+            <Link to="/quality-guarantee" className="text-muted-foreground hover:text-primary transition-colors">
+              Quality Guarantee
             </Link>
             <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">
               FAQ
