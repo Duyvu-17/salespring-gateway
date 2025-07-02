@@ -56,3 +56,8 @@ export const createOrder = async (payload: CreateOrderPayload) => {
   const response = await axiosInstance.post("/orders", payload);
   return response.data;
 };
+
+export const getOrderById = async (orderId: string | number) => {
+  const response = await axiosInstance.get(`/orders/${orderId}`);
+  return response.data;
+};

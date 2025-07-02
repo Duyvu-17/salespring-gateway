@@ -358,7 +358,7 @@ const Index = () => {
                       {product.name}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {product.category_id}
+                      {product.category.name}
                     </p>
                   </div>
                   <div className="text-right">

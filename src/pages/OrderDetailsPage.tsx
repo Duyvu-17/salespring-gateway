@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { OrderDetails } from "@/components/account/OrderDetails";
@@ -8,59 +7,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
-
-// Mock data for demo purposes
-const mockOrder = {
-  id: "ORD-123456",
-  date: "2023-07-15",
-  status: "shipped",
-  statusProgress: 75,
-  estimatedDelivery: "July 20, 2023",
-  tracking: {
-    carrier: "DHL Express",
-    number: "DHL12345678",
-    events: [
-      {
-        date: "July 15, 2023 09:30 AM",
-        location: "Warehouse",
-        description: "Order processed"
-      },
-      {
-        date: "July 16, 2023 11:15 AM",
-        location: "Distribution Center",
-        description: "Package shipped"
-      },
-      {
-        date: "July 17, 2023 08:45 AM",
-        location: "In Transit",
-        description: "Package in transit to destination"
-      }
-    ]
-  }
-};
+import { getOrderById } from "@/services/order.service";
 
 const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [orderData, setOrderData] = useState(null);
+  const [orderItems, setOrderItems] = useState([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    // In a real app, fetch the order data from an API
     const fetchOrder = async () => {
+      setLoading(true);
       try {
-        // Simulating API call
-        setTimeout(() => {
-          setOrderData(mockOrder);
-          setLoading(false);
-        }, 800);
+        if (orderId) {
+          const data = await getOrderById(orderId);
+          setOrderData(data.order);
+          setOrderItems(data.items);
+        }
       } catch (error) {
-        console.error("Error fetching order:", error);
+        setOrderData(null);
+        setOrderItems([]);
+      } finally {
         setLoading(false);
       }
     };
-    
     fetchOrder();
   }, [orderId]);
 
@@ -71,20 +43,24 @@ const OrderDetailsPage = () => {
   const handleCancelOrder = () => {
     toast({
       title: "Order cancellation requested",
-      description: "Your cancellation request has been submitted and is being processed.",
+      description:
+        "Your cancellation request has been submitted and is being processed.",
     });
-    
+
     // In real app, make API call to cancel order
-    setOrderData(prev => ({
+    setOrderData((prev) => ({
       ...prev,
       status: "cancellation_requested",
-      statusProgress: 10
+      statusProgress: 10,
     }));
   };
 
   const handleTrackPackage = () => {
     if (orderData?.tracking?.carrier === "DHL Express") {
-      window.open(`https://www.dhl.com/en/express/tracking.html?AWB=${orderData.tracking.number}`, "_blank");
+      window.open(
+        `https://www.dhl.com/en/express/tracking.html?AWB=${orderData.tracking.number}`,
+        "_blank"
+      );
     } else {
       // Generic tracking fallback
       toast({
@@ -147,10 +123,12 @@ const OrderDetailsPage = () => {
         ) : (
           <div>
             <h1 className="text-2xl md:text-3xl font-bold flex items-center">
-              <ShoppingBag className="mr-2 h-6 w-6 text-primary" /> 
+              <ShoppingBag className="mr-2 h-6 w-6 text-primary" />
               Order Details
             </h1>
-            <p className="text-muted-foreground">View the details of your order</p>
+            <p className="text-muted-foreground">
+              View the details of your order
+            </p>
           </div>
         )}
       </div>
@@ -172,20 +150,20 @@ const OrderDetailsPage = () => {
                     {getStatusText()}
                   </h2>
                 </div>
-                
+
                 {orderData?.status === "processing" && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="text-red-600 border-red-200 hover:bg-red-50"
                     onClick={handleCancelOrder}
                   >
                     Cancel Order
                   </Button>
                 )}
-                
+
                 {orderData?.status === "shipped" && (
-                  <Button 
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={handleTrackPackage}
@@ -194,56 +172,84 @@ const OrderDetailsPage = () => {
                   </Button>
                 )}
               </div>
-              
-              <Progress 
-                value={orderData.statusProgress} 
-                className="h-2 mb-6" 
+
+              <Progress
+                value={orderData?.statusProgress}
+                className="h-2 mb-6"
               />
-              
+
               <div className="grid grid-cols-3 mb-6 text-center">
-                <div className={`${orderData.statusProgress >= 25 ? "text-primary" : "text-muted-foreground"}`}>
+                <div
+                  className={`${
+                    orderData?.statusProgress >= 25
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   <Clock className="h-5 w-5 mx-auto mb-1" />
                   <span className="text-sm">Processed</span>
                 </div>
-                <div className={`${orderData.statusProgress >= 50 ? "text-primary" : "text-muted-foreground"}`}>
+                <div
+                  className={`${
+                    orderData?.statusProgress >= 50
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   <Package className="h-5 w-5 mx-auto mb-1" />
                   <span className="text-sm">Shipped</span>
                 </div>
-                <div className={`${orderData.statusProgress >= 100 ? "text-primary" : "text-muted-foreground"}`}>
+                <div
+                  className={`${
+                    orderData?.statusProgress >= 100
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   <Truck className="h-5 w-5 mx-auto mb-1" />
                   <span className="text-sm">Delivered</span>
                 </div>
               </div>
-              
-              {orderData.tracking && (
+
+              {orderData?.tracking && (
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <div>
                       <span className="text-muted-foreground">Order ID:</span>
-                      <span className="ml-2 font-medium">{orderData.id}</span>
+                      <span className="ml-2 font-medium">{orderData?.id}</span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Carrier:</span>
-                      <span className="ml-2 font-medium">{orderData.tracking.carrier}</span>
+                      <span className="ml-2 font-medium">
+                        {orderData?.tracking?.carrier}
+                      </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-between text-sm">
                     <div>
-                      <span className="text-muted-foreground">Estimated Delivery:</span>
-                      <span className="ml-2 font-medium">{orderData.estimatedDelivery}</span>
+                      <span className="text-muted-foreground">
+                        Estimated Delivery:
+                      </span>
+                      <span className="ml-2 font-medium">
+                        {orderData?.estimatedDelivery}
+                      </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Tracking Number:</span>
-                      <span className="ml-2 font-medium">{orderData.tracking.number}</span>
+                      <span className="text-muted-foreground">
+                        Tracking Number:
+                      </span>
+                      <span className="ml-2 font-medium">
+                        {orderData?.tracking.number}
+                      </span>
                     </div>
                   </div>
-                  
+
                   <Separator className="my-4" />
-                  
+
                   <h3 className="font-semibold">Tracking History</h3>
                   <ul className="space-y-4">
-                    {orderData.tracking.events.map((event, index) => (
+                    {orderData?.tracking?.events?.map((event, index) => (
                       <li key={index} className="relative pl-6">
                         <div className="absolute left-0 top-1.5 h-3 w-3 rounded-full bg-primary"></div>
                         <p className="font-medium">{event.description}</p>
@@ -257,11 +263,15 @@ const OrderDetailsPage = () => {
                 </div>
               )}
             </div>
-            
+
             {/* Order Details Component */}
-            <OrderDetails />
+            <OrderDetails
+              order={orderData}
+              items={orderItems}
+              loading={loading}
+            />
           </div>
-          
+
           {/* Order Summary Column */}
           <div className="space-y-4">
             <div className="bg-white p-6 rounded-lg shadow-sm border">
