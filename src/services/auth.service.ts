@@ -17,11 +17,13 @@ class AuthService {
         { refreshToken },
         { headers: { "Content-Type": "application/json" } }
       );
-      if (data.token) {
-        localStorage.setItem("token", data.data.accessToken);
-        return data.token;
+      if (data.accessToken) {
+        localStorage.setItem("token", data.accessToken);
       }
-      throw new Error("No token in refresh response");
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
+      return data.accessToken;
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       throw new Error(err.response?.data?.message || "Refresh token failed");
