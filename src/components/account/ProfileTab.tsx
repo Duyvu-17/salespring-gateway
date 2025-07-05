@@ -14,6 +14,7 @@ import { Input } from "../ui/input";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
+import { authService } from "@/services/auth.service";
 
 export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -27,7 +28,7 @@ export const Profile = () => {
 
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
 
-  const handleProfileUpdate = (e: React.FormEvent) => {
+  const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     // Update actual avatar with preview if available
     try {
@@ -37,6 +38,7 @@ export const Profile = () => {
       }
 
       setIsEditing(false);
+      await authService.updateProfile(profile);
       toast.success("Cập nhật thành công", {
         description: "Thông tin hồ sơ của bạn đã được cập nhật.",
       });

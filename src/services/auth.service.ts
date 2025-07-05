@@ -221,6 +221,22 @@ class AuthService {
       );
     }
   }
+
+  async updateProfile(profile: Partial<User>): Promise<User> {
+    const token = localStorage.getItem("token");
+    const { data } = await axiosInstance.put(
+      API_ENDPOINTS.AUTH.UPDATE_PROFILE,
+      profile,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    localStorage.setItem("user", JSON.stringify(data.data.user));
+    return data.data.user;
+  }
 }
 
 export const authService = new AuthService();

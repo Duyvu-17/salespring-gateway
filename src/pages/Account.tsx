@@ -26,6 +26,7 @@ import { OrderDetailsTab } from "@/components/account/OrderDetailsTab";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
+import { authService } from "@/services/auth.service";
 
 const Account = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -57,6 +58,11 @@ const Account = () => {
   useEffect(() => {
     if (user) {
       setProfile(user);
+    } else {
+      (async () => {
+        const fetchedUser = await authService.getCurrentUser();
+        if (fetchedUser) setProfile(fetchedUser);
+      })();
     }
   }, [user]);
 

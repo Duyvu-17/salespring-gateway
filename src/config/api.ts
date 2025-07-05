@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
     REFRESH_TOKEN: "auth/refresh-token",
     RESET_PASSWORD: "auth/reset-password",
     FORGOT_PASSWORD: "auth/forgot-password",
+    UPDATE_PROFILE: "auth/update-profile",
   },
   CART: {
     GET: "cart",
